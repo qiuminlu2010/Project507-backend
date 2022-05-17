@@ -1,0 +1,178 @@
+info:
+  contact: {}
+paths:
+  /api/v1/tags:
+    get:
+      parameters:
+      - description: Name
+        in: query
+        name: name
+        type: string
+      - description: State
+        in: query
+        name: state
+        type: integer
+      - description: CreatedBy
+        in: query
+        name: created_by
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"code":200,"data":{},"msg":"ok"}'
+          schema:
+            type: string
+      summary: 获取多个文章标签
+    post:
+      parameters:
+      - description: Name
+        in: query
+        name: name
+        required: true
+        type: string
+      - description: CreatedBy
+        in: query
+        name: created_by
+        type: string
+      - description: token
+        in: query
+        name: token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            type: string
+        "10000":
+          description: '{"code":10001,"data":{},"msg":"TOKEN为空"}'
+          schema:
+            type: string
+        "10001":
+          description: '{"code":10001,"data":{},"msg":"已存在该标签"}'
+          schema:
+            type: string
+      summary: 新增文章标签
+  /api/v1/tags/:id:
+    delete:
+      parameters:
+      - description: Name
+        in: query
+        name: name
+        type: string
+      - description: token
+        in: query
+        name: token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"code":200,"data":{},"msg":"ok"}'
+          schema:
+            type: string
+        "10000":
+          description: '{"code":10001,"data":{},"msg":"TOKEN为空"}'
+          schema:
+            type: string
+        "10002":
+          description: '{"code":10002,"data":{},"msg":"标签不存在"}'
+          schema:
+            type: string
+      summary: 删除文章标签
+  /login:
+    post:
+      parameters:
+      - description: username
+        in: formData
+        name: username
+        required: true
+        type: string
+      - description: password
+        in: formData
+        name: password
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            type: string
+        "400":
+          description: '{"code":400,"data":{},"msg":"请求参数错误"}'
+          schema:
+            type: string
+        "10000":
+          description: '{"code":10001,"data":{},"msg":"TOKEN为空"}'
+          schema:
+            type: string
+        "20003":
+          description: '{"code":20003,"data":{},"msg":"Token生成失败"}'
+          schema:
+            type: string
+        "20005":
+          description: '{"code":20005,"data":{},"msg":"登录失败"}'
+          schema:
+            type: string
+      summary: 用户登录
+  /register:
+    post:
+      parameters:
+      - description: username
+        in: query
+        name: username
+        required: true
+        type: string
+      - description: password
+        in: query
+        name: password
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            type: string
+        "400":
+          description: '{"code":400,"data":{},"msg":"输入数据有误"}'
+          schema:
+            type: string
+        "10001":
+          description: '{"code":10001,"data":{},"msg":"用户名已存在"}'
+          schema:
+            type: string
+      summary: 用户注册
+  /upload:
+    post:
+      consumes:
+      - multipart/form-data
+      parameters:
+      - description: image
+        in: formData
+        name: image
+        required: true
+        type: file
+      - description: token
+        in: query
+        name: token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"code":200,"data":{},"msg":"ok"}'
+          schema:
+            type: string
+      summary: 上传图片
+      tags:
+      - file
+swagger: "2.0"
