@@ -11,7 +11,7 @@ import (
 	"qiu/blog/pkg/file"
 	"qiu/blog/pkg/logging"
 	"qiu/blog/pkg/setting"
-	"qiu/blog/util"
+	"qiu/blog/pkg/util"
 )
 
 func GetImageFullUrl(name string) string {

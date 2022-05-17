@@ -8,7 +8,7 @@ import (
 
 	"qiu/blog/pkg/e"
 	"qiu/blog/pkg/logging"
-	"qiu/blog/util"
+	"qiu/blog/pkg/util"
 )
 
 func JWT() gin.HandlerFunc {

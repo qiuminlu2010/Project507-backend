@@ -11,7 +11,7 @@ import (
 	"qiu/blog/pkg/e"
 	"qiu/blog/pkg/logging"
 	"qiu/blog/pkg/setting"
-	"qiu/blog/util"
+	"qiu/blog/pkg/util"
 )
 
 //获取单个文章

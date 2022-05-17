@@ -5,7 +5,7 @@ import (
 
 	"github.com/unknwon/com"
 
-	"qiu/blog/util"
+	"qiu/blog/pkg/util"
 
 	"qiu/blog/pkg/setting"
 

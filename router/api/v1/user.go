@@ -6,7 +6,7 @@ import (
 	"qiu/blog/model"
 	"qiu/blog/pkg/e"
 	"qiu/blog/pkg/logging"
-	"qiu/blog/util"
+	"qiu/blog/pkg/util"
 
 	"github.com/astaxie/beego/validation"
 	"github.com/gin-gonic/gin"
