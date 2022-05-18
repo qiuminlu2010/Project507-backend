@@ -6,6 +6,12 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+type ResponseJSON struct {
+	Code int         `json:"code"`
+	Msg  string      `json:"msg"`
+	Data interface{} `json:"data"`
+}
+
 func Response(c *gin.Context, httpCode, errCode int, data interface{}) {
 	c.JSON(httpCode, gin.H{
 		"code": errCode,
