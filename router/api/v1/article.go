@@ -11,7 +11,7 @@ import (
 
 	gin_http "qiu/blog/pkg/http"
 
-	service "qiu/blog/service/article"
+	service "qiu/blog/service"
 )
 
 //获取单个文章

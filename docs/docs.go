@@ -166,34 +166,16 @@ const docTemplate = `{
                     }
                 ],
                 "responses": {
-                    "10000": {
-                        "description": "{\"code\":10001,\"data\":{},\"msg\":\"TOKEN为空\"}",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
                     "200": {
-                        "description": "ok",
+                        "description": "OK",
                         "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "20003": {
-                        "description": "{\"code\":20003,\"data\":{},\"msg\":\"Token生成失败\"}",
-                        "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/gin_http.ResponseJSON"
                         }
                     },
                     "20005": {
-                        "description": "{\"code\":20005,\"data\":{},\"msg\":\"登录失败\"}",
+                        "description": "",
                         "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "400": {
-                        "description": "{\"code\":400,\"data\":{},\"msg\":\"请求参数错误\"}",
-                        "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/gin_http.ResponseJSON"
                         }
                     }
                 }
@@ -210,34 +192,34 @@ const docTemplate = `{
                         "type": "string",
                         "description": "username",
                         "name": "username",
-                        "in": "query",
+                        "in": "formData",
                         "required": true
                     },
                     {
                         "type": "string",
                         "description": "password",
                         "name": "password",
-                        "in": "query",
+                        "in": "formData",
                         "required": true
                     }
                 ],
                 "responses": {
-                    "10001": {
-                        "description": "{\"code\":10001,\"data\":{},\"msg\":\"用户名已存在\"}",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
                     "200": {
-                        "description": "ok",
+                        "description": "OK",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/gin_http.ResponseJSON"
                         }
                     },
-                    "400": {
-                        "description": "{\"code\":400,\"data\":{},\"msg\":\"输入数据有误\"}",
+                    "20006": {
+                        "description": "",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/gin_http.ResponseJSON"
+                        }
+                    },
+                    "20007": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/gin_http.ResponseJSON"
                         }
                     }
                 }
@@ -278,6 +260,20 @@ const docTemplate = `{
                             "type": "string"
                         }
                     }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "gin_http.ResponseJSON": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {},
+                "msg": {
+                    "type": "string"
                 }
             }
         }

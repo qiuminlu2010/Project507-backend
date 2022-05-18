@@ -18,15 +18,6 @@ type ArticleService struct {
 }
 
 func (a *ArticleService) Add() error {
-	// article := map[string]interface{}{
-	// 	"tag_id":     a.TagID,
-	// 	"title":      a.Title,
-	// 	"desc":       a.Desc,
-	// 	"content":    a.Content,
-	// 	"created_by": a.CreatedBy,
-	// 	"img_url":    a.ImgUrl,
-	// 	"state":      a.State,
-	// }
 
 	if err := model.AddArticle(a.Article); err != nil {
 		return err

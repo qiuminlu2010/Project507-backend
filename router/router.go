@@ -27,7 +27,7 @@ func InitRouter() *gin.Engine {
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	//注册用户
 	//curl "http://127.0.0.1:8000/api/v1/register?username=qxy1&password=123456" --include --header "Content-Type: application/json" --request "POST"
-	r.POST("/register", v1.AddUser)
+	r.POST("/register", v1.Register)
 	//登录用户
 	// r.GET("/login", v1.Login)
 	r.POST("/login", v1.Login)

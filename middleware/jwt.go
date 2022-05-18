@@ -19,7 +19,7 @@ func JWT() gin.HandlerFunc {
 		code = e.SUCCESS
 		token := c.Query("token")
 		if token == "" {
-			code = e.EMPTY_TOKEN
+			code = e.ERROR_AUTH
 		} else {
 			claims, err := util.ParseToken(token)
 			if err != nil {

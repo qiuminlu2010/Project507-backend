@@ -3,32 +3,38 @@ package model
 type User struct {
 	Model
 
-	Username string `json:"username"`
-	Password string `json:"password"`
-	State    int    `json:"state"`
+	Username string `json:"username" form:"username" validate:"required,printascii,gte=6,lte=20"`
+	Password string `json:"password" form:"password" validate:"required,printascii,gte=6,lte=20"`
+	State    int    `json:"state" form:"state" validate:"gte=0,lte=1"`
 }
 
 func ExistUsername(username string) bool {
 	var user User
 	db.Select("id").Where("username = ?", username).First(&user)
-	return user.ID > 0
+
+	if user.ID > 0 {
+		return true
+	}
+	return false
+
 }
 
-func ValidLogin(username string, password string) bool {
+func ValidLogin(username string, password string) (bool, error) {
 	var user User
-	db.Select("password").Where("username = ?", username).First(&user)
-
-	return user.Password == password
+	err := db.Select("password").Where("username = ?", username).First(&user).Error
+	if err != nil {
+		return false, err
+	}
+	if user.Password != password {
+		return false, nil
+	}
+	return true, nil
 }
 
-func AddUser(username string, password string, state int) bool {
-	db.Create(&User{
-		Username: username,
-		Password: password,
-		State:    state,
-	})
+func AddUser(user User) error {
+	err := db.Create(&user).Error
 
-	return true
+	return err
 }
 
 func ChangePassword(id int, data interface{}) bool {

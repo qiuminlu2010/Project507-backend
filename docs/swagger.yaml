@@ -1,3 +1,12 @@
+definitions:
+  gin_http.ResponseJSON:
+    properties:
+      code:
+        type: integer
+      data: {}
+      msg:
+        type: string
+    type: object
 info:
   contact: {}
 paths:
@@ -101,36 +110,24 @@ paths:
       - application/json
       responses:
         "200":
-          description: ok
+          description: OK
           schema:
-            type: string
-        "400":
-          description: '{"code":400,"data":{},"msg":"请求参数错误"}'
-          schema:
-            type: string
-        "10000":
-          description: '{"code":10001,"data":{},"msg":"TOKEN为空"}'
-          schema:
-            type: string
-        "20003":
-          description: '{"code":20003,"data":{},"msg":"Token生成失败"}'
-          schema:
-            type: string
+            $ref: '#/definitions/gin_http.ResponseJSON'
         "20005":
-          description: '{"code":20005,"data":{},"msg":"登录失败"}'
+          description: ""
           schema:
-            type: string
+            $ref: '#/definitions/gin_http.ResponseJSON'
       summary: 用户登录
   /register:
     post:
       parameters:
       - description: username
-        in: query
+        in: formData
         name: username
         required: true
         type: string
       - description: password
-        in: query
+        in: formData
         name: password
         required: true
         type: string
@@ -138,17 +135,17 @@ paths:
       - application/json
       responses:
         "200":
-          description: ok
+          description: OK
           schema:
-            type: string
-        "400":
-          description: '{"code":400,"data":{},"msg":"输入数据有误"}'
+            $ref: '#/definitions/gin_http.ResponseJSON'
+        "20006":
+          description: ""
           schema:
-            type: string
-        "10001":
-          description: '{"code":10001,"data":{},"msg":"用户名已存在"}'
+            $ref: '#/definitions/gin_http.ResponseJSON'
+        "20007":
+          description: ""
           schema:
-            type: string
+            $ref: '#/definitions/gin_http.ResponseJSON'
       summary: 用户注册
   /upload:
     post:

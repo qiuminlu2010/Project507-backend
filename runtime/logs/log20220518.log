@@ -1,0 +1,5 @@
+[INFO][bind.go:32]2022/05/18 16:22:44 %v should %v %v, but got %v UserService.User.Model.ID gt 0 0
+[INFO][bind.go:32]2022/05/18 16:22:44 %v should %v %v, but got %v UserService.User.Model.CreatedOn gt 0 0
+[INFO][bind.go:32]2022/05/18 16:22:44 %v should %v %v, but got %v UserService.User.Model.ModifiedOn gt 0 0
+[INFO][bind.go:32]2022/05/18 16:22:44 %v should %v %v, but got %v UserService.User.Username alphaunicode  qxy1
+[INFO][bind.go:32]2022/05/18 16:22:44 %v should %v %v, but got %v UserService.User.Password required  
