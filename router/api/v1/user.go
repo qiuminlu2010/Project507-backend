@@ -90,7 +90,7 @@ func Login(c *gin.Context) {
 			code = e.SUCCESS
 		}
 	} else {
-		code = e.ERROR_LOGIN
+		code = e.ERROR_AUTH
 	}
 	c.JSON(http.StatusOK, gin.H{
 		"code": code,
