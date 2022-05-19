@@ -44,6 +44,7 @@ func InitRouter() *gin.Engine {
 	// apiv1.DELETE("/articles/:id", v1.DeleteArticle)
 	apiv1.Use(middleware.JWT())
 	{
+
 		//新建标签
 		apiv1.POST("/tags", v1.AddTag)
 		//删除指定标签
@@ -54,6 +55,13 @@ func InitRouter() *gin.Engine {
 		apiv1.GET("/articles/:id", v1.GetArticle)
 		//上传图片
 		r.POST("/upload", v1.UploadImage)
+	}
+	r.Use(middleware.JWT())
+	{
+		//删除用户
+		r.DELETE("/delete_user", v1.DeleteUser)
+		//修改用户密码
+		r.PUT("/update_password", v1.UpdatePassword)
 	}
 	r.Use(middleware.CORS())
 	return r

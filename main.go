@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"qiu/blog/pkg/redis"
 	"qiu/blog/pkg/setting"
 
 	"qiu/blog/model"
@@ -15,6 +16,7 @@ func main() {
 	logging.Setup()
 	setting.Setup()
 	model.Setup()
+	redis.Setup()
 
 	/*
 		router := gin.Default()

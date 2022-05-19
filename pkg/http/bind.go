@@ -23,15 +23,6 @@ func Bind(c *gin.Context, data interface{}) (int, int) {
 		// fmt.Println("绑定错误", err)
 		return http.StatusBadRequest, e.INVALID_PARAMS
 	}
-	validate := validator.New()
-	err = validate.Struct(data)
-	if err != nil {
-		for _, err := range err.(validator.ValidationErrors) {
-			fmt.Printf("%v should %v %v, but got %v\n", err.Namespace(), err.Tag(), err.Param(), err.Value())
-			// logging.Info("%v should %v %v, but got %v", err.Namespace(), err.Tag(), err.Param(), err.Value())
-		}
-		return http.StatusBadRequest, e.INVALID_PARAMS
-	}
 	// valid := validation.Validation{}
 	// check, err := valid.Valid(form)
 	// if err != nil {
@@ -43,4 +34,17 @@ func Bind(c *gin.Context, data interface{}) (int, int) {
 	// }
 	// fmt.Println("绑定数据", data)
 	return http.StatusOK, e.SUCCESS
+}
+
+func Valid(c *gin.Context, data interface{}) error {
+	validate := validator.New()
+	err := validate.Struct(data)
+	if err != nil {
+		for _, err := range err.(validator.ValidationErrors) {
+			fmt.Printf("%v should %v %v, but got %v\n", err.Namespace(), err.Tag(), err.Param(), err.Value())
+			// logging.Info("%v should %v %v, but got %v", err.Namespace(), err.Tag(), err.Param(), err.Value())
+		}
+		return err
+	}
+	return nil
 }

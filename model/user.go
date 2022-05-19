@@ -3,8 +3,8 @@ package model
 type User struct {
 	Model
 
-	Username string `json:"username" form:"username" validate:"required,printascii,gte=6,lte=20"`
-	Password string `json:"password" form:"password" validate:"required,printascii,gte=6,lte=20"`
+	Username string `json:"username" form:"username" validate:"omitempty,printascii,gte=6,lte=20"`
+	Password string `json:"password" form:"password" validate:"omitempty,printascii,gte=6,lte=20"`
 	State    int    `json:"state" form:"state" validate:"gte=0,lte=1"`
 }
 
@@ -12,10 +12,7 @@ func ExistUsername(username string) bool {
 	var user User
 	db.Select("id").Where("username = ?", username).First(&user)
 
-	if user.ID > 0 {
-		return true
-	}
-	return false
+	return user.ID > 0
 
 }
 
@@ -37,12 +34,20 @@ func AddUser(user User) error {
 	return err
 }
 
-func ChangePassword(id int, data interface{}) bool {
-	db.Model(&User{}).Where("id = ?", id).Updates(data)
-	return true
+func UpdatePassword(id int, data interface{}) bool {
+	return db.Model(&User{}).Where("id = ?", id).Updates(data).RowsAffected > 0
+
 }
 
 func DeleteUser(id int) bool {
-	db.Where("id = ?", id).Delete(&Tag{})
-	return true
+	return db.Where("id = ?", id).Delete(&User{}).RowsAffected > 0
+}
+
+func GetUsernameByID(id int) string {
+	var user User
+	err := db.Select("username").Where("id = ?", id).First(&user).Error
+	if err != nil {
+		return ""
+	}
+	return user.Username
 }

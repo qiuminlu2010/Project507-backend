@@ -131,6 +131,50 @@
                 }
             }
         },
+        "/delete_user": {
+            "delete": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "注销用户",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "id",
+                        "name": "id",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "token",
+                        "name": "token",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/gin_http.ResponseJSON"
+                        }
+                    },
+                    "20008": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/gin_http.ResponseJSON"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/gin_http.ResponseJSON"
+                        }
+                    }
+                }
+            }
+        },
         "/login": {
             "post": {
                 "produces": [
@@ -206,6 +250,57 @@
                     },
                     "20007": {
                         "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/gin_http.ResponseJSON"
+                        }
+                    }
+                }
+            }
+        },
+        "/update_password": {
+            "put": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "修改用户密码",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "id",
+                        "name": "id",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "password",
+                        "name": "password",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "token",
+                        "name": "token",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/gin_http.ResponseJSON"
+                        }
+                    },
+                    "20009": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/gin_http.ResponseJSON"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
                         "schema": {
                             "$ref": "#/definitions/gin_http.ResponseJSON"
                         }

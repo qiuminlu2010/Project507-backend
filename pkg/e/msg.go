@@ -33,6 +33,9 @@ var MsgFlags = map[int]string{
 	ERROR_UPLOAD_SAVE_IMAGE_FAIL:    "保存图片失败",
 	ERROR_UPLOAD_CHECK_IMAGE_FAIL:   "检查图片失败",
 	ERROR_UPLOAD_CHECK_IMAGE_FORMAT: "校验图片错误，图片格式或大小有问题",
+	ERROR_DELETE_USER_FAIL:          "删除用户失败",
+	ERROR_UPDATE_USER_FAIL:          "更新用户信息失败",
+	ERROR_REDIS_KEY_FAIL:            "缓存获取失败",
 }
 
 func GetMsg(code int) string {

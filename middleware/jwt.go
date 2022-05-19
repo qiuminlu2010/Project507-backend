@@ -15,9 +15,11 @@ func JWT() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var code int
 		var data interface{}
-
+		var token string
 		code = e.SUCCESS
-		token := c.Query("token")
+
+		token = c.GetHeader("token")
+
 		if token == "" {
 			code = e.ERROR_AUTH
 		} else {

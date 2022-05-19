@@ -75,6 +75,11 @@ func updateTimeStampForCreateCallback(scope *gorm.Scope) {
 				modifyTimeField.Set(nowTime)
 			}
 		}
+		if modifyTimeField, ok := scope.FieldByName("State"); ok {
+			if modifyTimeField.IsBlank {
+				modifyTimeField.Set(1)
+			}
+		}
 	}
 }
 
