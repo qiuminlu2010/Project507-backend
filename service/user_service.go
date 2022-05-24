@@ -1,7 +1,6 @@
 package service
 
 import (
-	"fmt"
 	"qiu/blog/model"
 )
 
@@ -37,7 +36,7 @@ func (s *UserService) UpdatePassword() bool {
 }
 
 func (s *UserService) GetPassword() string {
-	fmt.Println("密码", s.model.(*model.User).Password)
+	// fmt.Println("密码", s.model.(*model.User).Password)
 	return s.model.(*model.User).Password
 }
 

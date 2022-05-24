@@ -12,29 +12,17 @@
                 "summary": "获取多个文章标签",
                 "parameters": [
                     {
-                        "type": "string",
-                        "description": "Name",
-                        "name": "name",
-                        "in": "query"
-                    },
-                    {
                         "type": "integer",
-                        "description": "State",
-                        "name": "state",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "CreatedBy",
-                        "name": "created_by",
+                        "description": "Page",
+                        "name": "page",
                         "in": "query"
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "{\"code\":200,\"data\":{},\"msg\":\"ok\"}",
+                        "description": "OK",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/gin_http.ResponseJSON"
                         }
                     }
                 }
@@ -43,7 +31,7 @@
                 "produces": [
                     "application/json"
                 ],
-                "summary": "新增文章标签",
+                "summary": "新增标签",
                 "parameters": [
                     {
                         "type": "string",
@@ -62,27 +50,33 @@
                         "type": "string",
                         "description": "token",
                         "name": "token",
-                        "in": "query",
+                        "in": "header",
                         "required": true
                     }
                 ],
                 "responses": {
-                    "10000": {
-                        "description": "{\"code\":10001,\"data\":{},\"msg\":\"TOKEN为空\"}",
+                    "10001": {
+                        "description": "",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/gin_http.ResponseJSON"
                         }
                     },
-                    "10001": {
-                        "description": "{\"code\":10001,\"data\":{},\"msg\":\"已存在该标签\"}",
+                    "10006": {
+                        "description": "",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/gin_http.ResponseJSON"
                         }
                     },
                     "200": {
-                        "description": "ok",
+                        "description": "OK",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/gin_http.ResponseJSON"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/gin_http.ResponseJSON"
                         }
                     }
                 }
@@ -96,36 +90,36 @@
                 "summary": "删除文章标签",
                 "parameters": [
                     {
-                        "type": "string",
-                        "description": "Name",
-                        "name": "name",
-                        "in": "query"
+                        "type": "integer",
+                        "description": "Id",
+                        "name": "id",
+                        "in": "formData"
                     },
                     {
                         "type": "string",
                         "description": "token",
                         "name": "token",
-                        "in": "query",
+                        "in": "header",
                         "required": true
                     }
                 ],
                 "responses": {
-                    "10000": {
-                        "description": "{\"code\":10001,\"data\":{},\"msg\":\"TOKEN为空\"}",
+                    "10008": {
+                        "description": "",
                         "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "10002": {
-                        "description": "{\"code\":10002,\"data\":{},\"msg\":\"标签不存在\"}",
-                        "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/gin_http.ResponseJSON"
                         }
                     },
                     "200": {
-                        "description": "{\"code\":200,\"data\":{},\"msg\":\"ok\"}",
+                        "description": "OK",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/gin_http.ResponseJSON"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/gin_http.ResponseJSON"
                         }
                     }
                 }

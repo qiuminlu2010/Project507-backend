@@ -4,27 +4,19 @@ package model
 type Tag struct {
 	Model
 
-	Name       string `json:"name"`
-	CreatedBy  string `json:"created_by"`
+	Name       string `json:"name" form:"name" validate:"required,lte=20"`
+	CreatedBy  string `json:"created_by" form:"created_by" `
 	ModifiedBy string `json:"modified_by"`
 	State      int    `json:"state"`
 }
 
-/*
-func (tag *Tag) BeforeCreate(scope *gorm.Scope) error {
-	scope.SetColumn("CreatedOn", time.Now().Unix())
+// func GetTags(pageNum int, pageSize int, maps interface{}) (tags []Tag) {
+// 	db.Where(maps).Offset(pageNum).Limit(pageSize).Find(&tags)
 
-	return nil
-}
-
-func (tag *Tag) BeforeUpdate(scope *gorm.Scope) error {
-	scope.SetColumn("ModifiedOn", time.Now().Unix())
-
-	return nil
-}
-*/
-func GetTags(pageNum int, pageSize int, maps interface{}) (tags []Tag) {
-	db.Where(maps).Offset(pageNum).Limit(pageSize).Find(&tags)
+// 	return
+// }
+func GetTags(pageNum int, pageSize int) (tags []Tag) {
+	db.Offset(pageNum).Limit(pageSize).Find(&tags)
 
 	return
 }
@@ -41,14 +33,8 @@ func ExistTagByName(name string) bool {
 	return tag.ID > 0
 }
 
-func AddTag(name string, state int, createdBy string) bool {
-	db.Create(&Tag{
-		Name:      name,
-		State:     state,
-		CreatedBy: createdBy,
-	})
-
-	return true
+func AddTag(tag Tag) error {
+	return db.Create(&tag).Error
 }
 
 func ExistTagByID(id int) bool {
@@ -58,13 +44,9 @@ func ExistTagByID(id int) bool {
 }
 
 func DeleteTag(id int) bool {
-	db.Where("id = ?", id).Delete(&Tag{})
-
-	return true
+	return db.Where("id = ?", id).Delete(&Tag{}).RowsAffected > 0
 }
 
 func EditTag(id int, data interface{}) bool {
-	db.Model(&Tag{}).Where("id = ?", id).Updates(data)
-
-	return true
+	return db.Model(&Tag{}).Where("id = ?", id).Updates(data).RowsAffected > 0
 }

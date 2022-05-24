@@ -38,7 +38,7 @@ func Login(c *gin.Context) {
 		gin_http.Response(c, httpCode, errCode, nil)
 		return
 	}
-	fmt.Println("登录", userService.GetPassword())
+
 	err := userService.Valid()
 	if err != nil {
 		gin_http.Response(c, http.StatusBadRequest, e.INVALID_PARAMS, nil)
