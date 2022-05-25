@@ -10,6 +10,15 @@ import (
 	"strings"
 )
 
+// type ArticleService struct {
+// 	BaseService
+// }
+
+// func GetArticleService() *ArticleService {
+// 	s := ArticleService{}
+// 	s.model = &model.Article{}
+// 	return &s
+// }
 type ArticleService struct {
 	model.Article
 
@@ -93,9 +102,9 @@ func (a *ArticleService) getMaps() map[string]interface{} {
 	if a.State != -1 {
 		maps["state"] = a.State
 	}
-	if a.TagID != -1 {
-		maps["tag_id"] = a.TagID
-	}
+	// if a.TagID != -1 {
+	// 	maps["tag_id"] = a.TagID
+	// }
 
 	return maps
 }
@@ -113,9 +122,9 @@ func (a *ArticleService) GetArticlesKey() string {
 	if a.ID > 0 {
 		keys = append(keys, strconv.Itoa(a.ID))
 	}
-	if a.TagID > 0 {
-		keys = append(keys, strconv.Itoa(a.TagID))
-	}
+	// if a.TagID > 0 {
+	// 	keys = append(keys, strconv.Itoa(a.TagID))
+	// }
 	if a.State >= 0 {
 		keys = append(keys, strconv.Itoa(a.State))
 	}

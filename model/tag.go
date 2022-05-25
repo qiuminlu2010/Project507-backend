@@ -3,7 +3,6 @@ package model
 //https://blog.csdn.net/weixin_45604257/article/details/105139862
 type Tag struct {
 	Model
-
 	Name       string `json:"name" form:"name" validate:"required,lte=20"`
 	CreatedBy  string `json:"created_by" form:"created_by" `
 	ModifiedBy string `json:"modified_by" form:"modified_by"`

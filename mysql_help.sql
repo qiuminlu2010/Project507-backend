@@ -1,7 +1,7 @@
 标签表
 CREATE TABLE `blog_tag` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `name` varchar(100) DEFAULT '' COMMENT '标签名称',
+  `name` varchar(100) UNIQUE DEFAULT '' COMMENT '标签名称',
   `created_on` int(10) unsigned DEFAULT '0' COMMENT '创建时间',
   `created_by` varchar(100) DEFAULT '' COMMENT '创建人',
   `modified_on` int(10) unsigned DEFAULT '0' COMMENT '修改时间',

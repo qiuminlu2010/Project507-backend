@@ -3,9 +3,10 @@ package model
 type User struct {
 	Model
 
-	Username string `json:"username" form:"username" validate:"omitempty,printascii,gte=6,lte=20"`
-	Password string `json:"password" form:"password" validate:"omitempty,printascii,gte=6,lte=20"`
-	State    int    `json:"state" form:"state" validate:"gte=0,lte=1"`
+	Username  string `json:"username" form:"username" validate:"omitempty,printascii,gte=6,lte=20"`
+	Password  string `json:"password" form:"password" validate:"omitempty,printascii,gte=6,lte=20"`
+	StudentId string `json:"student_id" form:"student_id" validate:"omitempty,numeric"`
+	State     int    `json:"state" form:"state" validate:"gte=0,lte=1"`
 }
 
 func ExistUsername(username string) bool {

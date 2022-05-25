@@ -7,10 +7,10 @@ import (
 type Article struct {
 	Model
 
-	TagID      int    `json:"tag_id" gorm:"index"`
-	Tag        Tag    `json:"tag"`
+	// TagID      int    `json:"tag_id" form:"tag_id" gorm:"index"`
+	// Tag        Tag    `json:"tag"`
+	Tags       []Tag  `gorm:"many2many:article_tags;"`
 	Title      string `json:"title"`
-	Desc       string `json:"desc"`
 	ImgUrl     string `json:"img_url"`
 	Content    string `json:"content"`
 	CreatedBy  string `json:"created_by"`
@@ -62,10 +62,10 @@ func GetArticle(id int) (*Article, error) {
 		return nil, err
 	}
 
-	err = db.Model(&article).Related(&article.Tag).Error
-	if err != nil && err != gorm.ErrRecordNotFound {
-		return nil, err
-	}
+	// err = db.Model(&article).Related(&article.Tag).Error
+	// if err != nil && err != gorm.ErrRecordNotFound {
+	// 	return nil, err
+	// }
 
 	return &article, nil
 }

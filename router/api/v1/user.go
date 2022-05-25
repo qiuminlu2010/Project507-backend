@@ -121,7 +121,7 @@ func Register(c *gin.Context) {
 // @Success 200 {object} gin_http.ResponseJSON
 // @Failure  400 {object} gin_http.ResponseJSON
 // @Failure  20008 {object} gin_http.ResponseJSON
-// @Router /delete_user [post]
+// @Router /delete_user [delete]
 func DeleteUser(c *gin.Context) {
 
 	userService := service.GetUserService()
