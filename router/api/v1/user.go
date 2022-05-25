@@ -116,11 +116,12 @@ func Register(c *gin.Context) {
 // @Summary 注销用户
 // @Produce  json
 // @Param id formData int true "id"
+// @Param username formData string true "username"
 // @Param token header string true "token"
 // @Success 200 {object} gin_http.ResponseJSON
 // @Failure  400 {object} gin_http.ResponseJSON
 // @Failure  20008 {object} gin_http.ResponseJSON
-// @Router /delete_user [delete]
+// @Router /delete_user [post]
 func DeleteUser(c *gin.Context) {
 
 	userService := service.GetUserService()
@@ -146,7 +147,7 @@ func DeleteUser(c *gin.Context) {
 		return
 	}
 
-	if claims.Username != userService.GetUsernameByID() && claims.Username != "admin" {
+	if claims.Username != userService.GetUsernameByID() && claims.Username != userService.GetUsername() && claims.Username != "admin" {
 		fmt.Println("token用户信息不一致", claims.Username, userService.GetUsernameByID())
 		gin_http.Response(c, http.StatusInternalServerError, e.ERROR_AUTH_CHECK_TOKEN_FAIL, nil)
 		return

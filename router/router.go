@@ -58,7 +58,7 @@ func InitRouter() *gin.Engine {
 	r.Use(middleware.JWT())
 	{
 		//删除用户
-		r.DELETE("/delete_user", v1.DeleteUser)
+		r.POST("/delete_user", v1.DeleteUser)
 		//修改用户密码
 		r.PUT("/update_password", v1.UpdatePassword)
 	}

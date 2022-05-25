@@ -199,7 +199,7 @@ const docTemplate = `{
             }
         },
         "/delete_user": {
-            "delete": {
+            "post": {
                 "produces": [
                     "application/json"
                 ],
@@ -209,6 +209,13 @@ const docTemplate = `{
                         "type": "integer",
                         "description": "id",
                         "name": "id",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "username",
+                        "name": "username",
                         "in": "formData",
                         "required": true
                     },

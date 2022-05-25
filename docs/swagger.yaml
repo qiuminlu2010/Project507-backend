@@ -132,13 +132,18 @@ paths:
             $ref: '#/definitions/gin_http.ResponseJSON'
       summary: 修改标签
   /delete_user:
-    delete:
+    post:
       parameters:
       - description: id
         in: formData
         name: id
         required: true
         type: integer
+      - description: username
+        in: formData
+        name: username
+        required: true
+        type: string
       - description: token
         in: header
         name: token
