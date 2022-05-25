@@ -19,8 +19,20 @@ func (s *TagService) GetTagModel() model.Tag {
 	return *(s.model.(*model.Tag))
 }
 
-func (s *TagService) GetTagCreatedBy() string {
+func (s *TagService) GetCreatedBy() string {
 	return s.model.(*model.Tag).CreatedBy
+}
+
+func (s *TagService) SetCreatedBy(created_by string) {
+	s.model.(*model.Tag).CreatedBy = created_by
+}
+
+func (s *TagService) GetModifiedBy() string {
+	return s.model.(*model.Tag).ModifiedBy
+}
+
+func (s *TagService) SetModifiedBy(modified_by string) {
+	s.model.(*model.Tag).ModifiedBy = modified_by
 }
 
 func (s *TagService) Add() error {
@@ -33,8 +45,9 @@ func (s *TagService) Delete() bool {
 
 func (s *TagService) Update() bool {
 	data := make(map[string]interface{})
-	data["password"] = s.model.(*model.Tag).Name
-	return model.EditTag(s.model.(*model.User).ID, data)
+	data["name"] = s.model.(*model.Tag).Name
+	data["modified_by"] = s.model.(*model.Tag).ModifiedBy
+	return model.EditTag(s.model.(*model.Tag).ID, data)
 }
 
 func (s *TagService) Get(data map[string]int) []model.Tag {

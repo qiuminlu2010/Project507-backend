@@ -6,8 +6,8 @@ type Tag struct {
 
 	Name       string `json:"name" form:"name" validate:"required,lte=20"`
 	CreatedBy  string `json:"created_by" form:"created_by" `
-	ModifiedBy string `json:"modified_by"`
-	State      int    `json:"state"`
+	ModifiedBy string `json:"modified_by" form:"modified_by"`
+	State      int    `json:"state" form:"state"`
 }
 
 // func GetTags(pageNum int, pageSize int, maps interface{}) (tags []Tag) {

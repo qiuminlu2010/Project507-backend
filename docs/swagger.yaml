@@ -11,6 +11,39 @@ info:
   contact: {}
 paths:
   /api/v1/tags:
+    delete:
+      parameters:
+      - description: Id
+        in: formData
+        name: id
+        required: true
+        type: integer
+      - description: Name
+        in: formData
+        name: name
+        required: true
+        type: string
+      - description: token
+        in: header
+        name: token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/gin_http.ResponseJSON'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/gin_http.ResponseJSON'
+        "10008":
+          description: ""
+          schema:
+            $ref: '#/definitions/gin_http.ResponseJSON'
+      summary: 删除文章标签
     get:
       parameters:
       - description: Page
@@ -28,12 +61,12 @@ paths:
     post:
       parameters:
       - description: Name
-        in: query
+        in: formData
         name: name
         required: true
         type: string
       - description: CreatedBy
-        in: query
+        in: formData
         name: created_by
         type: string
       - description: token
@@ -61,13 +94,22 @@ paths:
           schema:
             $ref: '#/definitions/gin_http.ResponseJSON'
       summary: 新增标签
-  /api/v1/tags/:id:
-    delete:
+    put:
       parameters:
       - description: Id
         in: formData
         name: id
+        required: true
         type: integer
+      - description: Name
+        in: formData
+        name: name
+        required: true
+        type: string
+      - description: Modifiedby
+        in: formData
+        name: modified_by
+        type: string
       - description: token
         in: header
         name: token
@@ -84,11 +126,11 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/gin_http.ResponseJSON'
-        "10008":
+        "10007":
           description: ""
           schema:
             $ref: '#/definitions/gin_http.ResponseJSON'
-      summary: 删除文章标签
+      summary: 修改标签
   /delete_user:
     delete:
       parameters:

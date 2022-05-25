@@ -34,8 +34,8 @@ func GetTags(c *gin.Context) {
 
 // @Summary 新增标签
 // @Produce  json
-// @Param name query string true "Name"
-// @Param created_by query string false "CreatedBy"
+// @Param name formData string true "Name"
+// @Param created_by formData string false "CreatedBy"
 // @Param token header string true "token"
 // @Success 200 {object} gin_http.ResponseJSON
 // @Failure  400 {object} gin_http.ResponseJSON
@@ -68,7 +68,16 @@ func AddTag(c *gin.Context) {
 		return
 	}
 
-	// if tagService.GetTagCreatedBy()
+	created_by := tagService.GetCreatedBy()
+	if created_by == "" {
+		tagService.SetCreatedBy(claims.Username)
+	} else {
+		if created_by != claims.Username {
+			gin_http.Response(c, http.StatusBadRequest, e.ERROR_AUTH, nil)
+			return
+		}
+	}
+
 	err = tagService.Add()
 	if err != nil {
 		gin_http.Response(c, http.StatusInternalServerError, e.ERROR_ADD_TAG_FAIL, nil)
@@ -78,14 +87,54 @@ func AddTag(c *gin.Context) {
 	gin_http.Response(c, http.StatusOK, e.SUCCESS, nil)
 }
 
-//修改文章标签
+// @Summary 修改标签
+// @Produce  json
+// @Param id formData int true "Id"
+// @Param name formData string true "Name"
+// @Param modified_by formData string false "Modifiedby"
+// @Param token header string true "token"
+// @Success 200 {object} gin_http.ResponseJSON
+// @Failure  400 {object} gin_http.ResponseJSON
+// @Failure  10007 {object} gin_http.ResponseJSON
+// @Router /api/v1/tags [put]
 func EditTag(c *gin.Context) {
-	// tagService:=service.GetTagService()
-	// httpCode, errCode := tagService.Bind(c)
-	// if errCode != e.SUCCESS {
-	// 	gin_http.Response(c, httpCode, errCode, nil)
-	// 	return
-	// }
+	tagService := service.GetTagService()
+	httpCode, errCode := tagService.Bind(c)
+
+	if errCode != e.SUCCESS {
+		gin_http.Response(c, httpCode, errCode, nil)
+		return
+	}
+
+	err := tagService.Valid()
+	if err != nil {
+		gin_http.Response(c, http.StatusBadRequest, e.INVALID_PARAMS, nil)
+		return
+	}
+
+	claims := tagService.GetClaimsFromToken(c)
+	if claims == nil {
+		gin_http.Response(c, http.StatusBadRequest, e.ERROR_AUTH, nil)
+		return
+	}
+
+	modified_by := tagService.GetModifiedBy()
+	if modified_by == "" {
+		tagService.SetModifiedBy(claims.Username)
+	} else {
+		if modified_by != claims.Username {
+			gin_http.Response(c, http.StatusBadRequest, e.ERROR_AUTH, nil)
+			return
+		}
+	}
+
+	state := tagService.Update()
+	if !state {
+		gin_http.Response(c, http.StatusInternalServerError, e.ERROR_EDIT_TAG_FAIL, nil)
+		return
+	}
+
+	gin_http.Response(c, http.StatusOK, e.SUCCESS, nil)
 
 }
 
@@ -97,7 +146,7 @@ func EditTag(c *gin.Context) {
 // @Success 200 {object} gin_http.ResponseJSON
 // @Failure  400 {object} gin_http.ResponseJSON
 // @Failure  10008 {object} gin_http.ResponseJSON
-// @Router /api/v1/tags/:id [delete]
+// @Router /api/v1/tags [delete]
 func DeleteTag(c *gin.Context) {
 	tagService := service.GetTagService()
 	httpCode, errCode := tagService.Bind(c)

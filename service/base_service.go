@@ -73,7 +73,11 @@ func (s *BaseService) GetClaimsFromToken(c *gin.Context) *util.Claims {
 	if err != nil {
 		return nil
 	}
-	redis.Set(token, claims, 3600)
+	fmt.Println("新建token缓存信息", token, claims)
+	err = redis.Set(token, claims, 3600)
+	if err != nil {
+		fmt.Println(err)
+	}
 	return claims
 
 }
