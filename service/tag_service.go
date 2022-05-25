@@ -35,6 +35,9 @@ func (s *TagService) SetModifiedBy(modified_by string) {
 	s.model.(*model.Tag).ModifiedBy = modified_by
 }
 
+func (s *TagService) SetId(id int) {
+	s.model.(*model.Tag).ID = id
+}
 func (s *TagService) Add() error {
 	return model.AddTag(s.GetTagModel())
 }

@@ -1,6 +1,8 @@
 package v1
 
 import (
+	"strconv"
+
 	"github.com/gin-gonic/gin"
 
 	"qiu/blog/pkg/util"
@@ -68,6 +70,8 @@ func AddTag(c *gin.Context) {
 		return
 	}
 
+	//TODO:还需验证用户是否存在
+
 	created_by := tagService.GetCreatedBy()
 	if created_by == "" {
 		tagService.SetCreatedBy(claims.Username)
@@ -89,14 +93,14 @@ func AddTag(c *gin.Context) {
 
 // @Summary 修改标签
 // @Produce  json
-// @Param id formData int true "Id"
+// @Param id path int true "ID"
 // @Param name formData string true "Name"
 // @Param modified_by formData string false "Modifiedby"
 // @Param token header string true "token"
 // @Success 200 {object} gin_http.ResponseJSON
 // @Failure  400 {object} gin_http.ResponseJSON
 // @Failure  10007 {object} gin_http.ResponseJSON
-// @Router /api/v1/tags [put]
+// @Router /api/v1/tags/{id} [put]
 func EditTag(c *gin.Context) {
 	tagService := service.GetTagService()
 	httpCode, errCode := tagService.Bind(c)
@@ -105,6 +109,9 @@ func EditTag(c *gin.Context) {
 		gin_http.Response(c, httpCode, errCode, nil)
 		return
 	}
+
+	id, _ := strconv.Atoi(c.Param("id"))
+	tagService.SetId(id)
 
 	err := tagService.Valid()
 	if err != nil {
@@ -138,15 +145,15 @@ func EditTag(c *gin.Context) {
 
 }
 
-// @Summary 删除文章标签
+// @Summary 删除标签
 // @Produce  json
-// @Param id formData int true "Id"
+// @Param id path int true "ID"
 // @Param name formData string true "Name"
 // @Param token header string true "token"
 // @Success 200 {object} gin_http.ResponseJSON
 // @Failure  400 {object} gin_http.ResponseJSON
 // @Failure  10008 {object} gin_http.ResponseJSON
-// @Router /api/v1/tags [delete]
+// @Router /api/v1/tags/{id} [delete]
 func DeleteTag(c *gin.Context) {
 	tagService := service.GetTagService()
 	httpCode, errCode := tagService.Bind(c)
@@ -155,6 +162,10 @@ func DeleteTag(c *gin.Context) {
 		gin_http.Response(c, httpCode, errCode, nil)
 		return
 	}
+
+	id, _ := strconv.Atoi(c.Param("id"))
+	tagService.SetId(id)
+
 	err := tagService.Valid()
 	if err != nil {
 		gin_http.Response(c, http.StatusBadRequest, e.INVALID_PARAMS, nil)
