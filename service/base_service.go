@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"strings"
 
 	"qiu/blog/pkg/e"
 	"qiu/blog/pkg/redis"
@@ -20,20 +19,22 @@ type BaseService struct {
 
 func (s *BaseService) Bind(c *gin.Context) (int, int) {
 	var err error
-	if strings.Contains(c.ContentType(), "json") {
-		fmt.Println("绑定json")
-		err = c.BindJSON(s.model)
-	} else {
-		fmt.Println("绑定form")
-		err = c.Bind(s.model)
-	}
-
-	if err != nil {
-		fmt.Println("绑定数据", s.model)
-		fmt.Println("绑定错误", err)
+	// fmt.Println("绑定json")
+	// if err = c.ShouldBindJSON(s.model); err != nil {
+	// 	// fmt.Println("绑定数据", s.model)
+	// 	// fmt.Println("绑定错误", err)
+	// 	return http.StatusBadRequest, e.INVALID_PARAMS
+	// }
+	fmt.Println("绑定参数")
+	if err = c.ShouldBind(s.model); err != nil {
 		return http.StatusBadRequest, e.INVALID_PARAMS
 	}
-
+	fmt.Println("绑定url")
+	if err = c.ShouldBindUri(s.model); err != nil {
+		// fmt.Println("绑定数据", s.model)
+		// fmt.Println("绑定错误", err)
+		return http.StatusBadRequest, e.INVALID_PARAMS
+	}
 	fmt.Println("绑定数据", s.model)
 	return http.StatusOK, e.SUCCESS
 }

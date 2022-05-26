@@ -10,21 +10,7 @@ definitions:
 info:
   contact: {}
 paths:
-  /api/v1/tags:
-    get:
-      parameters:
-      - description: Page
-        in: query
-        name: page
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/gin_http.ResponseJSON'
-      summary: 获取多个文章标签
+  /api/v1/tag/add:
     post:
       parameters:
       - description: Name
@@ -61,7 +47,7 @@ paths:
           schema:
             $ref: '#/definitions/gin_http.ResponseJSON'
       summary: 新增标签
-  /api/v1/tags/{id}:
+  /api/v1/tag/delete/{id}:
     delete:
       parameters:
       - description: ID
@@ -94,7 +80,23 @@ paths:
           description: ""
           schema:
             $ref: '#/definitions/gin_http.ResponseJSON'
-      summary: 删除文章标签
+      summary: 删除标签
+  /api/v1/tag/getList:
+    get:
+      parameters:
+      - description: Page
+        in: query
+        name: page
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/gin_http.ResponseJSON'
+      summary: 获取多个文章标签
+  /api/v1/tag/update/{id}:
     put:
       parameters:
       - description: ID
@@ -133,7 +135,7 @@ paths:
             $ref: '#/definitions/gin_http.ResponseJSON'
       summary: 修改标签
   /delete_user:
-    post:
+    delete:
       parameters:
       - description: id
         in: formData

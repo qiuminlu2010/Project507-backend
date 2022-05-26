@@ -39,7 +39,7 @@ func GetArticleTotal(maps interface{}) (int, error) {
 func GetArticles(pageNum int, pageSize int, maps interface{}) ([]*Article, error) {
 	var articles []*Article
 	// err := db.Preload("Tag").Where(maps).Offset(pageNum).Limit(pageSize).Find(&articles).Error
-	err := db.Offset(pageNum).Limit(pageSize).Association("Tag").Find(&articles).Error
+	err := db.Offset(pageNum).Limit(pageSize).Association("Tags").Find(&articles).Error
 	if err != nil && err != gorm.ErrRecordNotFound {
 		return nil, err
 	}
@@ -50,7 +50,7 @@ func GetArticles(pageNum int, pageSize int, maps interface{}) ([]*Article, error
 //通过ID查询文章
 func GetArticleById(id int) (*Article, error) {
 	var article Article
-	err := db.Where("id = ? AND deleted_on = ? ", id, 0).First(&article).Association("Tag").Error
+	err := db.Where("id = ? AND deleted_on = ? ", id, 0).First(&article).Association("Tags").Error
 	if err != nil && err != gorm.ErrRecordNotFound {
 		return nil, err
 	}
@@ -66,8 +66,8 @@ func UpdateArticle(id int, data interface{}) error {
 }
 
 //给文章添加标签
-func AddArticleTags(id int, tags []Tag) error {
-	err := db.Model(&Article{}).Association("Tag").Append(tags).Error
+func AddArticleTags(article Article, tags []Tag) error {
+	err := db.Model(&article).Association("Tags").Append(tags).Error
 	if err != nil {
 		return err
 	}

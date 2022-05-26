@@ -22,7 +22,7 @@ import (
 // @Produce  json
 // @Param page query int false "Page"
 // @Success 200 {object}  gin_http.ResponseJSON
-// @Router /api/v1/tags [get]
+// @Router /api/v1/tag/getList [get]
 func GetTags(c *gin.Context) {
 	tagService := service.GetTagService()
 
@@ -43,7 +43,7 @@ func GetTags(c *gin.Context) {
 // @Failure  400 {object} gin_http.ResponseJSON
 // @Failure  10001 {object} gin_http.ResponseJSON
 // @Failure  10006 {object} gin_http.ResponseJSON
-// @Router /api/v1/tags [post]
+// @Router /api/v1/tag/add [post]
 func AddTag(c *gin.Context) {
 
 	tagService := service.GetTagService()
@@ -100,7 +100,7 @@ func AddTag(c *gin.Context) {
 // @Success 200 {object} gin_http.ResponseJSON
 // @Failure  400 {object} gin_http.ResponseJSON
 // @Failure  10007 {object} gin_http.ResponseJSON
-// @Router /api/v1/tags/{id} [put]
+// @Router /api/v1/tag/update/{id} [put]
 func EditTag(c *gin.Context) {
 	tagService := service.GetTagService()
 	httpCode, errCode := tagService.Bind(c)
@@ -110,8 +110,8 @@ func EditTag(c *gin.Context) {
 		return
 	}
 
-	id, _ := strconv.Atoi(c.Param("id"))
-	tagService.SetId(id)
+	// id, _ := strconv.Atoi(c.Param("id"))
+	// tagService.SetId(id)
 
 	err := tagService.Valid()
 	if err != nil {
@@ -153,7 +153,7 @@ func EditTag(c *gin.Context) {
 // @Success 200 {object} gin_http.ResponseJSON
 // @Failure  400 {object} gin_http.ResponseJSON
 // @Failure  10008 {object} gin_http.ResponseJSON
-// @Router /api/v1/tags/{id} [delete]
+// @Router /api/v1/tag/delete/{id} [delete]
 func DeleteTag(c *gin.Context) {
 	tagService := service.GetTagService()
 	httpCode, errCode := tagService.Bind(c)

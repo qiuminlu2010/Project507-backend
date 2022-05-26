@@ -1,6 +1,7 @@
 package v1
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -75,19 +76,60 @@ func GetArticles(c *gin.Context) {
 //新增文章
 func AddArticle(c *gin.Context) {
 
-	// articleService := service.ArticleService{}
-	// httpCode, errCode := gin_http.Bind(c, &articleService)
+	articleService := service.GetArticleService()
+	httpCode, errCode := articleService.Bind(c)
+	if errCode != e.SUCCESS {
+		gin_http.Response(c, httpCode, errCode, nil)
+		return
+	}
+
+	claims := articleService.GetClaimsFromToken(c)
+	if claims == nil {
+		gin_http.Response(c, http.StatusBadRequest, e.ERROR_AUTH, nil)
+		return
+	}
+
+	//TODO:还需验证用户是否存在
+
+	created_by := articleService.GetCreatedBy()
+	if created_by == "" {
+		articleService.SetCreatedBy(claims.Username)
+	} else {
+		if created_by != claims.Username {
+			gin_http.Response(c, http.StatusBadRequest, e.ERROR_AUTH, nil)
+			return
+		}
+	}
+
+	err := articleService.Add()
+	if err != nil {
+		gin_http.Response(c, http.StatusInternalServerError, e.ERROR_ADD_ARTICLE_FAIL, nil)
+		return
+	}
+
+	// tagService := tag_service.Tag{ID: form.TagID}
+	gin_http.Response(c, http.StatusOK, e.SUCCESS, nil)
+
+}
+
+func AddArticleTags(c *gin.Context) {
+	fmt.Println("添加文章标签", c.Params)
+	articleService := service.GetArticleService()
+
+	httpCode, errCode := articleService.Bind(c)
+	if errCode != e.SUCCESS {
+		gin_http.Response(c, httpCode, errCode, nil)
+		return
+	}
+	// httpCode, errCode = articleService.Bind(c)
 	// if errCode != e.SUCCESS {
 	// 	gin_http.Response(c, httpCode, errCode, nil)
 	// 	return
 	// }
-	// err := articleService.Add()
-	// if err != nil {
-	// 	gin_http.Response(c, http.StatusInternalServerError, e.ERROR_ADD_ARTICLE_FAIL, nil)
-	// 	return
-	// }
-	// tagService := tag_service.Tag{ID: form.TagID}
-
-	// gin_http.Response(c, http.StatusOK, e.SUCCESS, nil)
+	if httpCode, errCode = articleService.AddTags(); errCode != e.SUCCESS {
+		gin_http.Response(c, httpCode, errCode, nil)
+		return
+	}
+	gin_http.Response(c, http.StatusOK, e.SUCCESS, nil)
 
 }

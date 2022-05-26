@@ -16,29 +16,7 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/api/v1/tags": {
-            "get": {
-                "produces": [
-                    "application/json"
-                ],
-                "summary": "获取多个文章标签",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Page",
-                        "name": "page",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/gin_http.ResponseJSON"
-                        }
-                    }
-                }
-            },
+        "/api/v1/tag/add": {
             "post": {
                 "produces": [
                     "application/json"
@@ -94,7 +72,82 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/tags/{id}": {
+        "/api/v1/tag/delete/{id}": {
+            "delete": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "删除标签",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Name",
+                        "name": "name",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "token",
+                        "name": "token",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "10008": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/gin_http.ResponseJSON"
+                        }
+                    },
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/gin_http.ResponseJSON"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/gin_http.ResponseJSON"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/tag/getList": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "获取多个文章标签",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Page",
+                        "name": "page",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/gin_http.ResponseJSON"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/tag/update/{id}": {
             "put": {
                 "produces": [
                     "application/json"
@@ -149,59 +202,10 @@ const docTemplate = `{
                         }
                     }
                 }
-            },
-            "delete": {
-                "produces": [
-                    "application/json"
-                ],
-                "summary": "删除文章标签",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Name",
-                        "name": "name",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "token",
-                        "name": "token",
-                        "in": "header",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "10008": {
-                        "description": "",
-                        "schema": {
-                            "$ref": "#/definitions/gin_http.ResponseJSON"
-                        }
-                    },
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/gin_http.ResponseJSON"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/gin_http.ResponseJSON"
-                        }
-                    }
-                }
             }
         },
         "/delete_user": {
-            "post": {
+            "delete": {
                 "produces": [
                     "application/json"
                 ],
