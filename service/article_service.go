@@ -10,65 +10,60 @@ import (
 	"strings"
 )
 
-// type ArticleService struct {
-// 	BaseService
-// }
-
-// func GetArticleService() *ArticleService {
-// 	s := ArticleService{}
-// 	s.model = &model.Article{}
-// 	return &s
-// }
 type ArticleService struct {
-	model.Article
-
+	BaseService
 	PageNum  int
 	PageSize int
 }
 
-func (a *ArticleService) Add() error {
+func GetArticleService() *ArticleService {
+	s := ArticleService{}
+	s.model = &model.Article{}
+	return &s
+}
 
-	if err := model.AddArticle(a.Article); err != nil {
+func (s *ArticleService) AddArticle() error {
+
+	if err := model.AddArticle(*(s.model.(*model.Article))); err != nil {
 		return err
 	}
-
 	return nil
 }
 
-func (a *ArticleService) ExistByID() (bool, error) {
-	return model.ExistArticleByID(a.ID)
+func (s *ArticleService) ExistByID() bool {
+	return model.ExistArticleByID(s.model.(*model.Article).ID)
 }
 
-func (a *ArticleService) Get() (*model.Article, error) {
-	var cacheArticle *model.Article
+// func (a *ArticleService) Get() (*model.Article, error) {
+// 	var cacheArticle *model.Article
 
-	//cache := cache.Article{ID: a.ID}
-	key := a.GetArticleKey()
-	if redis.Exists(key) {
-		data, err := redis.Get(key)
-		if err != nil {
-			logging.Info(err)
-		} else {
-			json.Unmarshal(data, &cacheArticle)
-			return cacheArticle, nil
-		}
-	}
+// 	//cache := cache.Article{ID: a.ID}
+// 	key := a.GetArticleKey()
+// 	if redis.Exists(key) {
+// 		data, err := redis.Get(key)
+// 		if err != nil {
+// 			logging.Info(err)
+// 		} else {
+// 			json.Unmarshal(data, &cacheArticle)
+// 			return cacheArticle, nil
+// 		}
+// 	}
 
-	article, err := model.GetArticle(a.ID)
-	if err != nil {
-		return nil, err
-	}
+// 	article, err := model.GetArticle(a.ID)
+// 	if err != nil {
+// 		return nil, err
+// 	}
 
-	redis.Set(key, article, 3600)
-	return article, nil
-}
+// 	redis.Set(key, article, 3600)
+// 	return article, nil
+// }
 
-func (a *ArticleService) GetAll() ([]*model.Article, error) {
+func (s *ArticleService) GetArticles(data map[string]interface{}) ([]*model.Article, error) {
 	var (
 		articles, cacheArticles []*model.Article
 	)
 
-	key := a.GetArticlesKey()
+	key := s.GetArticlesKey()
 	if redis.Exists(key) {
 		data, err := redis.Get(key)
 		if err != nil {
@@ -79,7 +74,7 @@ func (a *ArticleService) GetAll() ([]*model.Article, error) {
 		}
 	}
 
-	articles, err := model.GetArticles(a.PageNum, a.PageSize, a.getMaps())
+	articles, err := model.GetArticles(s.PageNum, s.PageSize, data)
 	if err != nil {
 		return nil, err
 	}
@@ -88,51 +83,38 @@ func (a *ArticleService) GetAll() ([]*model.Article, error) {
 	return articles, nil
 }
 
-func (a *ArticleService) Delete() error {
-	return model.DeleteArticle(a.ID)
+func (s *ArticleService) Delete() error {
+	return model.DeleteArticle(s.model.(*model.Article).ID)
 }
 
-func (a *ArticleService) Count() (int, error) {
-	return model.GetArticleTotal(a.getMaps())
+func (s *ArticleService) Count(data map[string]interface{}) (int, error) {
+	return model.GetArticleTotal(data)
 }
 
-func (a *ArticleService) getMaps() map[string]interface{} {
-	maps := make(map[string]interface{})
-	maps["deleted_on"] = 0
-	if a.State != -1 {
-		maps["state"] = a.State
-	}
-	// if a.TagID != -1 {
-	// 	maps["tag_id"] = a.TagID
-	// }
+// func (a *ArticleService) GetArticleKey() string {
+// 	return e.CACHE_ARTICLE + "_" + strconv.Itoa(a.ID)
+// }
 
-	return maps
-}
-
-func (a *ArticleService) GetArticleKey() string {
-	return e.CACHE_ARTICLE + "_" + strconv.Itoa(a.ID)
-}
-
-func (a *ArticleService) GetArticlesKey() string {
+func (s *ArticleService) GetArticlesKey() string {
 	keys := []string{
 		e.CACHE_ARTICLE,
 		"LIST",
 	}
 
-	if a.ID > 0 {
-		keys = append(keys, strconv.Itoa(a.ID))
-	}
+	// if a.ID > 0 {
+	// 	keys = append(keys, strconv.Itoa(a.ID))
+	// }
 	// if a.TagID > 0 {
 	// 	keys = append(keys, strconv.Itoa(a.TagID))
 	// }
-	if a.State >= 0 {
-		keys = append(keys, strconv.Itoa(a.State))
+	// if a.State >= 0 {
+	// 	keys = append(keys, strconv.Itoa(a.State))
+	// }
+	if s.PageNum > 0 {
+		keys = append(keys, strconv.Itoa(s.PageNum))
 	}
-	if a.PageNum > 0 {
-		keys = append(keys, strconv.Itoa(a.PageNum))
-	}
-	if a.PageSize > 0 {
-		keys = append(keys, strconv.Itoa(a.PageSize))
+	if s.PageSize > 0 {
+		keys = append(keys, strconv.Itoa(s.PageSize))
 	}
 
 	return strings.Join(keys, "_")
