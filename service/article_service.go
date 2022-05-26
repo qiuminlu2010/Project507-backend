@@ -22,7 +22,7 @@ func GetArticleService() *ArticleService {
 	return &s
 }
 
-func (s *ArticleService) AddArticle() error {
+func (s *ArticleService) Add() error {
 
 	if err := model.AddArticle(*(s.model.(*model.Article))); err != nil {
 		return err
