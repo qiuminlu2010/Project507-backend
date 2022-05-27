@@ -3,11 +3,12 @@ package model
 //https://blog.csdn.net/weixin_45604257/article/details/105139862
 type Tag struct {
 	Model
-	Name string `json:"name" form:"name" validate:"required,lte=20" gorm:"unique,not null"`
-	// Type       string `json:"type" form:"type" `
-	CreatedBy  string `json:"created_by" form:"created_by" `
-	ModifiedBy string `json:"modified_by" form:"modified_by"`
-	State      int    `json:"state" form:"state"`
+	Name string `json:"name" form:"name" binding:"required,lte=20" gorm:"unique;not null"`
+	//Type       string `json:"type" form:"type" `
+	CreatedBy  string    `json:"created_by" form:"created_by" `
+	ModifiedBy string    `json:"modified_by" form:"modified_by"`
+	State      int       `json:"state" form:"state"`
+	Articles   []Article `gorm:"many2many:article_tags;"`
 }
 
 // func GetTags(pageNum int, pageSize int, maps interface{}) (tags []Tag) {
@@ -43,7 +44,7 @@ func ExistTagByID(id int) bool {
 	return tag.ID > 0
 }
 
-func GetTagIdByName(name string) (int, error) {
+func GetTagIdByName(name string) (uint, error) {
 	var tag Tag
 	err := db.Select("id").Where("name = ?", name).First(&tag).Error
 	if err != nil {
@@ -51,10 +52,41 @@ func GetTagIdByName(name string) (int, error) {
 	}
 	return tag.ID, nil
 }
-func DeleteTag(id uint) bool {
-	return db.Where("id = ?", id).Delete(&Tag{}).RowsAffected > 0
+func DeleteTag(id uint) error {
+	var tag Tag
+	tag.ID = id
+
+	tx := db.Begin()
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+		}
+	}()
+
+	if err := tx.Error; err != nil {
+		return err
+	}
+
+	if err := tx.Model(&tag).Association("Articles").Clear().Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+	if err := tx.Where("id = ?", id).Delete(Tag{}).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+	return tx.Commit().Error
 }
 
-func EditTag(id uint, data interface{}) bool {
-	return db.Model(&Tag{}).Where("id = ?", id).Updates(data).RowsAffected > 0
+func RecoverTag(id uint) error {
+	var tag Tag
+	tag.ID = id
+	if err := db.Unscoped().Model(&tag).Update("deleted_at", nil).Error; err != nil {
+		return err
+	}
+	return nil
+}
+
+func EditTag(id uint, data interface{}) error {
+	return db.Model(&Tag{}).Where("id = ?", id).Updates(data).Error
 }

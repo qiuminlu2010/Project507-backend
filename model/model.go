@@ -14,9 +14,10 @@ import (
 var db *gorm.DB
 
 type Model struct {
-	ID         int `gorm:"primary_key" json:"id" form:"id" uri:"id" validate:"gte=0"`
-	CreatedOn  int `json:"created_on" form:"created_on" validate:"gte=0"`
-	ModifiedOn int `json:"modified_on" form:"modified_on" validate:"gte=0"`
+	ID         uint `gorm:"primary_key" uri:"id" `
+	CreatedOn  time.Time
+	ModifiedOn time.Time
+	DeletedAt  *time.Time `sql:"index"`
 }
 
 func Setup() {
@@ -58,7 +59,7 @@ func Setup() {
 	db.DB().SetMaxOpenConns(100)
 	db.Callback().Create().Replace("gorm:update_time_stamp", updateTimeStampForCreateCallback)
 	db.Callback().Update().Replace("gorm:update_time_stamp", updateTimeStampForUpdateCallback)
-	db.Callback().Delete().Replace("gorm:delete", deleteCallback)
+	// db.Callback().Delete().Replace("gorm:delete", deleteCallback)
 
 	db.AutoMigrate(&User{})
 	db.AutoMigrate(&Tag{})
@@ -67,7 +68,8 @@ func Setup() {
 
 func updateTimeStampForCreateCallback(scope *gorm.Scope) {
 	if !scope.HasError() {
-		nowTime := time.Now().Unix()
+		// nowTime := time.Now().Unix()
+		nowTime := time.Now()
 		if createTimeField, ok := scope.FieldByName("CreatedOn"); ok {
 			if createTimeField.IsBlank {
 				createTimeField.Set(nowTime)
@@ -89,45 +91,45 @@ func updateTimeStampForCreateCallback(scope *gorm.Scope) {
 
 func updateTimeStampForUpdateCallback(scope *gorm.Scope) {
 	if _, ok := scope.Get("gorm:update_column"); !ok {
-		scope.SetColumn("ModifiedOn", time.Now().Unix())
+		scope.SetColumn("ModifiedOn", time.Now())
 	}
 }
 
-func deleteCallback(scope *gorm.Scope) {
-	if !scope.HasError() {
-		var extraOption string
-		if str, ok := scope.Get("gorm:delete_option"); ok {
-			extraOption = fmt.Sprint(str)
-		}
+// func deleteCallback(scope *gorm.Scope) {
+// 	if !scope.HasError() {
+// 		var extraOption string
+// 		if str, ok := scope.Get("gorm:delete_option"); ok {
+// 			extraOption = fmt.Sprint(str)
+// 		}
 
-		deletedOnField, hasDeletedOnField := scope.FieldByName("DeletedOn")
+// 		deletedOnField, hasDeletedOnField := scope.FieldByName("DeletedOn")
 
-		if !scope.Search.Unscoped && hasDeletedOnField {
-			scope.Raw(fmt.Sprintf(
-				"UPDATE %v SET %v=%v%v%v",
-				scope.QuotedTableName(),
-				scope.Quote(deletedOnField.DBName),
-				scope.AddToVars(time.Now().Unix()),
-				addExtraSpaceIfExist(scope.CombinedConditionSql()),
-				addExtraSpaceIfExist(extraOption),
-			)).Exec()
-		} else {
-			scope.Raw(fmt.Sprintf(
-				"DELETE FROM %v%v%v",
-				scope.QuotedTableName(),
-				addExtraSpaceIfExist(scope.CombinedConditionSql()),
-				addExtraSpaceIfExist(extraOption),
-			)).Exec()
-		}
-	}
-}
+// 		if !scope.Search.Unscoped && hasDeletedOnField {
+// 			scope.Raw(fmt.Sprintf(
+// 				"UPDATE %v SET %v=%v%v%v",
+// 				scope.QuotedTableName(),
+// 				scope.Quote(deletedOnField.DBName),
+// 				scope.AddToVars(time.Now()),
+// 				addExtraSpaceIfExist(scope.CombinedConditionSql()),
+// 				addExtraSpaceIfExist(extraOption),
+// 			)).Exec()
+// 		} else {
+// 			scope.Raw(fmt.Sprintf(
+// 				"DELETE FROM %v%v%v",
+// 				scope.QuotedTableName(),
+// 				addExtraSpaceIfExist(scope.CombinedConditionSql()),
+// 				addExtraSpaceIfExist(extraOption),
+// 			)).Exec()
+// 		}
+// 	}
+// }
 
-func addExtraSpaceIfExist(str string) string {
-	if str != "" {
-		return " " + str
-	}
-	return ""
-}
+// func addExtraSpaceIfExist(str string) string {
+// 	if str != "" {
+// 		return " " + str
+// 	}
+// 	return ""
+// }
 
 func CloseDB() {
 	defer db.Close()

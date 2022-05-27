@@ -55,7 +55,7 @@ func AddTag(c *gin.Context) {
 	// 	gin_http.Response(c, http.StatusBadRequest, e.INVALID_PARAMS, nil)
 	// 	return
 	// }
-	state := tagService.ExistTagByName()
+	state := tagService.ExistTag()
 	if state {
 		gin_http.Response(c, http.StatusBadRequest, e.ERROR_EXIST_TAG, nil)
 		return
@@ -123,8 +123,7 @@ func EditTag(c *gin.Context) {
 		}
 	}
 
-	state := tagService.Update()
-	if !state {
+	if err := tagService.Update(); err != nil {
 		gin_http.Response(c, http.StatusInternalServerError, e.ERROR_EDIT_TAG_FAIL, nil)
 		return
 	}
@@ -136,7 +135,6 @@ func EditTag(c *gin.Context) {
 // @Summary 删除标签
 // @Produce  json
 // @Param id path int true "ID"
-// @Param name formData string true "Name"
 // @Param token header string true "token"
 // @Success 200 {object} gin_http.ResponseJSON
 // @Failure  400 {object} gin_http.ResponseJSON
@@ -160,9 +158,28 @@ func DeleteTag(c *gin.Context) {
 	// 	return
 	// }
 
-	if state := tagService.Delete(); !state {
+	if err := tagService.Delete(); err != nil {
 		gin_http.Response(c, http.StatusInternalServerError, e.ERROR_DELETE_TAG_FAIL, nil)
 		return
+	}
+	gin_http.Response(c, http.StatusOK, e.SUCCESS, nil)
+}
+
+// @Summary 恢复标签
+// @Produce  json
+// @Param id path int true "ID"
+// @Param token header string true "token"
+// @Router /api/v1/tag/recover/{id} [post]
+func RecoverTag(c *gin.Context) {
+	tagService := service.GetTagService()
+	httpCode, errCode := tagService.Bind(c)
+	if errCode != e.SUCCESS {
+		gin_http.Response(c, httpCode, errCode, nil)
+		return
+	}
+
+	if err := tagService.Recovery(); err != nil {
+		gin_http.Response(c, http.StatusInternalServerError, e.ERROR_REC_TAG_FAIL, nil)
 	}
 	gin_http.Response(c, http.StatusOK, e.SUCCESS, nil)
 }

@@ -20,6 +20,7 @@ type BaseService struct {
 func (s *BaseService) Bind(c *gin.Context) (int, int) {
 	var err error
 	if err = c.ShouldBind(s.model); err != nil {
+		fmt.Println("绑定错误", err)
 		return http.StatusBadRequest, e.INVALID_PARAMS
 	}
 	if err = c.ShouldBindUri(s.model); err != nil {

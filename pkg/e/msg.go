@@ -37,6 +37,8 @@ var MsgFlags = map[int]string{
 	ERROR_UPDATE_USER_FAIL:          "更新用户信息失败",
 	ERROR_REDIS_KEY_FAIL:            "缓存获取失败",
 	ERROR_ADD_ARTICLE_TAG_FAIL:      "添加文章标签失败",
+	ERROR_REC_ARTICLE_FAIL:          "恢复文章失败",
+	ERROR_REC_TAG_FAIL:              "恢复标签失败",
 }
 
 func GetMsg(code int) string {

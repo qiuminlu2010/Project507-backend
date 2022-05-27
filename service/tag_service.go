@@ -6,7 +6,7 @@ import (
 
 type TagParams struct {
 	Id         uint   `uri:"id"`
-	Name       string `json:"name" form:"name" binding:"required,lte=20,gte=2" `
+	Name       string `json:"name" form:"name" binding:"omitempty,lte=20,gte=2" `
 	CreatedBy  string `json:"created_by" form:"created_by" `
 	ModifiedBy string `json:"modified_by" form:"modified_by"`
 	PageNum    int
@@ -47,11 +47,11 @@ func (s *TagService) Add() error {
 	})
 }
 
-func (s *TagService) Delete() bool {
+func (s *TagService) Delete() error {
 	return model.DeleteTag(s.Id)
 }
 
-func (s *TagService) Update() bool {
+func (s *TagService) Update() error {
 	data := make(map[string]interface{})
 	data["name"] = s.Name
 	data["modified_by"] = s.ModifiedBy
@@ -62,6 +62,13 @@ func (s *TagService) Get() []model.Tag {
 	return model.GetTags(s.PageNum, s.PageSize)
 }
 
-func (s *TagService) ExistTagByName() bool {
+func (s *TagService) Recovery() error {
+	return model.RecoverTag(s.Id)
+}
+func (s *TagService) ExistTag() bool {
 	return model.ExistTagByName(s.Name)
+}
+
+func (s *TagService) ExistTagByName(name string) bool {
+	return model.ExistTagByName(name)
 }

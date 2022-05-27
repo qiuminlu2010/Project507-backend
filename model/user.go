@@ -2,7 +2,6 @@ package model
 
 type User struct {
 	Model
-
 	Username  string `json:"username" form:"username" validate:"omitempty,printascii,gte=6,lte=20" gorm:"unique"`
 	Password  string `json:"password" form:"password" validate:"omitempty,printascii,gte=6,lte=20"`
 	StudentId string `json:"student_id" form:"student_id" validate:"omitempty,numeric"`
