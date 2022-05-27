@@ -3,7 +3,7 @@ package model
 type User struct {
 	Model
 
-	Username  string `json:"username" form:"username" validate:"omitempty,printascii,gte=6,lte=20"`
+	Username  string `json:"username" form:"username" validate:"omitempty,printascii,gte=6,lte=20" gorm:"unique"`
 	Password  string `json:"password" form:"password" validate:"omitempty,printascii,gte=6,lte=20"`
 	StudentId string `json:"student_id" form:"student_id" validate:"omitempty,numeric"`
 	State     int    `json:"state" form:"state" validate:"gte=0,lte=1"`
@@ -35,16 +35,16 @@ func AddUser(user User) error {
 	return err
 }
 
-func UpdatePassword(id int, data interface{}) bool {
+func UpdatePassword(id uint, data interface{}) bool {
 	return db.Model(&User{}).Where("id = ?", id).Updates(data).RowsAffected > 0
 
 }
 
-func DeleteUser(id int) bool {
+func DeleteUser(id uint) bool {
 	return db.Where("id = ?", id).Delete(&User{}).RowsAffected > 0
 }
 
-func GetUsernameByID(id int) string {
+func GetUsernameByID(id uint) string {
 	var user User
 	err := db.Select("username").Where("id = ?", id).First(&user).Error
 	if err != nil {

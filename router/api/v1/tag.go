@@ -1,8 +1,6 @@
 package v1
 
 import (
-	"strconv"
-
 	"github.com/gin-gonic/gin"
 
 	"qiu/blog/pkg/util"
@@ -26,11 +24,10 @@ import (
 func GetTags(c *gin.Context) {
 	tagService := service.GetTagService()
 
-	data := make(map[string]int)
-	data["pageNum"] = util.GetPage(c)
-	data["pageSize"] = setting.AppSetting.PageSize
+	tagService.PageNum = util.GetPage(c)
+	tagService.PageSize = setting.AppSetting.PageSize
 
-	tags := tagService.Get(data)
+	tags := tagService.Get()
 	gin_http.Response(c, http.StatusOK, e.SUCCESS, tags)
 }
 
@@ -53,11 +50,11 @@ func AddTag(c *gin.Context) {
 		gin_http.Response(c, httpCode, errCode, nil)
 		return
 	}
-	err := tagService.Valid()
-	if err != nil {
-		gin_http.Response(c, http.StatusBadRequest, e.INVALID_PARAMS, nil)
-		return
-	}
+	// err := tagService.Valid()
+	// if err != nil {
+	// 	gin_http.Response(c, http.StatusBadRequest, e.INVALID_PARAMS, nil)
+	// 	return
+	// }
 	state := tagService.ExistTagByName()
 	if state {
 		gin_http.Response(c, http.StatusBadRequest, e.ERROR_EXIST_TAG, nil)
@@ -82,7 +79,7 @@ func AddTag(c *gin.Context) {
 		}
 	}
 
-	err = tagService.Add()
+	err := tagService.Add()
 	if err != nil {
 		gin_http.Response(c, http.StatusInternalServerError, e.ERROR_ADD_TAG_FAIL, nil)
 		return
@@ -107,15 +104,6 @@ func EditTag(c *gin.Context) {
 
 	if errCode != e.SUCCESS {
 		gin_http.Response(c, httpCode, errCode, nil)
-		return
-	}
-
-	// id, _ := strconv.Atoi(c.Param("id"))
-	// tagService.SetId(id)
-
-	err := tagService.Valid()
-	if err != nil {
-		gin_http.Response(c, http.StatusBadRequest, e.INVALID_PARAMS, nil)
 		return
 	}
 
@@ -163,14 +151,14 @@ func DeleteTag(c *gin.Context) {
 		return
 	}
 
-	id, _ := strconv.Atoi(c.Param("id"))
-	tagService.SetId(id)
+	// id, _ := strconv.Atoi(c.Param("id"))
+	// tagService.SetId(id)
 
-	err := tagService.Valid()
-	if err != nil {
-		gin_http.Response(c, http.StatusBadRequest, e.INVALID_PARAMS, nil)
-		return
-	}
+	// err := tagService.Valid()
+	// if err != nil {
+	// 	gin_http.Response(c, http.StatusBadRequest, e.INVALID_PARAMS, nil)
+	// 	return
+	// }
 
 	if state := tagService.Delete(); !state {
 		gin_http.Response(c, http.StatusInternalServerError, e.ERROR_DELETE_TAG_FAIL, nil)

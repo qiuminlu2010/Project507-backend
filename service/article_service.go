@@ -34,12 +34,12 @@ func (s *ArticleService) Bind(c *gin.Context) (int, int) {
 		fmt.Println("绑定错误", err)
 		return http.StatusBadRequest, e.INVALID_PARAMS
 	}
-	fmt.Println("绑定url")
-	if err = c.ShouldBindUri(s); err != nil {
-		// fmt.Println("绑定数据", s.model)
-		fmt.Println("绑定错误", err)
-		return http.StatusBadRequest, e.INVALID_PARAMS
-	}
+	// fmt.Println("绑定url")
+	// if err = c.ShouldBindUri(s); err != nil {
+	// 	// fmt.Println("绑定数据", s.model)
+	// 	fmt.Println("绑定错误", err)
+	// 	return http.StatusBadRequest, e.INVALID_PARAMS
+	// }
 
 	fmt.Println("绑定tag", s.TagName)
 	fmt.Println("绑定", s.Article)

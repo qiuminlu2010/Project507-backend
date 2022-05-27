@@ -12,10 +12,11 @@ type Article struct {
 	Content string `json:"content" form:"content"`
 	Like    int    `json:"like" form:"like"`
 	Collect int    `json:"collect" form:"collect"`
+	Watch   int    `json:"watch" form:"watch"`
 	//TODO: Comments   []Comment
 	CreatedBy  string `json:"created_by" form:"created_by"`
 	ModifiedBy string `json:"modified_by" form:"created_by"`
-	State      int    `json:"state"`
+	State      int    `json:"state" form:"state"`
 }
 
 //通过ID判断文章是否存在

@@ -19,20 +19,11 @@ type BaseService struct {
 
 func (s *BaseService) Bind(c *gin.Context) (int, int) {
 	var err error
-	// fmt.Println("绑定json")
-	// if err = c.ShouldBindJSON(s.model); err != nil {
-	// 	// fmt.Println("绑定数据", s.model)
-	// 	// fmt.Println("绑定错误", err)
-	// 	return http.StatusBadRequest, e.INVALID_PARAMS
-	// }
-	fmt.Println("绑定参数")
 	if err = c.ShouldBind(s.model); err != nil {
 		return http.StatusBadRequest, e.INVALID_PARAMS
 	}
-	fmt.Println("绑定url")
 	if err = c.ShouldBindUri(s.model); err != nil {
-		// fmt.Println("绑定数据", s.model)
-		// fmt.Println("绑定错误", err)
+		fmt.Println("绑定错误", err)
 		return http.StatusBadRequest, e.INVALID_PARAMS
 	}
 	fmt.Println("绑定数据", s.model)

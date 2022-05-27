@@ -56,7 +56,7 @@ func Login(c *gin.Context) {
 		return
 	}
 
-	token, err := util.GenerateToken(userService.GetUsername(), userService.GetPassword())
+	token, err := util.GenerateToken(userService.Username, userService.Password)
 	if err != nil {
 		gin_http.Response(c, http.StatusInternalServerError, e.ERROR_AUTH_TOKEN, nil)
 		return
@@ -64,7 +64,7 @@ func Login(c *gin.Context) {
 
 	data := make(map[string]interface{})
 	data["token"] = token
-	logging.Info("用户登录成功,", "用户名:", userService.GetUsername())
+	logging.Info("用户登录成功,", "用户名:", userService.Username)
 	gin_http.Response(c, http.StatusOK, e.SUCCESS, data)
 
 }
@@ -109,7 +109,7 @@ func Register(c *gin.Context) {
 		return
 	}
 
-	logging.Info("用户注销成功,", "用户名:", userService.GetUsername())
+	logging.Info("用户注销成功,", "用户名:", userService.Username)
 	gin_http.Response(c, http.StatusOK, e.SUCCESS, nil)
 }
 
@@ -147,7 +147,7 @@ func DeleteUser(c *gin.Context) {
 		return
 	}
 
-	if claims.Username != userService.GetUsernameByID() && claims.Username != userService.GetUsername() && claims.Username != "admin" {
+	if claims.Username != userService.GetUsernameByID() && claims.Username != userService.Username && claims.Username != "admin" {
 		fmt.Println("token用户信息不一致", claims.Username, userService.GetUsernameByID())
 		gin_http.Response(c, http.StatusInternalServerError, e.ERROR_AUTH_CHECK_TOKEN_FAIL, nil)
 		return

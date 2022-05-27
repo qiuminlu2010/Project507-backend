@@ -3,7 +3,7 @@ package model
 //https://blog.csdn.net/weixin_45604257/article/details/105139862
 type Tag struct {
 	Model
-	Name string `json:"name" form:"name" validate:"required,lte=20" `
+	Name string `json:"name" form:"name" validate:"required,lte=20" gorm:"unique,not null"`
 	// Type       string `json:"type" form:"type" `
 	CreatedBy  string `json:"created_by" form:"created_by" `
 	ModifiedBy string `json:"modified_by" form:"modified_by"`
@@ -51,10 +51,10 @@ func GetTagIdByName(name string) (int, error) {
 	}
 	return tag.ID, nil
 }
-func DeleteTag(id int) bool {
+func DeleteTag(id uint) bool {
 	return db.Where("id = ?", id).Delete(&Tag{}).RowsAffected > 0
 }
 
-func EditTag(id int, data interface{}) bool {
+func EditTag(id uint, data interface{}) bool {
 	return db.Model(&Tag{}).Where("id = ?", id).Updates(data).RowsAffected > 0
 }
