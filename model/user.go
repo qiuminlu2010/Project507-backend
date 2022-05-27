@@ -2,45 +2,36 @@ package model
 
 type User struct {
 	Model
-	Username  string `json:"username" form:"username" validate:"omitempty,printascii,gte=6,lte=20" gorm:"unique"`
-	Password  string `json:"password" form:"password" validate:"omitempty,printascii,gte=6,lte=20"`
-	StudentId string `json:"student_id" form:"student_id" validate:"omitempty,numeric"`
-	State     int    `json:"state" form:"state" validate:"gte=0,lte=1"`
+	Username  string `json:"username" form:"username" binding:"omitempty,printascii,gte=6,lte=20" gorm:"unique"`
+	Password  string `json:"password" form:"password" binding:"omitempty,printascii,gte=6,lte=20"`
+	StudentId string `json:"student_id" form:"student_id" binding:"omitempty,numeric"`
+	State     int    `json:"state" form:"state" binding:"gte=0,lte=1"`
 }
 
-func ExistUsername(username string) bool {
+func ExistUsername(username string) error {
 	var user User
-	db.Select("id").Where("username = ?", username).First(&user)
-
-	return user.ID > 0
-
+	return db.Where("username = ?", username).First(&user).Error
 }
 
-func ValidLogin(username string, password string) (bool, error) {
+func ValidLogin(username string, password string) (User, error) {
 	var user User
-	err := db.Select("password").Where("username = ?", username).First(&user).Error
-	if err != nil {
-		return false, err
+	if err := db.Where("username = ? AND password = ?", username, password).First(&user).Error; err != nil {
+		return user, err
 	}
-	if user.Password != password {
-		return false, nil
-	}
-	return true, nil
+	return user, nil
 }
 
 func AddUser(user User) error {
-	err := db.Create(&user).Error
-
-	return err
+	return db.Create(&user).Error
 }
 
-func UpdatePassword(id uint, data interface{}) bool {
-	return db.Model(&User{}).Where("id = ?", id).Updates(data).RowsAffected > 0
+func UpdateUser(id uint, data interface{}) error {
+	return db.Model(&User{}).Where("id = ?", id).Updates(data).Error
 
 }
 
-func DeleteUser(id uint) bool {
-	return db.Where("id = ?", id).Delete(&User{}).RowsAffected > 0
+func DeleteUser(id uint) error {
+	return db.Where("id = ?", id).Delete(&User{}).Error
 }
 
 func GetUsernameByID(id uint) string {

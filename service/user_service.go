@@ -2,6 +2,9 @@ package service
 
 import (
 	"qiu/blog/model"
+	"qiu/blog/pkg/redis"
+	"qiu/blog/pkg/util"
+	"strconv"
 )
 
 type UserParams struct {
@@ -21,31 +24,47 @@ func GetUserService() *UserService {
 	return &s
 }
 
-func (s *UserService) Register() error {
+func (s *UserService) Add() error {
 	return model.AddUser(model.User{
 		Username: s.Username,
 		Password: s.Password,
 	})
 }
 
-func (s *UserService) Delete() bool {
+func (s *UserService) Delete() error {
 	return model.DeleteUser(s.Id)
 }
 
-func (s *UserService) Login() (bool, error) {
+func (s *UserService) Login() (model.User, error) {
 	return model.ValidLogin(s.Username, s.Password)
 }
 
-func (s *UserService) IfExisted() bool {
+func (s *UserService) ExistUsername() error {
 	return model.ExistUsername(s.Username)
 }
 
-func (s *UserService) UpdatePassword() bool {
+func (s *UserService) UpdatePassword() error {
 	data := make(map[string]interface{})
 	data["password"] = s.Password
-	return model.UpdatePassword(s.Id, data)
+	return model.UpdateUser(s.Id, data)
 }
 
 func (s *UserService) GetUsernameByID() string {
 	return model.GetUsernameByID(s.Id)
+}
+
+func (s *UserService) GetUUID(uid uint) string {
+	key := strconv.Itoa(int(uid)) + "_" + "uuid"
+	uuid := util.GenerateUUID()
+	redis.Set(key, uuid, 60*60*24)
+	return uuid
+}
+
+func (s *UserService) CheckUUID(uid uint, uuid string) bool {
+	key := strconv.Itoa(int(uid)) + "_" + "uuid"
+	if !redis.Exists(key) {
+		return false
+	}
+	v, _ := redis.Get(key)
+	return uuid == string(v)
 }

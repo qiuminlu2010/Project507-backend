@@ -20,21 +20,18 @@ func InitRouter() *gin.Engine {
 	r := gin.New()
 
 	r.Use(gin.Logger())
-
 	r.Use(gin.Recovery())
-
 	gin.SetMode(setting.ServerSetting.RunMode)
-	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
-	//注册用户
-	//curl "http://127.0.0.1:8000/api/v1/register?username=qxy1&password=123456" --include --header "Content-Type: application/json" --request "POST"
-	r.POST("/register", v1.Register)
-	//登录用户
-	// r.GET("/login", v1.Login)
-	r.POST("/login", v1.Login)
 	apiv1 := r.Group("/api/v1")
-	//获取标签列表
+
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+
+	//用户类
+	r.POST("/user/register", v1.Register)
+	r.POST("/user/login", v1.Login)
+
 	apiv1.GET("/tag/getList/", v1.GetTags)
-	//获取文章列表
+
 	apiv1.GET("/article/getList/", v1.GetArticles)
 	apiv1.Use(middleware.JWT())
 	{
@@ -56,10 +53,9 @@ func InitRouter() *gin.Engine {
 	}
 	r.Use(middleware.JWT())
 	{
-		//删除用户
-		r.DELETE("/delete_user", v1.DeleteUser)
-		//修改用户密码
-		r.PUT("/update_password", v1.UpdatePassword)
+		//用户类
+		r.DELETE("/user/delete", v1.DeleteUser)
+		r.PUT("/user/update", v1.UpdatePassword)
 	}
 	r.Use(middleware.CORS())
 	return r

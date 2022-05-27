@@ -11,28 +11,29 @@ import (
 var jwtSecret = []byte(setting.AppSetting.JwtSecret)
 
 type Claims struct {
-	Username string `json:"username"`
-	Password string `json:"password"`
+	Uid uint `json:"uid"`
+	// Username string `json:"username"`
+	// Password string `json:"password"`
 	jwt.StandardClaims
 }
 
-func GenerateToken(username, password string) (string, error) {
+func GenerateToken(uid uint) (string, int64, error) {
 	nowTime := time.Now()
-	expireTime := nowTime.Add(3 * time.Hour)
+	expireTime := nowTime.Add(3 * time.Hour).Unix()
 
 	claims := Claims{
-		username,
-		password,
+		uid,
+		// username,
 		jwt.StandardClaims{
-			ExpiresAt: expireTime.Unix(),
-			Issuer:    "gin-blog",
+			ExpiresAt: expireTime,
+			Issuer:    "qiu",
 		},
 	}
 
 	tokenClaims := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	token, err := tokenClaims.SignedString(jwtSecret)
 
-	return token, err
+	return token, expireTime, err
 }
 
 func ParseToken(token string) (*Claims, error) {

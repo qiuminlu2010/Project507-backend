@@ -20,50 +20,38 @@ import (
 // 4.是否必须
 // 5.注释
 
-//用户登录
 // @Summary 用户登录
 // @Produce  json
 // @Param username formData string true "username"
 // @Param password formData string true "password"
 // @Success 200 {object} gin_http.ResponseJSON
 // @Failure  20005 {object} gin_http.ResponseJSON
-// @Router /login [post]
-// @Content-type application/x-www-form-urlencoded
+// @Router /user/login [post]
 func Login(c *gin.Context) {
 	userService := service.GetUserService()
-	// fmt.Println(sizeof(userService))
-	// userService := service.UserService{}
 	httpCode, errCode := userService.Bind(c)
 	if errCode != e.SUCCESS {
 		gin_http.Response(c, httpCode, errCode, nil)
 		return
 	}
-
-	err := userService.Valid()
+	userInfo, err := userService.Login()
 	if err != nil {
-		gin_http.Response(c, http.StatusBadRequest, e.INVALID_PARAMS, nil)
-		return
-	}
-
-	state, err := userService.Login()
-	if err != nil {
-		gin_http.Response(c, http.StatusInternalServerError, e.ERROR_LOGIN, nil)
-		return
-	}
-
-	if !state {
 		gin_http.Response(c, http.StatusBadRequest, e.ERROR_LOGIN, nil)
 		return
 	}
 
-	token, err := util.GenerateToken(userService.Username, userService.Password)
+	token, expire_time, err := util.GenerateToken(userInfo.ID)
 	if err != nil {
 		gin_http.Response(c, http.StatusInternalServerError, e.ERROR_AUTH_TOKEN, nil)
 		return
 	}
 
 	data := make(map[string]interface{})
+	data["uid"] = userInfo.ID
+	data["username"] = userInfo.Username
 	data["token"] = token
+	data["uuid"] = userService.GetUUID(userInfo.ID)
+	data["expire_time"] = expire_time
 	logging.Info("用户登录成功,", "用户名:", userService.Username)
 	gin_http.Response(c, http.StatusOK, e.SUCCESS, data)
 
@@ -88,23 +76,12 @@ func Register(c *gin.Context) {
 		return
 	}
 
-	err := userService.Valid()
-
-	if err != nil {
-		gin_http.Response(c, http.StatusBadRequest, e.INVALID_PARAMS, nil)
-		return
-	}
-
-	state := userService.IfExisted()
-
-	if state {
+	if err := userService.ExistUsername(); err == nil {
 		gin_http.Response(c, http.StatusBadRequest, e.ERROR_EXIST_USER, nil)
 		return
 	}
-
-	err = userService.Register()
-
-	if err != nil {
+	//TODO:密码加密
+	if err := userService.Add(); err != nil {
 		gin_http.Response(c, http.StatusInternalServerError, e.ERROR_REGISTER, nil)
 		return
 	}
@@ -132,28 +109,19 @@ func DeleteUser(c *gin.Context) {
 		return
 	}
 
-	err := userService.Valid()
-	if err != nil {
-		gin_http.Response(c, http.StatusBadRequest, e.INVALID_PARAMS, nil)
-		return
-	}
-
 	claims := userService.GetClaimsFromToken(c)
-	// token := c.GetHeader("token")
-	// claims, err := util.ParseToken(token)
-
 	if claims == nil {
 		gin_http.Response(c, http.StatusBadRequest, e.ERROR_AUTH, nil)
 		return
 	}
 
-	if claims.Username != userService.GetUsernameByID() && claims.Username != userService.Username && claims.Username != "admin" {
-		fmt.Println("token用户信息不一致", claims.Username, userService.GetUsernameByID())
+	if claims.Uid != userService.Id {
+		fmt.Println("token用户信息不一致", claims.Uid, userService.Id)
 		gin_http.Response(c, http.StatusInternalServerError, e.ERROR_AUTH_CHECK_TOKEN_FAIL, nil)
 		return
 	}
 
-	if err := userService.Delete(); !err {
+	if err := userService.Delete(); err != nil {
 		gin_http.Response(c, http.StatusInternalServerError, e.ERROR_DELETE_USER_FAIL, nil)
 		return
 	}
@@ -189,16 +157,49 @@ func UpdatePassword(c *gin.Context) {
 		return
 	}
 
-	if claims.Username != userService.GetUsernameByID() && claims.Username != "admin" {
-		fmt.Println("token用户信息不一致", claims.Username, userService.GetUsernameByID())
+	if claims.Uid != userService.Id {
+		fmt.Println("token用户信息不一致", claims.Uid, userService.Id)
 		gin_http.Response(c, http.StatusInternalServerError, e.ERROR_AUTH_CHECK_TOKEN_FAIL, nil)
 		return
 	}
 
-	if err := userService.UpdatePassword(); !err {
+	if err := userService.UpdatePassword(); err != nil {
 		gin_http.Response(c, http.StatusInternalServerError, e.ERROR_UPDATE_USER_FAIL, nil)
 		return
 	}
 	logging.Info("用户修改密码成功,", "用户名:", userService.GetUsernameByID())
 	gin_http.Response(c, http.StatusOK, e.SUCCESS, nil)
+}
+
+// @Summary 更新Token
+// @Produce  json
+// @Param id path uint true "id"
+// @Param uuid header string true "uuid"
+// @Success 200 {object} gin_http.ResponseJSON
+// @Router /user/refreshToken/{id} [post]
+func RefreshToken(c *gin.Context) {
+	userService := service.GetUserService()
+	httpCode, errCode := userService.Bind(c)
+	if errCode != e.SUCCESS {
+		gin_http.Response(c, httpCode, errCode, nil)
+		return
+	}
+	claims := userService.GetClaimsFromToken(c)
+	uuid := c.GetHeader("uuid")
+	state := userService.CheckUUID(claims.Uid, uuid)
+	if !state {
+		gin_http.Response(c, http.StatusMovedPermanently, e.ERROR_UUID_EXPIRE, nil)
+		return
+	}
+	token, expire_time, err := util.GenerateToken(userService.Id)
+	if err != nil {
+		gin_http.Response(c, http.StatusInternalServerError, e.ERROR_AUTH_TOKEN, nil)
+		return
+	}
+	data := make(map[string]interface{})
+	data["uid"] = userService.Id
+	data["token"] = token
+	data["expire_time"] = expire_time
+	gin_http.Response(c, http.StatusOK, e.SUCCESS, data)
+
 }
