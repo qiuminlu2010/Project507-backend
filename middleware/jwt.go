@@ -18,7 +18,6 @@ func JWT() gin.HandlerFunc {
 		var code int
 		var data interface{}
 		var token string
-		var claims util.Claims
 		code = e.SUCCESS
 
 		token = c.GetHeader("token")
@@ -31,12 +30,14 @@ func JWT() gin.HandlerFunc {
 				code = e.ERROR_AUTH_CHECK_TOKEN_FAIL
 			} else if time.Now().Unix() > claims.ExpiresAt {
 				code = e.ERROR_AUTH_CHECK_TOKEN_TIMEOUT
+			} else {
+				fmt.Println("新建Redis缓存", token, claims)
+				if err := redis.Set(token, claims, 3600); err != nil {
+					fmt.Println("新建Redis缓存失败")
+				}
 			}
 		}
-		fmt.Println("新建Redis缓存", token, claims)
-		if err := redis.Set(token, claims, 3600); err != nil {
-			fmt.Println("新建Redis缓存失败")
-		}
+
 		if code != e.SUCCESS {
 			logging.Info(e.GetMsg(code))
 			c.JSON(http.StatusUnauthorized, gin.H{

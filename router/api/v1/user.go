@@ -65,7 +65,7 @@ func Login(c *gin.Context) {
 // @Success 200 {object} gin_http.ResponseJSON
 // @Failure  20006 {object} gin_http.ResponseJSON
 // @Failure  20007 {object} gin_http.ResponseJSON
-// @Router /register [post]
+// @Router /user/register [post]
 func Register(c *gin.Context) {
 
 	userService := service.GetUserService()
@@ -184,9 +184,9 @@ func RefreshToken(c *gin.Context) {
 		gin_http.Response(c, httpCode, errCode, nil)
 		return
 	}
-	claims := userService.GetClaimsFromToken(c)
+
 	uuid := c.GetHeader("uuid")
-	state := userService.CheckUUID(claims.Uid, uuid)
+	state := userService.CheckUUID(userService.Id, uuid)
 	if !state {
 		gin_http.Response(c, http.StatusMovedPermanently, e.ERROR_UUID_EXPIRE, nil)
 		return

@@ -69,15 +69,15 @@ func AddTag(c *gin.Context) {
 
 	//TODO:还需验证用户是否存在
 
-	created_by := tagService.GetCreatedBy()
-	if created_by == "" {
-		tagService.SetCreatedBy(claims.Username)
-	} else {
-		if created_by != claims.Username {
-			gin_http.Response(c, http.StatusBadRequest, e.ERROR_AUTH, nil)
-			return
-		}
-	}
+	// created_by := tagService.GetCreatedBy()
+	// if created_by == "" {
+	// 	tagService.SetCreatedBy(claims.Username)
+	// } else {
+	// 	if created_by != claims.Username {
+	// 		gin_http.Response(c, http.StatusBadRequest, e.ERROR_AUTH, nil)
+	// 		return
+	// 	}
+	// }
 
 	err := tagService.Add()
 	if err != nil {
@@ -113,15 +113,15 @@ func EditTag(c *gin.Context) {
 		return
 	}
 
-	modified_by := tagService.GetModifiedBy()
-	if modified_by == "" {
-		tagService.SetModifiedBy(claims.Username)
-	} else {
-		if modified_by != claims.Username {
-			gin_http.Response(c, http.StatusBadRequest, e.ERROR_AUTH, nil)
-			return
-		}
-	}
+	// modified_by := tagService.GetModifiedBy()
+	// if modified_by == "" {
+	// 	tagService.SetModifiedBy(claims.Username)
+	// } else {
+	// 	if modified_by != claims.Username {
+	// 		gin_http.Response(c, http.StatusBadRequest, e.ERROR_AUTH, nil)
+	// 		return
+	// 	}
+	// }
 
 	if err := tagService.Update(); err != nil {
 		gin_http.Response(c, http.StatusInternalServerError, e.ERROR_EDIT_TAG_FAIL, nil)

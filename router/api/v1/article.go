@@ -97,15 +97,15 @@ func AddArticle(c *gin.Context) {
 
 	//TODO:还需验证用户是否存在
 
-	created_by := articleService.GetCreatedBy()
-	if created_by == "" {
-		articleService.SetCreatedBy(claims.Username)
-	} else {
-		if created_by != claims.Username {
-			gin_http.Response(c, http.StatusBadRequest, e.ERROR_AUTH, nil)
-			return
-		}
-	}
+	// created_by := articleService.GetCreatedBy()
+	// if created_by == "" {
+	// 	articleService.SetCreatedBy(claims.Username)
+	// } else {
+	// 	if created_by != claims.Username {
+	// 		gin_http.Response(c, http.StatusBadRequest, e.ERROR_AUTH, nil)
+	// 		return
+	// 	}
+	// }
 
 	httpCode, errCode = articleService.CheckTagName()
 	if errCode != e.SUCCESS {

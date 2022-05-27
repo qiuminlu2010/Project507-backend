@@ -37,6 +37,22 @@ func Setup() error {
 
 	return nil
 }
+func SetString(key string, value string, time int) error {
+	conn := RedisConn.Get()
+	defer conn.Close()
+
+	_, err := conn.Do("SET", key, value)
+	if err != nil {
+		return err
+	}
+
+	_, err = conn.Do("EXPIRE", key, time)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
 
 func Set(key string, data interface{}, time int) error {
 	conn := RedisConn.Get()

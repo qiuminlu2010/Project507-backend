@@ -1,6 +1,7 @@
 package service
 
 import (
+	"fmt"
 	"qiu/blog/model"
 	"qiu/blog/pkg/redis"
 	"qiu/blog/pkg/util"
@@ -56,7 +57,8 @@ func (s *UserService) GetUsernameByID() string {
 func (s *UserService) GetUUID(uid uint) string {
 	key := strconv.Itoa(int(uid)) + "_" + "uuid"
 	uuid := util.GenerateUUID()
-	redis.Set(key, uuid, 60*60*24)
+	fmt.Println(uuid)
+	redis.SetString(key, uuid, 60*60*24)
 	return uuid
 }
 
@@ -66,5 +68,6 @@ func (s *UserService) CheckUUID(uid uint, uuid string) bool {
 		return false
 	}
 	v, _ := redis.Get(key)
+	fmt.Println("CheckUUID", v, string(v), uuid)
 	return uuid == string(v)
 }

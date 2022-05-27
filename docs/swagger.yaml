@@ -271,60 +271,6 @@ paths:
           schema:
             $ref: '#/definitions/gin_http.ResponseJSON'
       summary: 注销用户
-  /login:
-    post:
-      parameters:
-      - description: username
-        in: formData
-        name: username
-        required: true
-        type: string
-      - description: password
-        in: formData
-        name: password
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/gin_http.ResponseJSON'
-        "20005":
-          description: ""
-          schema:
-            $ref: '#/definitions/gin_http.ResponseJSON'
-      summary: 用户登录
-  /register:
-    post:
-      parameters:
-      - description: username
-        in: formData
-        name: username
-        required: true
-        type: string
-      - description: password
-        in: formData
-        name: password
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/gin_http.ResponseJSON'
-        "20006":
-          description: ""
-          schema:
-            $ref: '#/definitions/gin_http.ResponseJSON'
-        "20007":
-          description: ""
-          schema:
-            $ref: '#/definitions/gin_http.ResponseJSON'
-      summary: 用户注册
   /update_password:
     put:
       parameters:
@@ -384,4 +330,79 @@ paths:
       summary: 上传图片
       tags:
       - file
+  /user/login:
+    post:
+      parameters:
+      - description: username
+        in: formData
+        name: username
+        required: true
+        type: string
+      - description: password
+        in: formData
+        name: password
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/gin_http.ResponseJSON'
+        "20005":
+          description: ""
+          schema:
+            $ref: '#/definitions/gin_http.ResponseJSON'
+      summary: 用户登录
+  /user/refreshToken/{id}:
+    post:
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: uuid
+        in: header
+        name: uuid
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/gin_http.ResponseJSON'
+      summary: 更新Token
+  /user/register:
+    post:
+      parameters:
+      - description: username
+        in: formData
+        name: username
+        required: true
+        type: string
+      - description: password
+        in: formData
+        name: password
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/gin_http.ResponseJSON'
+        "20006":
+          description: ""
+          schema:
+            $ref: '#/definitions/gin_http.ResponseJSON'
+        "20007":
+          description: ""
+          schema:
+            $ref: '#/definitions/gin_http.ResponseJSON'
+      summary: 用户注册
 swagger: "2.0"

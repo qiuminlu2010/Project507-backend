@@ -29,7 +29,7 @@ func InitRouter() *gin.Engine {
 	//用户类
 	r.POST("/user/register", v1.Register)
 	r.POST("/user/login", v1.Login)
-
+	r.POST("/user/refreshToken/:id", v1.RefreshToken)
 	apiv1.GET("/tag/getList/", v1.GetTags)
 
 	apiv1.GET("/article/getList/", v1.GetArticles)
