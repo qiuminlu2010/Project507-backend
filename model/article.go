@@ -53,7 +53,7 @@ func GetArticles(pageNum int, pageSize int, maps interface{}) ([]*Article, error
 //通过ID查询文章
 func GetArticleById(id uint) (*Article, error) {
 	var article Article
-	err := db.Where("id = ? AND deleted_on = ? ", id, 0).Preload(clause.Associations).First(&article).Error
+	err := db.Where("id = ?", id).Preload(clause.Associations).First(&article).Error
 	if err != nil && err != gorm.ErrRecordNotFound {
 		return nil, err
 	}
@@ -62,10 +62,7 @@ func GetArticleById(id uint) (*Article, error) {
 
 //更新文章信息(标签除外)
 func UpdateArticle(id uint, data interface{}) error {
-	if err := db.Model(&Article{}).Where("id = ? AND deleted_on = ? ", id, 0).Updates(data).Error; err != nil {
-		return err
-	}
-	return nil
+	return db.Model(&Article{}).Where("id = ?", id).Updates(data).Error
 }
 
 //给文章添加标签
@@ -122,44 +119,21 @@ func AddArticle(article Article, tags []Tag) error {
 func DeleteArticle(id uint) error {
 	var article Article
 	article.ID = id
-
-	tx := db.Begin()
-	defer func() {
-		if r := recover(); r != nil {
-			tx.Rollback()
-		}
-	}()
-
-	if err := tx.Error; err != nil {
-		return err
-	}
-
-	// if err := tx.Model(&article).Association("Tags").Clear().Error; err != nil {
-	// 	tx.Rollback()
-	// 	return err
-	// }
-	if err := tx.Where("id = ?", id).Delete(Article{}).Error; err != nil {
-		tx.Rollback()
-		return err
-	}
-	return tx.Commit().Error
+	return db.Where("id = ?", id).Delete(Article{}).Error
 }
 
 func RecoverArticle(id uint) error {
 	var article Article
 	article.ID = id
-	if err := db.Unscoped().Model(&article).Update("deleted_at", nil).Error; err != nil {
-		return err
-	}
-	return nil
+	return db.Unscoped().Model(&article).Update("deleted_at", nil).Error
 }
 
-func CleanAllArticle() error {
-	if err := db.Unscoped().Select(clause.Associations).Delete(&Article{}).Error; err != nil {
-		return err
-	}
-	return nil
-}
+// func CleanAllArticle() error {
+// 	if err := db.Unscoped().Select(clause.Associations).Delete(&Article{}).Error; err != nil {
+// 		return err
+// 	}
+// 	return nil
+// }
 
 func GetArticleUserID(id uint) (uint, error) {
 	var article Article

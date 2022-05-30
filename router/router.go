@@ -30,6 +30,8 @@ func InitRouter() *gin.Engine {
 	r.POST("/user/register", v1.Register)
 	r.POST("/user/login", v1.Login)
 	r.POST("/user/refreshToken/:id", v1.RefreshToken)
+	//标签类
+	apiv1.GET("/tag/getArticles/:id", v1.GetTagArticles)
 	apiv1.GET("/tag/getList/", v1.GetTags)
 
 	apiv1.GET("/article/getList/", v1.GetArticles)
@@ -40,12 +42,14 @@ func InitRouter() *gin.Engine {
 		apiv1.DELETE("/tag/delete/:id", v1.DeleteTag)
 		apiv1.PUT("/tag/update/:id", v1.EditTag)
 		apiv1.POST("/tag/recover/:id", v1.RecoverTag)
+		apiv1.DELETE("/tag/clear/:id", v1.ClearTag)
 
 		//文章类
 		apiv1.POST("/article/add", v1.AddArticle)
 		apiv1.GET("/article/get/:id", v1.GetArticle)
 		apiv1.POST("/article/addTags/:id", v1.AddArticleTags)
 		apiv1.DELETE("/article/delete/:id", v1.DeleteArticle)
+		apiv1.DELETE("/article/deleteTags/:id", v1.DeleteArticleTags)
 		apiv1.POST("/article/recover/:id", v1.RecoverArticle)
 
 		//上传图片

@@ -1,5 +1,7 @@
 package model
 
+import "gorm.io/gorm/clause"
+
 //https://blog.csdn.net/weixin_45604257/article/details/105139862
 type Tag struct {
 	Model
@@ -18,7 +20,14 @@ type Tag struct {
 // }
 func GetTags(pageNum int, pageSize int) (tags []Tag) {
 	db.Offset(pageNum).Limit(pageSize).Find(&tags)
+	return
+}
 
+func GetTagArticles(tag_id uint) (articles []Article, err error) {
+	// err := db.Preload("Tag").Where(maps).Offset(pageNum).Limit(pageSize).Find(&articles).Error
+	var tag Tag
+	tag.ID = tag_id
+	err = db.Model(&tag).Association("Articles").Find(&articles)
 	return
 }
 
@@ -55,27 +64,7 @@ func GetTagIdByName(name string) (uint, error) {
 func DeleteTag(id uint) error {
 	var tag Tag
 	tag.ID = id
-
-	tx := db.Begin()
-	defer func() {
-		if r := recover(); r != nil {
-			tx.Rollback()
-		}
-	}()
-
-	if err := tx.Error; err != nil {
-		return err
-	}
-
-	if err := tx.Model(&tag).Association("Articles").Clear(); err != nil {
-		tx.Rollback()
-		return err
-	}
-	if err := tx.Where("id = ?", id).Delete(Tag{}).Error; err != nil {
-		tx.Rollback()
-		return err
-	}
-	return tx.Commit().Error
+	return db.Where("id = ?", id).Delete(&Tag{}).Error
 }
 
 func RecoverTag(id uint) error {
@@ -89,4 +78,10 @@ func RecoverTag(id uint) error {
 
 func EditTag(id uint, data interface{}) error {
 	return db.Model(&Tag{}).Where("id = ?", id).Updates(data).Error
+}
+
+func CleanTag(id uint) error {
+	var tag Tag
+	tag.ID = id
+	return db.Unscoped().Select(clause.Associations).Delete(&tag).Error
 }

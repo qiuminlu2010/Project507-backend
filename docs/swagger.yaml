@@ -167,6 +167,23 @@ paths:
           schema:
             $ref: '#/definitions/gin_http.ResponseJSON'
       summary: 新增标签
+  /api/v1/tag/clear/{id}:
+    delete:
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: token
+        in: header
+        name: token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: 清理标签(硬删除)
   /api/v1/tag/delete/{id}:
     delete:
       parameters:
@@ -196,6 +213,22 @@ paths:
           schema:
             $ref: '#/definitions/gin_http.ResponseJSON'
       summary: 删除标签
+  /api/v1/tag/getArticles/{id}:
+    get:
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/gin_http.ResponseJSON'
+      summary: 获取该标签的所有文章
   /api/v1/tag/getList:
     get:
       parameters:
@@ -210,7 +243,7 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/gin_http.ResponseJSON'
-      summary: 获取多个文章标签
+      summary: 获取标签列表
   /api/v1/tag/recover/{id}:
     post:
       parameters:

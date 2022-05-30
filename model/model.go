@@ -18,10 +18,11 @@ import (
 var db *gorm.DB
 
 type Model struct {
-	ID         uint       `gorm:"primary_key" uri:"id" `
-	CreatedOn  time.Time  `binding:"-" json:"-"`
-	ModifiedOn time.Time  `binding:"-" json:"-"`
-	DeletedAt  *time.Time `sql:"index" binding:"-" json:"-"`
+	ID         uint           `gorm:"primary_key" uri:"id" `
+	CreatedOn  time.Time      `binding:"-" json:"-"`
+	ModifiedOn time.Time      `binding:"-" json:"-"`
+	DeletedAt  gorm.DeletedAt `gorm:"index"  binding:"-" json:"-"`
+	gorm.Model
 }
 
 func Setup() {

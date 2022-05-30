@@ -30,7 +30,7 @@ func JWT() gin.HandlerFunc {
 				code = e.ERROR_AUTH_CHECK_TOKEN_FAIL
 			} else if time.Now().Unix() > claims.ExpiresAt {
 				code = e.ERROR_AUTH_CHECK_TOKEN_TIMEOUT
-			} else {
+			} else if !redis.Exists(token) {
 				fmt.Println("新建Redis缓存", token, claims)
 				if err := redis.Set(token, claims, 3600); err != nil {
 					fmt.Println("新建Redis缓存失败")

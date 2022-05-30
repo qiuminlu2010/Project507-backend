@@ -61,9 +61,14 @@ func (s *TagService) Update() error {
 func (s *TagService) Get() []model.Tag {
 	return model.GetTags(s.PageNum, s.PageSize)
 }
-
+func (s *TagService) GetArticles() ([]model.Article, error) {
+	return model.GetTagArticles(s.Id)
+}
 func (s *TagService) Recovery() error {
 	return model.RecoverTag(s.Id)
+}
+func (s *TagService) Clear() error {
+	return model.CleanTag(s.Id)
 }
 func (s *TagService) ExistTag() bool {
 	return model.ExistTagByName(s.Name)

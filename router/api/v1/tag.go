@@ -16,7 +16,7 @@ import (
 )
 
 //获取多个文章标签
-// @Summary 获取多个文章标签
+// @Summary 获取标签列表
 // @Produce  json
 // @Param page query int false "Page"
 // @Success 200 {object}  gin_http.ResponseJSON
@@ -29,6 +29,27 @@ func GetTags(c *gin.Context) {
 
 	tags := tagService.Get()
 	gin_http.Response(c, http.StatusOK, e.SUCCESS, tags)
+}
+
+// @Summary 获取该标签的所有文章
+// @Produce  json
+// @Param id path int true "ID"
+// @Success 200 {object}  gin_http.ResponseJSON
+// @Router /api/v1/tag/getArticles/{id} [get]
+func GetTagArticles(c *gin.Context) {
+	tagService := service.GetTagService()
+	httpCode, errCode := tagService.Bind(c)
+	if errCode != e.SUCCESS {
+		gin_http.Response(c, httpCode, errCode, nil)
+		return
+	}
+
+	articles, err := tagService.GetArticles()
+	if err != nil {
+		gin_http.Response(c, http.StatusInternalServerError, e.ERROR_GET_ARTICLE_FAIL, nil)
+		return
+	}
+	gin_http.Response(c, http.StatusOK, e.SUCCESS, articles)
 }
 
 // @Summary 新增标签
@@ -180,6 +201,25 @@ func RecoverTag(c *gin.Context) {
 
 	if err := tagService.Recovery(); err != nil {
 		gin_http.Response(c, http.StatusInternalServerError, e.ERROR_REC_TAG_FAIL, nil)
+	}
+	gin_http.Response(c, http.StatusOK, e.SUCCESS, nil)
+}
+
+// @Summary 清理标签(硬删除)
+// @Produce  json
+// @Param id path int true "ID"
+// @Param token header string true "token"
+// @Router /api/v1/tag/clear/{id} [delete]
+func ClearTag(c *gin.Context) {
+	tagService := service.GetTagService()
+	httpCode, errCode := tagService.Bind(c)
+	if errCode != e.SUCCESS {
+		gin_http.Response(c, httpCode, errCode, nil)
+		return
+	}
+	if err := tagService.Clear(); err != nil {
+		gin_http.Response(c, http.StatusInternalServerError, e.ERROR_DELETE_TAG_FAIL, nil)
+		return
 	}
 	gin_http.Response(c, http.StatusOK, e.SUCCESS, nil)
 }

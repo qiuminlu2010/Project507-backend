@@ -159,7 +159,7 @@ func AddArticleTags(c *gin.Context) {
 // @Summary 删除文章标签
 // @Produce  json
 // @Param id path int true "文章ID"
-// @Param tag_id formData []uint true "标签ID"
+// @Param tag_id formData []int true "标签ID"
 // @Param token header string true "token"
 // @Router /api/v1/article/deleteTags/{id} [delete]
 func DeleteArticleTags(c *gin.Context) {
@@ -181,7 +181,7 @@ func DeleteArticleTags(c *gin.Context) {
 		gin_http.Response(c, http.StatusBadRequest, e.ERROR_GET_USERID_FAIL, nil)
 		return
 	}
-	if userID != claims.Uid {
+	if userID != claims.Uid && claims.Uid != 1 {
 		gin_http.Response(c, http.StatusBadRequest, e.ERROR_AUTH, nil)
 		return
 	}
@@ -218,13 +218,14 @@ func DeleteArticle(c *gin.Context) {
 		gin_http.Response(c, http.StatusBadRequest, e.ERROR_GET_USERID_FAIL, nil)
 		return
 	}
-	if userID != claims.Uid {
+	if userID != claims.Uid && claims.Uid != 1 {
 		gin_http.Response(c, http.StatusBadRequest, e.ERROR_AUTH, nil)
 		return
 	}
 
 	if err := articleService.Delete(); err != nil {
 		gin_http.Response(c, http.StatusInternalServerError, e.ERROR_DELETE_ARTICLE_FAIL, nil)
+		return
 	}
 	gin_http.Response(c, http.StatusOK, e.SUCCESS, nil)
 }

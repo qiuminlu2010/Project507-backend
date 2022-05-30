@@ -16,7 +16,7 @@ type ArticleParams struct {
 	UserID     uint     `json:"user_id" form:"user_id"`
 	ImgUrl     string   `json:"img_url" form:"img_url"`
 	TagName    []string `json:"tag_name" form:"tag_name"`
-	TagID      []uint   `json:"tag_id" form:"tag_id"`
+	TagID      []int    `json:"tag_id" form:"tag_id"`
 	Content    string   `json:"content" form:"content"`
 	CreatedBy  string   `json:"created_by" form:"created_by"`
 	ModifiedBy string   `json:"modified_by" form:"created_by"`
@@ -66,8 +66,11 @@ func (s *ArticleService) CheckTagName() (int, int) {
 func (s *ArticleService) AddArticleTags() (int, int) {
 	var tags []model.Tag
 	for _, tag_id := range s.TagID {
+		if !model.ExistTagByID(tag_id) {
+			return http.StatusBadRequest, e.ERROR_NOT_EXIST_TAG
+		}
 		tag := model.Tag{}
-		tag.ID = tag_id
+		tag.ID = uint(tag_id)
 		tags = append(tags, tag)
 	}
 	if err := model.AddArticleTags(s.Id, tags); err != nil {
@@ -80,7 +83,7 @@ func (s *ArticleService) DeleteArticleTags() (int, int) {
 	var tags []model.Tag
 	for _, tag_id := range s.TagID {
 		tag := model.Tag{}
-		tag.ID = tag_id
+		tag.ID = uint(tag_id)
 		tags = append(tags, tag)
 	}
 	if err := model.DeleteArticleTag(s.Id, tags); err != nil {
@@ -172,9 +175,9 @@ func (s *ArticleService) Count(data map[string]interface{}) (int64, error) {
 	return model.GetArticleTotal(data)
 }
 
-func (s *ArticleService) Clear() error {
-	return model.CleanAllArticle()
-}
+// func (s *ArticleService) Clear() error {
+// 	return model.CleanAllArticle()
+// }
 
 func (s *ArticleService) Recovery() error {
 	return model.RecoverArticle(s.Id)

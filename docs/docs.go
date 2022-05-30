@@ -249,6 +249,31 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/tag/clear/{id}": {
+            "delete": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "清理标签(硬删除)",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "token",
+                        "name": "token",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
         "/api/v1/tag/delete/{id}": {
             "delete": {
                 "produces": [
@@ -293,12 +318,37 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/tag/getArticles/{id}": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "获取该标签的所有文章",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/gin_http.ResponseJSON"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/tag/getList": {
             "get": {
                 "produces": [
                     "application/json"
                 ],
-                "summary": "获取多个文章标签",
+                "summary": "获取标签列表",
                 "parameters": [
                     {
                         "type": "integer",
