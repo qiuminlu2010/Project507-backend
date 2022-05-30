@@ -1,11 +1,13 @@
 package model
 
 import (
-	"github.com/jinzhu/gorm"
+	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 type Article struct {
 	Model
+	UserID  uint
 	Tags    []Tag  `gorm:"many2many:article_tags;"`
 	Title   string `json:"title" form:"title"`
 	ImgUrl  string `json:"img_url" form:"img_url"`
@@ -14,9 +16,9 @@ type Article struct {
 	Collect int    `json:"collect" form:"collect"`
 	Watch   int    `json:"watch" form:"watch"`
 	//TODO: Comments   []Comment
-	CreatedBy  string `json:"created_by" form:"created_by"`
-	ModifiedBy string `json:"modified_by" form:"created_by"`
-	State      int    `json:"state" form:"state"`
+	CreatedBy  string `json:"-" form:"created_by" binding:"-"`
+	ModifiedBy string `json:"-" form:"created_by" binding:"-"`
+	State      int    `json:"-" form:"state" binding:"-"`
 }
 
 //通过ID判断文章是否存在
@@ -27,8 +29,8 @@ func ExistArticleByID(id uint) bool {
 }
 
 //获取文章数量
-func GetArticleTotal(maps interface{}) (int, error) {
-	var count int
+func GetArticleTotal(maps interface{}) (int64, error) {
+	var count int64
 	if err := db.Model(&Article{}).Count(&count).Error; err != nil {
 		return 0, err
 	}
@@ -40,7 +42,7 @@ func GetArticleTotal(maps interface{}) (int, error) {
 func GetArticles(pageNum int, pageSize int, maps interface{}) ([]*Article, error) {
 	var articles []*Article
 	// err := db.Preload("Tag").Where(maps).Offset(pageNum).Limit(pageSize).Find(&articles).Error
-	err := db.Offset(pageNum).Where(maps).Limit(pageSize).Find(&articles).Error
+	err := db.Offset(pageNum).Where(maps).Limit(pageSize).Preload(clause.Associations).Find(&articles).Error
 	if err != nil && err != gorm.ErrRecordNotFound {
 		return nil, err
 	}
@@ -51,7 +53,7 @@ func GetArticles(pageNum int, pageSize int, maps interface{}) ([]*Article, error
 //通过ID查询文章
 func GetArticleById(id uint) (*Article, error) {
 	var article Article
-	err := db.Where("id = ? AND deleted_on = ? ", id, 0).First(&article).Error
+	err := db.Where("id = ? AND deleted_on = ? ", id, 0).Preload(clause.Associations).First(&article).Error
 	if err != nil && err != gorm.ErrRecordNotFound {
 		return nil, err
 	}
@@ -72,7 +74,19 @@ func AddArticleTags(id uint, tags []Tag) error {
 	if err := db.Where("id = ? ", id).First(&article).Error; err != nil {
 		return err
 	}
-	if err := db.Model(&article).Association("Tags").Append(tags).Error; err != nil {
+	if err := db.Model(&article).Association("Tags").Append(tags); err != nil {
+		return err
+	}
+	return nil
+}
+
+//给文章删除标签
+func DeleteArticleTag(id uint, tags []Tag) error {
+	var article Article
+	if err := db.Where("id = ? ", id).First(&article).Error; err != nil {
+		return err
+	}
+	if err := db.Model(&article).Association("Tags").Delete(tags); err != nil {
 		return err
 	}
 	return nil
@@ -96,7 +110,7 @@ func AddArticle(article Article, tags []Tag) error {
 		return err
 	}
 
-	if err := tx.Model(&article).Association("Tags").Append(tags).Error; err != nil {
+	if err := tx.Model(&article).Association("Tags").Append(tags); err != nil {
 		tx.Rollback()
 		return err
 	}
@@ -120,10 +134,10 @@ func DeleteArticle(id uint) error {
 		return err
 	}
 
-	if err := tx.Model(&article).Association("Tags").Clear().Error; err != nil {
-		tx.Rollback()
-		return err
-	}
+	// if err := tx.Model(&article).Association("Tags").Clear().Error; err != nil {
+	// 	tx.Rollback()
+	// 	return err
+	// }
 	if err := tx.Where("id = ?", id).Delete(Article{}).Error; err != nil {
 		tx.Rollback()
 		return err
@@ -141,8 +155,16 @@ func RecoverArticle(id uint) error {
 }
 
 func CleanAllArticle() error {
-	if err := db.Unscoped().Delete(&Article{}).Error; err != nil {
+	if err := db.Unscoped().Select(clause.Associations).Delete(&Article{}).Error; err != nil {
 		return err
 	}
 	return nil
+}
+
+func GetArticleUserID(id uint) (uint, error) {
+	var article Article
+	if err := db.Select("user_id").Where("id = ?", id).First(&article).Error; err != nil {
+		return 0, err
+	}
+	return article.UserID, nil
 }

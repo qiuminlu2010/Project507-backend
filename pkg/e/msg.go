@@ -40,6 +40,8 @@ var MsgFlags = map[int]string{
 	ERROR_REC_ARTICLE_FAIL:          "恢复文章失败",
 	ERROR_REC_TAG_FAIL:              "恢复标签失败",
 	ERROR_UUID_EXPIRE:               "UUID过期",
+	ERROR_GET_USERID_FAIL:           "获取文章的用户ID失败",
+	ERROR_DELETE_ARTICLE_TAG_FAIL:   "删除文章标签失败",
 }
 
 func GetMsg(code int) string {

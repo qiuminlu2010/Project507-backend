@@ -76,6 +76,7 @@ func GetArticles(c *gin.Context) {
 
 // @Summary 添加文章
 // @Produce  json
+// @Param user_id formData int true "用户id"
 // @Param content formData string true "内容"
 // @Param tag_name formData []string false "标签"
 // @Param token header string true "token"
@@ -96,16 +97,10 @@ func AddArticle(c *gin.Context) {
 	}
 
 	//TODO:还需验证用户是否存在
-
-	// created_by := articleService.GetCreatedBy()
-	// if created_by == "" {
-	// 	articleService.SetCreatedBy(claims.Username)
-	// } else {
-	// 	if created_by != claims.Username {
-	// 		gin_http.Response(c, http.StatusBadRequest, e.ERROR_AUTH, nil)
-	// 		return
-	// 	}
-	// }
+	if articleService.UserID != claims.Uid {
+		gin_http.Response(c, http.StatusBadRequest, e.ERROR_AUTH, nil)
+		return
+	}
 
 	httpCode, errCode = articleService.CheckTagName()
 	if errCode != e.SUCCESS {
@@ -119,7 +114,6 @@ func AddArticle(c *gin.Context) {
 		return
 	}
 
-	// tagService := tag_service.Tag{ID: form.TagID}
 	gin_http.Response(c, http.StatusOK, e.SUCCESS, nil)
 
 }
@@ -127,7 +121,7 @@ func AddArticle(c *gin.Context) {
 // @Summary 添加文章标签
 // @Produce  json
 // @Param id path int true "文章ID"
-// @Param tag_name formData []string false "标签"
+// @Param tag_id formData []uint false "标签ID"
 // @Param token header string true "token"
 // @Router /api/v1/article/addTags/{id} [post]
 func AddArticleTags(c *gin.Context) {
@@ -139,7 +133,60 @@ func AddArticleTags(c *gin.Context) {
 		return
 	}
 
+	claims := articleService.GetClaimsFromToken(c)
+	if claims == nil {
+		gin_http.Response(c, http.StatusBadRequest, e.ERROR_AUTH, nil)
+		return
+	}
+	userID, err := articleService.GetUserID()
+	if err != nil {
+		gin_http.Response(c, http.StatusBadRequest, e.ERROR_GET_USERID_FAIL, nil)
+		return
+	}
+	if userID != claims.Uid {
+		gin_http.Response(c, http.StatusBadRequest, e.ERROR_AUTH, nil)
+		return
+	}
+
 	if httpCode, errCode = articleService.AddArticleTags(); errCode != e.SUCCESS {
+		gin_http.Response(c, httpCode, errCode, nil)
+		return
+	}
+	gin_http.Response(c, http.StatusOK, e.SUCCESS, nil)
+
+}
+
+// @Summary 删除文章标签
+// @Produce  json
+// @Param id path int true "文章ID"
+// @Param tag_id formData []uint true "标签ID"
+// @Param token header string true "token"
+// @Router /api/v1/article/deleteTags/{id} [delete]
+func DeleteArticleTags(c *gin.Context) {
+
+	articleService := service.GetArticleService()
+	httpCode, errCode := articleService.Bind(c)
+	if errCode != e.SUCCESS {
+		gin_http.Response(c, httpCode, errCode, nil)
+		return
+	}
+
+	claims := articleService.GetClaimsFromToken(c)
+	if claims == nil {
+		gin_http.Response(c, http.StatusBadRequest, e.ERROR_AUTH, nil)
+		return
+	}
+	userID, err := articleService.GetUserID()
+	if err != nil {
+		gin_http.Response(c, http.StatusBadRequest, e.ERROR_GET_USERID_FAIL, nil)
+		return
+	}
+	if userID != claims.Uid {
+		gin_http.Response(c, http.StatusBadRequest, e.ERROR_AUTH, nil)
+		return
+	}
+
+	if httpCode, errCode = articleService.DeleteArticleTags(); errCode != e.SUCCESS {
 		gin_http.Response(c, httpCode, errCode, nil)
 		return
 	}
@@ -161,6 +208,21 @@ func DeleteArticle(c *gin.Context) {
 		return
 	}
 
+	claims := articleService.GetClaimsFromToken(c)
+	if claims == nil {
+		gin_http.Response(c, http.StatusBadRequest, e.ERROR_AUTH, nil)
+		return
+	}
+	userID, err := articleService.GetUserID()
+	if err != nil {
+		gin_http.Response(c, http.StatusBadRequest, e.ERROR_GET_USERID_FAIL, nil)
+		return
+	}
+	if userID != claims.Uid {
+		gin_http.Response(c, http.StatusBadRequest, e.ERROR_AUTH, nil)
+		return
+	}
+
 	if err := articleService.Delete(); err != nil {
 		gin_http.Response(c, http.StatusInternalServerError, e.ERROR_DELETE_ARTICLE_FAIL, nil)
 	}
@@ -177,6 +239,21 @@ func RecoverArticle(c *gin.Context) {
 	httpCode, errCode := articleService.Bind(c)
 	if errCode != e.SUCCESS {
 		gin_http.Response(c, httpCode, errCode, nil)
+		return
+	}
+
+	claims := articleService.GetClaimsFromToken(c)
+	if claims == nil {
+		gin_http.Response(c, http.StatusBadRequest, e.ERROR_AUTH, nil)
+		return
+	}
+	userID, err := articleService.GetUserID()
+	if err != nil {
+		gin_http.Response(c, http.StatusBadRequest, e.ERROR_GET_USERID_FAIL, nil)
+		return
+	}
+	if userID != claims.Uid {
+		gin_http.Response(c, http.StatusBadRequest, e.ERROR_AUTH, nil)
 		return
 	}
 

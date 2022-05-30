@@ -13,6 +13,11 @@ paths:
   /api/v1/article/add:
     post:
       parameters:
+      - description: 用户id
+        in: formData
+        name: user_id
+        required: true
+        type: integer
       - description: 内容
         in: formData
         name: content
@@ -41,11 +46,11 @@ paths:
         name: id
         required: true
         type: integer
-      - description: 标签
+      - description: 标签ID
         in: formData
         items:
-          type: string
-        name: tag_name
+          type: integer
+        name: tag_id
         type: array
       - description: token
         in: header
@@ -73,6 +78,30 @@ paths:
       - application/json
       responses: {}
       summary: 删除文章
+  /api/v1/article/deleteTags/{id}:
+    delete:
+      parameters:
+      - description: 文章ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 标签ID
+        in: formData
+        items:
+          type: integer
+        name: tag_id
+        required: true
+        type: array
+      - description: token
+        in: header
+        name: token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: 删除文章标签
   /api/v1/article/getList:
     get:
       parameters:

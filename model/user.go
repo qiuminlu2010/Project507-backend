@@ -2,10 +2,11 @@ package model
 
 type User struct {
 	Model
-	Username  string `json:"username" form:"username" binding:"omitempty,printascii,gte=6,lte=20" gorm:"unique"`
-	Password  string `json:"password" form:"password" binding:"omitempty,printascii,gte=6,lte=20"`
-	StudentId string `json:"student_id" form:"student_id" binding:"omitempty,numeric"`
-	State     int    `json:"state" form:"state" binding:"gte=0,lte=1"`
+	Username  string    `json:"username" form:"username" binding:"omitempty,printascii,gte=6,lte=20" gorm:"unique"`
+	Password  string    `json:"password" form:"password" binding:"omitempty,printascii,gte=6,lte=20"`
+	StudentId string    `json:"student_id" form:"student_id" binding:"omitempty,numeric"`
+	Articles  []Article `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
+	State     int       `json:"state" form:"state" binding:"gte=0,lte=1"`
 }
 
 func ExistUsername(username string) error {

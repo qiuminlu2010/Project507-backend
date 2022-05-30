@@ -24,6 +24,13 @@ const docTemplate = `{
                 "summary": "添加文章",
                 "parameters": [
                     {
+                        "type": "integer",
+                        "description": "用户id",
+                        "name": "user_id",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
                         "type": "string",
                         "description": "内容",
                         "name": "content",
@@ -67,10 +74,10 @@ const docTemplate = `{
                     {
                         "type": "array",
                         "items": {
-                            "type": "string"
+                            "type": "integer"
                         },
-                        "description": "标签",
-                        "name": "tag_name",
+                        "description": "标签ID",
+                        "name": "tag_id",
                         "in": "formData"
                     },
                     {
@@ -96,6 +103,41 @@ const docTemplate = `{
                         "description": "文章ID",
                         "name": "id",
                         "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "token",
+                        "name": "token",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/api/v1/article/deleteTags/{id}": {
+            "delete": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "删除文章标签",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "文章ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "integer"
+                        },
+                        "description": "标签ID",
+                        "name": "tag_id",
+                        "in": "formData",
                         "required": true
                     },
                     {

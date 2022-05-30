@@ -13,8 +13,10 @@ import (
 
 type ArticleParams struct {
 	Id         uint     `uri:"id"`
+	UserID     uint     `json:"user_id" form:"user_id"`
 	ImgUrl     string   `json:"img_url" form:"img_url"`
 	TagName    []string `json:"tag_name" form:"tag_name"`
+	TagID      []uint   `json:"tag_id" form:"tag_id"`
 	Content    string   `json:"content" form:"content"`
 	CreatedBy  string   `json:"created_by" form:"created_by"`
 	ModifiedBy string   `json:"modified_by" form:"created_by"`
@@ -32,26 +34,6 @@ func GetArticleService() *ArticleService {
 	return &s
 }
 
-// func (s *ArticleService) Bind(c *gin.Context) (int, int) {
-// 	var err error
-
-// 	fmt.Println("绑定参数")
-// 	if err = c.ShouldBind(s); err != nil {
-// 		fmt.Println("绑定错误", err)
-// 		return http.StatusBadRequest, e.INVALID_PARAMS
-// 	}
-// 	// fmt.Println("绑定url")
-// 	// if err = c.ShouldBindUri(s); err != nil {
-// 	// 	// fmt.Println("绑定数据", s.model)
-// 	// 	fmt.Println("绑定错误", err)
-// 	// 	return http.StatusBadRequest, e.INVALID_PARAMS
-// 	// }
-
-// 	fmt.Println("绑定tag", s.TagName)
-// 	fmt.Println("绑定", s.Article)
-// 	return http.StatusOK, e.SUCCESS
-// }
-
 func (s *ArticleService) GetTagName() []string {
 	return s.TagName
 }
@@ -65,18 +47,43 @@ func (s *ArticleService) CheckTagName() (int, int) {
 	return http.StatusOK, e.SUCCESS
 }
 
+// func (s *ArticleService) AddArticleTagsByName() (int, int) {
+// 	var tags []model.Tag
+// 	for _, tag_name := range s.TagName {
+// 		tag_id, err := model.GetTagIdByName(tag_name)
+// 		if err != nil {
+// 			return http.StatusBadRequest, e.ERROR_NOT_EXIST_TAG
+// 		}
+// 		tag := model.Tag{}
+// 		tag.ID = tag_id
+// 		tags = append(tags, tag)
+// 	}
+// 	if err := model.AddArticleTags(s.Id, tags); err != nil {
+// 		return http.StatusInternalServerError, e.ERROR_ADD_ARTICLE_TAG_FAIL
+// 	}
+// 	return http.StatusOK, e.SUCCESS
+// }
 func (s *ArticleService) AddArticleTags() (int, int) {
 	var tags []model.Tag
-	for _, tag_name := range s.TagName {
-		tag_id, err := model.GetTagIdByName(tag_name)
-		if err != nil {
-			return http.StatusBadRequest, e.ERROR_NOT_EXIST_TAG
-		}
+	for _, tag_id := range s.TagID {
 		tag := model.Tag{}
 		tag.ID = tag_id
 		tags = append(tags, tag)
 	}
 	if err := model.AddArticleTags(s.Id, tags); err != nil {
+		return http.StatusInternalServerError, e.ERROR_ADD_ARTICLE_TAG_FAIL
+	}
+	return http.StatusOK, e.SUCCESS
+}
+
+func (s *ArticleService) DeleteArticleTags() (int, int) {
+	var tags []model.Tag
+	for _, tag_id := range s.TagID {
+		tag := model.Tag{}
+		tag.ID = tag_id
+		tags = append(tags, tag)
+	}
+	if err := model.DeleteArticleTag(s.Id, tags); err != nil {
 		return http.StatusInternalServerError, e.ERROR_ADD_ARTICLE_TAG_FAIL
 	}
 	return http.StatusOK, e.SUCCESS
@@ -96,8 +103,8 @@ func (s *ArticleService) Add() error {
 
 	if err := model.AddArticle(
 		model.Article{
-			Content:   s.Content,
-			CreatedBy: s.CreatedBy,
+			UserID:  s.UserID,
+			Content: s.Content,
 		}, tags); err != nil {
 		return err
 	}
@@ -161,7 +168,7 @@ func (s *ArticleService) Delete() error {
 	return model.DeleteArticle(s.Id)
 }
 
-func (s *ArticleService) Count(data map[string]interface{}) (int, error) {
+func (s *ArticleService) Count(data map[string]interface{}) (int64, error) {
 	return model.GetArticleTotal(data)
 }
 
@@ -173,12 +180,8 @@ func (s *ArticleService) Recovery() error {
 	return model.RecoverArticle(s.Id)
 }
 
-func (s *ArticleService) GetCreatedBy() string {
-	return s.CreatedBy
-}
-
-func (s *ArticleService) SetCreatedBy(created_by string) {
-	s.CreatedBy = created_by
+func (s *ArticleService) GetUserID() (uint, error) {
+	return model.GetArticleUserID(s.Id)
 }
 
 // func (a *ArticleService) GetArticleKey() string {

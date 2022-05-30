@@ -5,10 +5,10 @@ type Tag struct {
 	Model
 	Name string `json:"name" form:"name" binding:"required,lte=20" gorm:"unique;not null"`
 	//Type       string `json:"type" form:"type" `
-	CreatedBy  string    `json:"created_by" form:"created_by" `
-	ModifiedBy string    `json:"modified_by" form:"modified_by"`
-	State      int       `json:"state" form:"state"`
-	Articles   []Article `gorm:"many2many:article_tags;"`
+	CreatedBy  string    `json:"-" form:"created_by" binding:"-" `
+	ModifiedBy string    `json:"-" form:"modified_by" binding:"-" `
+	State      int       `json:"-" form:"state" binding:"-" `
+	Articles   []Article `gorm:"many2many:article_tags;" binding:"-" json:"-"`
 }
 
 // func GetTags(pageNum int, pageSize int, maps interface{}) (tags []Tag) {
@@ -22,7 +22,7 @@ func GetTags(pageNum int, pageSize int) (tags []Tag) {
 	return
 }
 
-func GetTagTotal(maps interface{}) (count int) {
+func GetTagTotal(maps interface{}) (count int64) {
 	db.Model(&Tag{}).Where(maps).Count(&count)
 
 	return
@@ -67,7 +67,7 @@ func DeleteTag(id uint) error {
 		return err
 	}
 
-	if err := tx.Model(&tag).Association("Articles").Clear().Error; err != nil {
+	if err := tx.Model(&tag).Association("Articles").Clear(); err != nil {
 		tx.Rollback()
 		return err
 	}
