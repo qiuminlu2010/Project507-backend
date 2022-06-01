@@ -22,7 +22,6 @@ type Model struct {
 	CreatedOn  time.Time      `binding:"-" json:"-"`
 	ModifiedOn time.Time      `binding:"-" json:"-"`
 	DeletedAt  gorm.DeletedAt `gorm:"index"  binding:"-" json:"-"`
-	gorm.Model
 }
 
 func Setup() {
@@ -78,6 +77,7 @@ func Setup() {
 		&User{},
 		&Tag{},
 		&Article{},
+		&Image{},
 	)
 	if err != nil {
 		log.Println("register table failed", err)

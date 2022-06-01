@@ -13,10 +13,11 @@ import (
 )
 
 type ArticleParams struct {
-	Id         uint     `uri:"id"`
-	UserID     uint     `json:"user_id" form:"user_id"`
-	ImgUrl     string   `json:"img_url" form:"img_url"`
-	ThumbUrl   string   `json:"thumb_url" form:"thumb_url"`
+	Id     uint `uri:"id"`
+	UserID uint `json:"user_id" form:"user_id"`
+	// ImgUrl     string   `json:"img_url" form:"img_url"`
+	// ThumbUrl   string   `json:"thumb_url" form:"thumb_url"`
+	ImgName    []string `json:"-" form:"-" binding:"-"`
 	TagName    []string `json:"tag_name" form:"tag_name"`
 	TagID      []int    `json:"tag_id" form:"tag_id"`
 	Content    string   `json:"content" form:"content"`
@@ -126,14 +127,15 @@ func (s *ArticleService) AddArticleWithImg() error {
 		tag.ID = uint(tag_id)
 		tags = append(tags, tag)
 	}
-
+	var imgs []model.Image
+	for _, img_name := range s.ImgName {
+		imgs = append(imgs, model.Image{Filename: img_name})
+	}
 	if err := model.AddArticleWithImg(
 		model.Article{
-			UserID:   s.UserID,
-			Content:  s.Content,
-			ImgUrl:   s.ImgUrl,
-			ThumbUrl: s.ThumbUrl,
-		}, tags); err != nil {
+			UserID:  s.UserID,
+			Content: s.Content,
+		}, tags, imgs); err != nil {
 		return err
 	}
 	return nil

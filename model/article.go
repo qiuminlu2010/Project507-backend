@@ -5,17 +5,21 @@ import (
 	"gorm.io/gorm/clause"
 )
 
+type Image struct {
+	Model
+	ArticleID uint   `json:"-" form:"-" binding:"-"`
+	Filename  string `json:"filename" form:"filename" binding:"-"`
+}
 type Article struct {
 	Model
-	UserID   uint
-	Tags     []Tag  `gorm:"many2many:article_tags;"`
-	Title    string `json:"title" form:"title"`
-	ImgUrl   string `json:"img_url" form:"img_url" binding:"-"`
-	ThumbUrl string `json:"thumb_url" form:"thumb_url" binding:"-"`
-	Content  string `json:"content" form:"content"`
-	Like     int    `json:"like" form:"like" binding:"-"`
-	Collect  int    `json:"collect" form:"collect" binding:"-"`
-	Watch    int    `json:"watch" form:"watch" binding:"-"`
+	UserID  uint
+	Tags    []Tag   `gorm:"many2many:article_tags;"`
+	Images  []Image `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
+	Title   string  `json:"title" form:"title"`
+	Content string  `json:"content" form:"content"`
+	Like    int     `json:"like" form:"like" binding:"-"`
+	Collect int     `json:"collect" form:"collect" binding:"-"`
+	Watch   int     `json:"watch" form:"watch" binding:"-"`
 	//TODO: Comments   []Comment
 	CreatedBy  string `json:"-" form:"created_by" binding:"-"`
 	ModifiedBy string `json:"-" form:"created_by" binding:"-"`
@@ -117,7 +121,7 @@ func AddArticle(article Article, tags []Tag) error {
 }
 
 // AddArticle add a single article
-func AddArticleWithImg(article Article, tags []Tag) error {
+func AddArticleWithImg(article Article, tags []Tag, imgs []Image) error {
 	tx := db.Begin()
 	defer func() {
 		if r := recover(); r != nil {
@@ -138,7 +142,10 @@ func AddArticleWithImg(article Article, tags []Tag) error {
 		tx.Rollback()
 		return err
 	}
-
+	if err := tx.Model(&article).Association("Images").Append(imgs); err != nil {
+		tx.Rollback()
+		return err
+	}
 	return tx.Commit().Error
 }
 

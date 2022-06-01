@@ -138,11 +138,11 @@ func AddArticle(c *gin.Context) {
 		return
 	}
 
-	articleService.ThumbUrl, err = upload.Thumbnailify(imageName)
+	_, err = upload.Thumbnailify(imageName)
 	if err != nil {
 		fmt.Println(err.Error())
 	}
-	articleService.ImgUrl = savePath
+	articleService.ImgName = append(articleService.ImgName, imageName)
 	// err := articleService.Add()
 	err = articleService.AddArticleWithImg()
 	if err != nil {
