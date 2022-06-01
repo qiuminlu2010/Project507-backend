@@ -3,6 +3,9 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
 
 	"qiu/blog/pkg/redis"
 	"qiu/blog/pkg/setting"
@@ -13,6 +16,19 @@ import (
 )
 
 func main() {
+	sigc := make(chan os.Signal, 1)
+	signal.Notify(sigc,
+		syscall.SIGHUP,
+		syscall.SIGINT,
+		syscall.SIGTERM,
+		syscall.SIGQUIT)
+	go func() {
+		s := <-sigc
+		fmt.Print("signal: ", s)
+		fmt.Println("结束程序")
+		os.Exit(1)
+	}()
+
 	logging.Setup()
 	setting.Setup()
 	model.Setup()

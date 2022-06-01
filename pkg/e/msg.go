@@ -42,6 +42,8 @@ var MsgFlags = map[int]string{
 	ERROR_UUID_EXPIRE:               "UUID过期",
 	ERROR_GET_USERID_FAIL:           "获取文章的用户ID失败",
 	ERROR_DELETE_ARTICLE_TAG_FAIL:   "删除文章标签失败",
+	ERROR_IMAGE_LOST:                "上传图片缺失",
+	ERROR_UPLOAD_IMAGE_FAIL:         "上传图片失败",
 }
 
 func GetMsg(code int) string {

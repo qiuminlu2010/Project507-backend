@@ -2,3 +2,120 @@
 [INFO][user.go:55]2022/05/31 01:32:20 用户登录成功, 用户名: 123456
 [INFO][jwt.go:42]2022/05/31 01:46:21 Token鉴权失败
 [INFO][jwt.go:42]2022/05/31 02:48:47 Token错误
+[INFO][user.go:55]2022/05/31 17:07:34 用户登录成功, 用户名: 123456
+[INFO][upload.go:43]2022/05/31 17:09:17 上传图片路径 runtime/data/img/src/4d12ca79d06c0e503a77087064b42588.png runtime/data/img/src/ data/img/src/
+[INFO][upload.go:44]2022/05/31 17:09:17 校验图片格式 true
+[INFO][image.go:65]2022/05/31 17:09:17 上传图片大小 113891 5242880
+[INFO][upload.go:45]2022/05/31 17:09:17 校验图片大小 true
+[INFO][image.go:65]2022/05/31 17:09:17 上传图片大小 0 5242880
+[INFO][upload.go:43]2022/05/31 17:11:53 上传图片路径 data/img/src/4d12ca79d06c0e503a77087064b42588.png data/img/src/ data/img/src/
+[INFO][upload.go:44]2022/05/31 17:11:53 校验图片格式 true
+[INFO][image.go:65]2022/05/31 17:11:53 上传图片大小 113891 5242880
+[INFO][upload.go:45]2022/05/31 17:11:53 校验图片大小 true
+[INFO][image.go:65]2022/05/31 17:11:53 上传图片大小 0 5242880
+[INFO][upload.go:43]2022/05/31 17:12:39 上传图片路径 data/img/src/c9e1074f5b3f9fc8ea15d152add07294.bmp data/img/src/ data/img/src/
+[INFO][upload.go:44]2022/05/31 17:12:39 校验图片格式 false
+[INFO][image.go:65]2022/05/31 17:12:39 上传图片大小 14745654 5242880
+[INFO][upload.go:45]2022/05/31 17:12:39 校验图片大小 false
+[INFO][upload.go:43]2022/05/31 17:12:57 上传图片路径 data/img/src/7d88076e8d3276c5169c40bd36f0f1aa.png data/img/src/ data/img/src/
+[INFO][upload.go:44]2022/05/31 17:12:57 校验图片格式 true
+[INFO][image.go:65]2022/05/31 17:12:57 上传图片大小 24891 5242880
+[INFO][upload.go:45]2022/05/31 17:12:57 校验图片大小 true
+[INFO][image.go:65]2022/05/31 17:12:57 上传图片大小 0 5242880
+[INFO][upload.go:43]2022/05/31 17:14:17 上传图片路径 data/img/src/be75ec49756c646e3fc3170f7dde3194.jpg data/img/src/ data/img/src/
+[INFO][upload.go:44]2022/05/31 17:14:17 校验图片格式 true
+[INFO][image.go:65]2022/05/31 17:14:17 上传图片大小 1758799 5242880
+[INFO][upload.go:45]2022/05/31 17:14:17 校验图片大小 true
+[INFO][image.go:65]2022/05/31 17:14:17 上传图片大小 0 5242880
+[INFO][upload.go:43]2022/05/31 17:17:35 上传图片路径 data/img/src/be75ec49756c646e3fc3170f7dde3194.jpg data/img/src/ data/img/src/
+[INFO][upload.go:44]2022/05/31 17:17:35 校验图片格式 true
+[INFO][image.go:65]2022/05/31 17:17:35 上传图片大小 1758799 5242880
+[INFO][upload.go:45]2022/05/31 17:17:35 校验图片大小 true
+[INFO][image.go:65]2022/05/31 17:17:35 上传图片大小 0 5242880
+[INFO][upload.go:43]2022/05/31 17:18:17 上传图片路径 data/img/src/be75ec49756c646e3fc3170f7dde3194.jpg data/img/src/ data/img/src/
+[INFO][upload.go:44]2022/05/31 17:18:17 校验图片格式 true
+[INFO][image.go:65]2022/05/31 17:18:17 上传图片大小 1758799 5242880
+[INFO][upload.go:45]2022/05/31 17:18:17 校验图片大小 true
+[INFO][image.go:65]2022/05/31 17:18:17 上传图片大小 0 5242880
+[INFO][jwt.go:42]2022/05/31 17:18:48 Token错误
+[INFO][jwt.go:42]2022/05/31 17:18:48 Token错误
+[INFO][upload.go:43]2022/05/31 17:23:20 上传图片路径 data/img/src/be75ec49756c646e3fc3170f7dde3194.jpg data/img/src/ data/img/src/
+[INFO][upload.go:44]2022/05/31 17:23:20 校验图片格式 true
+[INFO][image.go:65]2022/05/31 17:23:20 上传图片大小 1758799 5242880
+[INFO][upload.go:45]2022/05/31 17:23:20 校验图片大小 true
+[INFO][image.go:65]2022/05/31 17:23:20 上传图片大小 0 5242880
+[INFO][upload.go:43]2022/05/31 17:23:45 上传图片路径 data/img/src/be75ec49756c646e3fc3170f7dde3194.jpg data/img/src/ data/img/src/
+[INFO][upload.go:44]2022/05/31 17:23:45 校验图片格式 true
+[INFO][image.go:65]2022/05/31 17:23:45 上传图片大小 1758799 5242880
+[INFO][upload.go:45]2022/05/31 17:23:45 校验图片大小 true
+[INFO][image.go:65]2022/05/31 17:23:45 上传图片大小 0 5242880
+[INFO][upload.go:43]2022/05/31 17:30:45 上传图片路径 data/img/src/be75ec49756c646e3fc3170f7dde3194.jpg data/img/src/ data/img/src/
+[INFO][upload.go:44]2022/05/31 17:30:45 校验图片格式 true
+[INFO][image.go:65]2022/05/31 17:30:45 上传图片大小 1758799 5242880
+[INFO][upload.go:45]2022/05/31 17:30:45 校验图片大小 true
+[INFO][image.go:65]2022/05/31 17:30:45 上传图片大小 0 5242880
+[INFO][upload.go:43]2022/05/31 17:31:04 上传图片路径 data/img/src/be75ec49756c646e3fc3170f7dde3194.jpg data/img/src/ data/img/src/
+[INFO][upload.go:44]2022/05/31 17:31:04 校验图片格式 true
+[INFO][image.go:65]2022/05/31 17:31:04 上传图片大小 1758799 5242880
+[INFO][upload.go:45]2022/05/31 17:31:04 校验图片大小 true
+[INFO][image.go:65]2022/05/31 17:31:04 上传图片大小 0 5242880
+[INFO][upload.go:43]2022/05/31 17:34:14 上传图片路径 data/img/src/be75ec49756c646e3fc3170f7dde3194.jpg data/img/src/ data/img/src/
+[INFO][upload.go:44]2022/05/31 17:34:14 校验图片格式 true
+[INFO][image.go:65]2022/05/31 17:34:14 上传图片大小 1758799 5242880
+[INFO][upload.go:45]2022/05/31 17:34:14 校验图片大小 true
+[INFO][image.go:65]2022/05/31 17:34:14 上传图片大小 0 5242880
+[INFO][upload.go:43]2022/05/31 17:34:24 上传图片路径 data/img/src/be75ec49756c646e3fc3170f7dde3194.jpg data/img/src/ data/img/src/
+[INFO][upload.go:44]2022/05/31 17:34:24 校验图片格式 true
+[INFO][image.go:65]2022/05/31 17:34:24 上传图片大小 1758799 5242880
+[INFO][upload.go:45]2022/05/31 17:34:24 校验图片大小 true
+[INFO][image.go:65]2022/05/31 17:34:24 上传图片大小 0 5242880
+[INFO][upload.go:43]2022/05/31 17:36:02 上传图片路径 data/img/src/be75ec49756c646e3fc3170f7dde3194.jpg data/img/src/ data/img/src/
+[INFO][upload.go:44]2022/05/31 17:36:02 校验图片格式 true
+[INFO][image.go:65]2022/05/31 17:36:02 上传图片大小 1758799 5242880
+[INFO][upload.go:45]2022/05/31 17:36:02 校验图片大小 true
+[INFO][image.go:65]2022/05/31 17:36:02 上传图片大小 0 5242880
+[INFO][upload.go:43]2022/05/31 17:37:27 上传图片路径 data/img/src/be75ec49756c646e3fc3170f7dde3194.jpg data/img/src/ data/img/src/
+[INFO][upload.go:44]2022/05/31 17:37:27 校验图片格式 true
+[INFO][image.go:65]2022/05/31 17:37:27 上传图片大小 1758799 5242880
+[INFO][upload.go:45]2022/05/31 17:37:27 校验图片大小 true
+[INFO][image.go:65]2022/05/31 17:37:27 上传图片大小 0 5242880
+[INFO][upload.go:43]2022/05/31 18:21:52 上传图片路径 data/img/src/be75ec49756c646e3fc3170f7dde3194.jpg data/img/src/ data/img/src/
+[INFO][upload.go:44]2022/05/31 18:21:52 校验图片格式 true
+[INFO][image.go:65]2022/05/31 18:21:52 上传图片大小 1758799 5242880
+[INFO][upload.go:45]2022/05/31 18:21:52 校验图片大小 true
+[INFO][image.go:65]2022/05/31 18:21:52 上传图片大小 0 5242880
+[INFO][upload.go:43]2022/05/31 18:32:02 上传图片路径 data/img/src/be75ec49756c646e3fc3170f7dde3194.jpg data/img/src/ data/img/src/
+[INFO][upload.go:44]2022/05/31 18:32:02 校验图片格式 true
+[INFO][image.go:65]2022/05/31 18:32:02 上传图片大小 1758799 5242880
+[INFO][upload.go:45]2022/05/31 18:32:02 校验图片大小 true
+[INFO][image.go:65]2022/05/31 18:32:02 上传图片大小 0 5242880
+[INFO][upload.go:43]2022/05/31 18:41:52 上传图片路径 data/img/src/be75ec49756c646e3fc3170f7dde3194.jpg data/img/src/ data/img/src/
+[INFO][upload.go:44]2022/05/31 18:41:52 校验图片格式 true
+[INFO][image.go:66]2022/05/31 18:41:52 上传图片大小 1758799 5242880
+[INFO][upload.go:45]2022/05/31 18:41:52 校验图片大小 true
+[INFO][image.go:66]2022/05/31 18:41:52 上传图片大小 0 5242880
+[INFO][upload.go:43]2022/05/31 18:43:00 上传图片路径 data/img/src/be75ec49756c646e3fc3170f7dde3194.jpg data/img/src/ data/img/src/
+[INFO][upload.go:44]2022/05/31 18:43:00 校验图片格式 true
+[INFO][image.go:66]2022/05/31 18:43:00 上传图片大小 1758799 5242880
+[INFO][upload.go:45]2022/05/31 18:43:00 校验图片大小 true
+[INFO][image.go:66]2022/05/31 18:43:00 上传图片大小 0 5242880
+[INFO][upload.go:43]2022/05/31 18:43:43 上传图片路径 data/img/src/80a6d28c2b2c0028e97a3137209537b7.jpg data/img/src/ data/img/src/
+[INFO][upload.go:44]2022/05/31 18:43:43 校验图片格式 true
+[INFO][image.go:66]2022/05/31 18:43:43 上传图片大小 149859 5242880
+[INFO][upload.go:45]2022/05/31 18:43:43 校验图片大小 true
+[INFO][image.go:66]2022/05/31 18:43:43 上传图片大小 0 5242880
+[INFO][upload.go:43]2022/05/31 18:48:10 上传图片路径 data/img/src/93de15fb567b344d89b06f7cf4cd6a1d.jpg data/img/src/ data/img/src/
+[INFO][upload.go:44]2022/05/31 18:48:10 校验图片格式 true
+[INFO][image.go:66]2022/05/31 18:48:10 上传图片大小 367603 5242880
+[INFO][upload.go:45]2022/05/31 18:48:10 校验图片大小 true
+[INFO][image.go:66]2022/05/31 18:48:10 上传图片大小 0 5242880
+[INFO][upload.go:43]2022/05/31 18:48:48 上传图片路径 data/img/src/8923479287bf320e63ec7d2852a859ad.jpg data/img/src/ data/img/src/
+[INFO][upload.go:44]2022/05/31 18:48:48 校验图片格式 true
+[INFO][image.go:66]2022/05/31 18:48:48 上传图片大小 1077071 5242880
+[INFO][upload.go:45]2022/05/31 18:48:48 校验图片大小 true
+[INFO][image.go:66]2022/05/31 18:48:48 上传图片大小 0 5242880
+[INFO][upload.go:43]2022/05/31 18:50:31 上传图片路径 data/img/src/7f850e6e1abe9929242f28de7f4e5577.jpg data/img/src/ data/img/src/
+[INFO][upload.go:44]2022/05/31 18:50:31 校验图片格式 true
+[INFO][image.go:66]2022/05/31 18:50:31 上传图片大小 2664883 5242880
+[INFO][upload.go:45]2022/05/31 18:50:31 校验图片大小 true
+[INFO][image.go:66]2022/05/31 18:50:31 上传图片大小 0 5242880

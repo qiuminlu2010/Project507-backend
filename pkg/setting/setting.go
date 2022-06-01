@@ -14,6 +14,9 @@ type App struct {
 
 	ImagePrefixUrl string
 	ImageSavePath  string
+	ThumbSavePath  string
+	ThumbMaxHeight int
+	ThumbMaxWidth  int
 	ImageMaxSize   int
 	ImageAllowExts []string
 

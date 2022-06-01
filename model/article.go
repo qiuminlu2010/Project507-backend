@@ -7,14 +7,15 @@ import (
 
 type Article struct {
 	Model
-	UserID  uint
-	Tags    []Tag  `gorm:"many2many:article_tags;"`
-	Title   string `json:"title" form:"title"`
-	ImgUrl  string `json:"img_url" form:"img_url"`
-	Content string `json:"content" form:"content"`
-	Like    int    `json:"like" form:"like"`
-	Collect int    `json:"collect" form:"collect"`
-	Watch   int    `json:"watch" form:"watch"`
+	UserID   uint
+	Tags     []Tag  `gorm:"many2many:article_tags;"`
+	Title    string `json:"title" form:"title"`
+	ImgUrl   string `json:"img_url" form:"img_url" binding:"-"`
+	ThumbUrl string `json:"thumb_url" form:"thumb_url" binding:"-"`
+	Content  string `json:"content" form:"content"`
+	Like     int    `json:"like" form:"like" binding:"-"`
+	Collect  int    `json:"collect" form:"collect" binding:"-"`
+	Watch    int    `json:"watch" form:"watch" binding:"-"`
 	//TODO: Comments   []Comment
 	CreatedBy  string `json:"-" form:"created_by" binding:"-"`
 	ModifiedBy string `json:"-" form:"created_by" binding:"-"`
@@ -91,6 +92,32 @@ func DeleteArticleTag(id uint, tags []Tag) error {
 
 // AddArticle add a single article
 func AddArticle(article Article, tags []Tag) error {
+	tx := db.Begin()
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+		}
+	}()
+
+	if err := tx.Error; err != nil {
+		return err
+	}
+
+	if err := tx.Create(&article).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	if err := tx.Model(&article).Association("Tags").Append(tags); err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	return tx.Commit().Error
+}
+
+// AddArticle add a single article
+func AddArticleWithImg(article Article, tags []Tag) error {
 	tx := db.Begin()
 	defer func() {
 		if r := recover(); r != nil {
