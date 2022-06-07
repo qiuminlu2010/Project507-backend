@@ -60,6 +60,10 @@ func InitRouter() *gin.Engine {
 		//用户类
 		r.DELETE("/user/delete", v1.DeleteUser)
 		r.PUT("/user/update", v1.UpdatePassword)
+		r.GET("/user/list", v1.GetUserList)
+
+		//后台管理
+		r.GET("/admin/menu/list", v1.GetAdminMenu)
 	}
 	r.Use(middleware.CORS())
 	return r

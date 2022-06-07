@@ -44,6 +44,8 @@ var MsgFlags = map[int]string{
 	ERROR_DELETE_ARTICLE_TAG_FAIL:   "删除文章标签失败",
 	ERROR_IMAGE_LOST:                "上传图片缺失",
 	ERROR_UPLOAD_IMAGE_FAIL:         "上传图片失败",
+	ERROR_ADMIN_MENU_LIST_FAIL:      "获取后台管理菜单失败",
+	ERROR_USER_LIST_FAIL:            "获取用户列表失败",
 }
 
 func GetMsg(code int) string {

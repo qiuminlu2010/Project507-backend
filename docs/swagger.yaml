@@ -10,6 +10,18 @@ definitions:
 info:
   contact: {}
 paths:
+  /admin/menu/list:
+    get:
+      parameters:
+      - description: token
+        in: header
+        name: token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: 获取后台管理菜单
   /api/v1/article/add:
     post:
       consumes:
@@ -399,6 +411,22 @@ paths:
       summary: 上传图片
       tags:
       - file
+  /user/list:
+    get:
+      parameters:
+      - description: token
+        in: header
+        name: token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/gin_http.ResponseJSON'
+      summary: 用户列表
   /user/login:
     post:
       parameters:

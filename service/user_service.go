@@ -11,18 +11,28 @@ import (
 type UserParams struct {
 	Id       uint   `uri:"id"`
 	Username string `json:"username" form:"username" binding:"omitempty,printascii,gte=3,lte=20"`
-	Password string `json:"password" form:"password" binding:"omitempty,printascii,gte=6,lte=20"`
+	Password string `json:"password" form:"password" binding:"omitempty,printascii,gte=6,lte=100"`
 }
 
 type UserService struct {
 	BaseService
 	UserParams
+	PageNum  int
+	PageSize int
 }
 
 func GetUserService() *UserService {
 	s := UserService{}
 	s.model = &s
 	return &s
+}
+
+func (s *UserService) CountUser(data map[string]interface{}) (int64, error) {
+	return model.GetUserTotal(data)
+}
+
+func (s *UserService) GetUserList(data map[string]interface{}) ([]*model.User, error) {
+	return model.GetUserList(s.PageNum, s.PageSize, data)
 }
 
 func (s *UserService) Add() error {

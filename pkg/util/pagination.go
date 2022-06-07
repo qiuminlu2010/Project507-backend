@@ -9,7 +9,7 @@ import (
 
 func GetPage(c *gin.Context) int {
 	result := 0
-	page, _ := com.StrTo(c.Query("page")).Int()
+	page, _ := com.StrTo(c.Query("pageNum")).Int()
 	if page > 0 {
 		result = (page - 1) * setting.AppSetting.PageSize
 	}

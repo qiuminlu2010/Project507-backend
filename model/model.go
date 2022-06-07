@@ -19,9 +19,9 @@ var db *gorm.DB
 
 type Model struct {
 	ID         uint           `gorm:"primary_key" uri:"id" `
-	CreatedOn  time.Time      `binding:"-" json:"-"`
-	ModifiedOn time.Time      `binding:"-" json:"-"`
-	DeletedAt  gorm.DeletedAt `gorm:"index"  binding:"-" json:"-"`
+	CreatedOn  time.Time      `binding:"-" json:"created_on,omitempty"`
+	ModifiedOn time.Time      `binding:"-" json:"modified_on,omitempty"`
+	DeletedAt  gorm.DeletedAt `gorm:"index"  binding:"-" json:"deleted_on,omitempty"`
 }
 
 func Setup() {
@@ -72,6 +72,7 @@ func Setup() {
 	// db.Callback().Update().Replace("gorm:update_time_stamp", updateTimeStampForUpdateCallback)
 	// db.Callback().Delete().Replace("gorm:delete", deleteCallback)
 	db.Callback().Create().Before("gorm:create").Register("update_create_time", updateTimeStampForCreateCallback)
+	db.Callback().Create().Before("gorm:create").Register("update_modify_time", updateTimeStampForUpdateCallback)
 	db.Callback().Update().Before("gorm:update").Register("update_modify_time", updateTimeStampForUpdateCallback)
 	err = db.AutoMigrate(
 		&User{},

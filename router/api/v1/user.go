@@ -9,6 +9,8 @@ import (
 	"qiu/blog/pkg/util"
 	service "qiu/blog/service"
 
+	"qiu/blog/pkg/setting"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -19,6 +21,46 @@ import (
 // 3.参数类型
 // 4.是否必须
 // 5.注释
+
+// @Summary 用户列表
+// @Produce  json
+// @Param token header string true "token"
+// @Success 200 {object} gin_http.ResponseJSON
+// @Router /user/list [get]
+func GetUserList(c *gin.Context) {
+
+	userService := service.GetUserService()
+	claims := userService.GetClaimsFromToken(c)
+	if claims == nil {
+		gin_http.Response(c, http.StatusBadRequest, e.ERROR_AUTH, nil)
+		return
+	}
+
+	if claims.Uid != userService.Id && claims.Uid != 2 {
+		fmt.Println("token用户信息不一致", claims.Uid, userService.Id)
+		gin_http.Response(c, http.StatusInternalServerError, e.ERROR_AUTH_CHECK_TOKEN_FAIL, nil)
+		return
+	}
+	userService.PageNum = util.GetPage(c)
+	userService.PageSize = setting.AppSetting.PageSize
+
+	total, err := userService.CountUser(nil)
+	if err != nil {
+		gin_http.Response(c, http.StatusInternalServerError, e.ERROR_USER_LIST_FAIL, nil)
+		return
+	}
+	userList, err := userService.GetUserList(nil)
+	if err != nil {
+		gin_http.Response(c, http.StatusInternalServerError, e.ERROR_USER_LIST_FAIL, nil)
+		return
+	}
+	data := make(map[string]interface{})
+	data["datalist"] = userList
+	data["total"] = total
+	data["pageNum"] = userService.PageNum
+	data["pageSize"] = userService.PageSize
+	gin_http.Response(c, http.StatusOK, e.SUCCESS, data)
+}
 
 // @Summary 用户登录
 // @Produce  json
