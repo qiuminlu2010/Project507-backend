@@ -121,7 +121,7 @@ paths:
       - application/json
       responses: {}
       summary: 删除文章标签
-  /api/v1/article/getList:
+  /api/v1/article/list:
     get:
       parameters:
       - description: Page
@@ -149,6 +149,23 @@ paths:
       - application/json
       responses: {}
       summary: 恢复文章
+  /api/v1/article/update/{id}:
+    put:
+      parameters:
+      - description: 文章ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: token
+        in: header
+        name: token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: 更新文章
   /api/v1/tag/add:
     post:
       parameters:
@@ -318,11 +335,36 @@ paths:
           schema:
             $ref: '#/definitions/gin_http.ResponseJSON'
       summary: 修改标签
-  /delete_user:
+  /upload:
+    post:
+      consumes:
+      - multipart/form-data
+      parameters:
+      - description: image
+        in: formData
+        name: image
+        required: true
+        type: file
+      - description: token
+        in: query
+        name: token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"code":200,"data":{},"msg":"ok"}'
+          schema:
+            type: string
+      summary: 上传图片
+      tags:
+      - file
+  /user/delete/{id}:
     delete:
       parameters:
       - description: id
-        in: formData
+        in: path
         name: id
         required: true
         type: integer
@@ -352,65 +394,6 @@ paths:
           schema:
             $ref: '#/definitions/gin_http.ResponseJSON'
       summary: 注销用户
-  /update_password:
-    put:
-      parameters:
-      - description: id
-        in: formData
-        name: id
-        required: true
-        type: integer
-      - description: password
-        in: formData
-        name: password
-        required: true
-        type: string
-      - description: token
-        in: header
-        name: token
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/gin_http.ResponseJSON'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/gin_http.ResponseJSON'
-        "20009":
-          description: ""
-          schema:
-            $ref: '#/definitions/gin_http.ResponseJSON'
-      summary: 修改用户密码
-  /upload:
-    post:
-      consumes:
-      - multipart/form-data
-      parameters:
-      - description: image
-        in: formData
-        name: image
-        required: true
-        type: file
-      - description: token
-        in: query
-        name: token
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: '{"code":200,"data":{},"msg":"ok"}'
-          schema:
-            type: string
-      summary: 上传图片
-      tags:
-      - file
   /user/list:
     get:
       parameters:
@@ -502,4 +485,58 @@ paths:
           schema:
             $ref: '#/definitions/gin_http.ResponseJSON'
       summary: 用户注册
+  /user/update/{id}:
+    delete:
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: token
+        in: header
+        name: token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/gin_http.ResponseJSON'
+      summary: 更新用户
+    put:
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: password
+        in: formData
+        name: password
+        required: true
+        type: string
+      - description: token
+        in: header
+        name: token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/gin_http.ResponseJSON'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/gin_http.ResponseJSON'
+        "20009":
+          description: ""
+          schema:
+            $ref: '#/definitions/gin_http.ResponseJSON'
+      summary: 修改用户密码
 swagger: "2.0"

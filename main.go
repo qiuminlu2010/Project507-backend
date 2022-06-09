@@ -10,6 +10,7 @@ import (
 	"qiu/blog/pkg/redis"
 	"qiu/blog/pkg/setting"
 
+	"qiu/blog/cron"
 	"qiu/blog/model"
 	"qiu/blog/pkg/logging"
 	"qiu/blog/router"
@@ -23,8 +24,8 @@ func main() {
 		syscall.SIGTERM,
 		syscall.SIGQUIT)
 	go func() {
-		s := <-sigc
-		fmt.Print("signal: ", s)
+		<-sigc
+		cron.Exit()
 		fmt.Println("结束程序")
 		os.Exit(1)
 	}()
@@ -33,6 +34,7 @@ func main() {
 	setting.Setup()
 	model.Setup()
 	redis.Setup()
+	cron.Setup()
 
 	/*
 		router := gin.Default()

@@ -49,7 +49,7 @@ func GetArticle(c *gin.Context) {
 // @Summary 获取文章列表
 // @Produce  json
 // @Param page query int false "Page"
-// @Router /api/v1/article/getList [get]
+// @Router /api/v1/article/list [get]
 func GetArticles(c *gin.Context) {
 
 	articleService := service.GetArticleService()
@@ -70,9 +70,10 @@ func GetArticles(c *gin.Context) {
 		return
 	}
 	data := make(map[string]interface{})
-	data["lists"] = articles
+	data["datalist"] = articles
 	data["total"] = total
-
+	data["pageNum"] = articleService.PageNum
+	data["pageSize"] = articleService.PageSize
 	gin_http.Response(c, http.StatusOK, e.SUCCESS, data)
 }
 
@@ -120,11 +121,11 @@ func AddArticle(c *gin.Context) {
 		return
 	}
 
-	if err = upload.CheckImage(savePath); err != nil {
-		fmt.Println(err)
-		gin_http.Response(c, http.StatusBadRequest, e.ERROR_UPLOAD_CHECK_IMAGE_FAIL, nil)
-		return
-	}
+	// if err = upload.CheckImage(savePath); err != nil {
+	// 	fmt.Println(err)
+	// 	gin_http.Response(c, http.StatusBadRequest, e.ERROR_UPLOAD_CHECK_IMAGE_FAIL, nil)
+	// 	return
+	// }
 
 	httpCode, errCode = articleService.CheckTagName()
 	if errCode != e.SUCCESS {
@@ -261,6 +262,42 @@ func DeleteArticle(c *gin.Context) {
 
 	if err := articleService.Delete(); err != nil {
 		gin_http.Response(c, http.StatusInternalServerError, e.ERROR_DELETE_ARTICLE_FAIL, nil)
+		return
+	}
+	gin_http.Response(c, http.StatusOK, e.SUCCESS, nil)
+}
+
+// @Summary 更新文章
+// @Produce  json
+// @Param id path int true "文章ID"
+// @Param token header string true "token"
+// @Router /api/v1/article/update/{id} [put]
+func UpdateArticle(c *gin.Context) {
+
+	articleService := service.GetArticleService()
+	httpCode, errCode := articleService.Bind(c)
+	if errCode != e.SUCCESS {
+		gin_http.Response(c, httpCode, errCode, nil)
+		return
+	}
+
+	claims := articleService.GetClaimsFromToken(c)
+	if claims == nil {
+		gin_http.Response(c, http.StatusBadRequest, e.ERROR_AUTH, nil)
+		return
+	}
+	userID, err := articleService.GetUserID()
+	if err != nil {
+		gin_http.Response(c, http.StatusBadRequest, e.ERROR_GET_USERID_FAIL, nil)
+		return
+	}
+	if userID != claims.Uid && claims.Uid != setting.AppSetting.AdminId {
+		gin_http.Response(c, http.StatusBadRequest, e.ERROR_AUTH, nil)
+		return
+	}
+
+	if err := articleService.Update(); err != nil {
+		gin_http.Response(c, http.StatusInternalServerError, e.ERROR_EDIT_ARTICLE_FAIL, nil)
 		return
 	}
 	gin_http.Response(c, http.StatusOK, e.SUCCESS, nil)

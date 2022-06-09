@@ -2,13 +2,25 @@
   "data": [
     { "icon": "home-filled", "title": "首页", "path": "/home/index" },
     {
-      "icon": "message-box",
+      "icon": "box",
       "title": "用户管理",
-      "path": "/proTable",
+      "path": "/admin/user",
       "children": [
         {
-          "path": "/user/list",
-          "title": "用户表单",
+          "path": "/admin/user/list",
+          "title": "用户列",
+          "icon": "menu"
+        }
+      ]
+    },
+    {
+      "icon": "user-filled",
+      "title": "文章管理",
+      "path": "/admin/article",
+      "children": [
+        {
+          "path": "/admin/article/list",
+          "title": "文章列表",
           "icon": "menu"
         }
       ]
@@ -24,33 +36,6 @@
           "icon": "menu"
         },
         { "path": "/dashboard/embedded", "title": "内嵌页面", "icon": "menu" }
-      ]
-    },
-    {
-      "icon": "tickets",
-      "title": "表单 Form",
-      "path": "/form",
-      "children": [
-        { "path": "/form/basicForm", "title": "基础 Form", "icon": "menu" },
-        { "path": "/form/validateForm", "title": "校验 Form", "icon": "menu" },
-        { "path": "/form/dynamicForm", "title": "动态 Form", "icon": "menu" }
-      ]
-    },
-    {
-      "icon": "trend-charts",
-      "title": "Echarts",
-      "path": "/echarts",
-      "children": [
-        { "path": "/echarts/waterChart", "title": "水型图", "icon": "menu" },
-        { "path": "/echarts/columnChart", "title": "柱状图", "icon": "menu" },
-        { "path": "/echarts/lineChart", "title": "折线图", "icon": "menu" },
-        { "path": "/echarts/pieChart", "title": "饼图", "icon": "menu" },
-        { "path": "/echarts/radarChart", "title": "雷达图", "icon": "menu" },
-        {
-          "path": "/echarts/nestedChart",
-          "title": "嵌套环形图",
-          "icon": "menu"
-        }
       ]
     },
     {
@@ -105,45 +90,6 @@
           "title": "长按指令",
           "icon": "menu"
         }
-      ]
-    },
-    {
-      "icon": "list",
-      "title": "菜单嵌套",
-      "path": "/menu",
-      "children": [
-        { "path": "/menu/menu1", "title": "菜单1", "icon": "menu" },
-        {
-          "path": "/menu/menu2",
-          "title": "菜单2",
-          "icon": "menu",
-          "children": [
-            {
-              "path": "/menu/menu2/menu21",
-              "title": "菜单2-1",
-              "icon": "menu"
-            },
-            {
-              "path": "/menu/menu2/menu22",
-              "title": "菜单2-2",
-              "icon": "menu",
-              "children": [
-                {
-                  "path": "/menu/menu2/menu22/menu221",
-                  "title": "菜单2-2-1",
-                  "icon": "menu"
-                },
-                {
-                  "path": "/menu/menu2/menu22/menu222",
-                  "title": "菜单2-2-2",
-                  "icon": "menu"
-                }
-              ]
-            },
-            { "path": "/menu/menu2/menu23", "title": "菜单2-3", "icon": "menu" }
-          ]
-        },
-        { "path": "/menu/menu3", "title": "菜单3", "icon": "menu" }
       ]
     },
     {

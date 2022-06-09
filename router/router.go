@@ -5,7 +5,7 @@ import (
 
 	"qiu/blog/pkg/setting"
 
-	v1 "qiu/blog/router/api/v1"
+	v1 "qiu/blog/api/v1"
 
 	middleware "qiu/blog/middleware"
 
@@ -25,7 +25,7 @@ func InitRouter() *gin.Engine {
 	apiv1 := r.Group("/api/v1")
 
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
-
+	r.GET("/data/:imgType/:imgName", v1.DownloadImg)
 	//用户类
 	r.POST("/user/register", v1.Register)
 	r.POST("/user/login", v1.Login)
@@ -33,8 +33,10 @@ func InitRouter() *gin.Engine {
 	//标签类
 	apiv1.GET("/tag/getArticles/:id", v1.GetTagArticles)
 	apiv1.GET("/tag/getList/", v1.GetTags)
+	//文章类
+	apiv1.GET("/article/list/", v1.GetArticles)
+	apiv1.GET("/article/get/:id", v1.GetArticle)
 
-	apiv1.GET("/article/getList/", v1.GetArticles)
 	apiv1.Use(middleware.JWT())
 	{
 		//标签类
@@ -46,11 +48,11 @@ func InitRouter() *gin.Engine {
 
 		//文章类
 		apiv1.POST("/article/add", v1.AddArticle)
-		apiv1.GET("/article/get/:id", v1.GetArticle)
 		apiv1.POST("/article/addTags/:id", v1.AddArticleTags)
 		apiv1.DELETE("/article/delete/:id", v1.DeleteArticle)
 		apiv1.DELETE("/article/deleteTags/:id", v1.DeleteArticleTags)
 		apiv1.POST("/article/recover/:id", v1.RecoverArticle)
+		apiv1.PUT("/article/update/:id/state", v1.UpdateArticle)
 
 		//上传图片
 		r.POST("/upload", v1.UploadImage)
@@ -58,8 +60,9 @@ func InitRouter() *gin.Engine {
 	r.Use(middleware.JWT())
 	{
 		//用户类
-		r.DELETE("/user/delete", v1.DeleteUser)
-		r.PUT("/user/update", v1.UpdatePassword)
+		r.DELETE("/user/delete/:id", v1.DeleteUser)
+		r.PUT("/user/update/:id/password", v1.UpdatePassword)
+		r.PUT("/user/update/:id/state", v1.UpdateUserState)
 		r.GET("/user/list", v1.GetUserList)
 
 		//后台管理

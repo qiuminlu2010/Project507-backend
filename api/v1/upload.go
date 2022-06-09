@@ -53,6 +53,7 @@ func UploadImage(c *gin.Context) {
 		gin_http.Response(c, http.StatusBadRequest, e.ERROR_UPLOAD_CHECK_IMAGE_FAIL, nil)
 		return
 	}
+	fmt.Println("保存路径", src)
 	if err = c.SaveUploadedFile(image, src); err != nil {
 		logging.Warn(err)
 		gin_http.Response(c, http.StatusInternalServerError, e.ERROR_UPLOAD_SAVE_IMAGE_FAIL, nil)

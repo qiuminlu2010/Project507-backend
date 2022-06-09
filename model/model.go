@@ -1,6 +1,7 @@
 package model
 
 import (
+	"database/sql/driver"
 	"fmt"
 	"log"
 	"os"
@@ -17,11 +18,36 @@ import (
 
 var db *gorm.DB
 
+type LocalTime time.Time
+
+func (t *LocalTime) MarshalJSON() ([]byte, error) {
+	tTime := time.Time(*t)
+	return []byte(fmt.Sprintf("\"%v\"", tTime.Format("2006-01-02 15:04:05"))), nil
+}
+
+func (t LocalTime) Value() (driver.Value, error) {
+	var zeroTime time.Time
+	tlt := time.Time(t)
+	//判断给定时间是否和默认零时间的时间戳相同
+	if tlt.UnixNano() == zeroTime.UnixNano() {
+		return nil, nil
+	}
+	return tlt, nil
+}
+
+func (t *LocalTime) Scan(v interface{}) error {
+	if value, ok := v.(time.Time); ok {
+		*t = LocalTime(value)
+		return nil
+	}
+	return fmt.Errorf("can not convert %v to timestamp", v)
+}
+
 type Model struct {
 	ID         uint           `gorm:"primary_key" uri:"id" `
-	CreatedOn  time.Time      `binding:"-" json:"created_on,omitempty"`
-	ModifiedOn time.Time      `binding:"-" json:"modified_on,omitempty"`
-	DeletedAt  gorm.DeletedAt `gorm:"index"  binding:"-" json:"deleted_on,omitempty"`
+	CreatedOn  *LocalTime     `binding:"-" json:"created_on,omitempty"`
+	ModifiedOn *LocalTime     `binding:"-" json:"modified_on,omitempty"`
+	DeletedAt  gorm.DeletedAt `gorm:"index"  binding:"-" json:"-"`
 }
 
 func Setup() {
@@ -73,6 +99,7 @@ func Setup() {
 	// db.Callback().Delete().Replace("gorm:delete", deleteCallback)
 	db.Callback().Create().Before("gorm:create").Register("update_create_time", updateTimeStampForCreateCallback)
 	db.Callback().Create().Before("gorm:create").Register("update_modify_time", updateTimeStampForUpdateCallback)
+	db.Callback().Create().Before("gorm:create").Register("set_state", setState)
 	db.Callback().Update().Before("gorm:update").Register("update_modify_time", updateTimeStampForUpdateCallback)
 	err = db.AutoMigrate(
 		&User{},
@@ -88,39 +115,34 @@ func Setup() {
 	// db.AutoMigrate(&Tag{})
 	// db.AutoMigrate(&Article{})
 }
-
-func updateTimeStampForCreateCallback(db *gorm.DB) {
-	field := "CreatedOn"
+func setValue(db *gorm.DB, field string, value interface{}) {
+	// field := "CreatedOn"
 	if timeField := db.Statement.Schema.LookUpField(field); timeField != nil {
 		switch db.Statement.ReflectValue.Kind() {
 		case reflect.Slice, reflect.Array:
 			for i := 0; i < db.Statement.ReflectValue.Len(); i++ {
 				if _, isZero := timeField.ValueOf(db.Statement.Context, db.Statement.ReflectValue.Index(i)); isZero {
-					timeField.Set(db.Statement.Context, db.Statement.ReflectValue.Index(i), time.Now())
+					timeField.Set(db.Statement.Context, db.Statement.ReflectValue.Index(i), value)
 				}
 			}
 		case reflect.Struct:
 			if _, isZero := timeField.ValueOf(db.Statement.Context, db.Statement.ReflectValue); isZero {
-				timeField.Set(db.Statement.Context, db.Statement.ReflectValue, time.Now())
+				timeField.Set(db.Statement.Context, db.Statement.ReflectValue, value)
 			}
 		}
 	}
+}
+func setState(db *gorm.DB) {
+	setValue(db, "State", 1)
+}
+
+func updateTimeStampForCreateCallback(db *gorm.DB) {
+	setValue(db, "CreatedOn", time.Now())
 
 }
 
 func updateTimeStampForUpdateCallback(db *gorm.DB) {
-	field := "ModifiedOn"
-	if timeField := db.Statement.Schema.LookUpField(field); timeField != nil {
-		switch db.Statement.ReflectValue.Kind() {
-		case reflect.Slice, reflect.Array:
-			for i := 0; i < db.Statement.ReflectValue.Len(); i++ {
-				timeField.Set(db.Statement.Context, db.Statement.ReflectValue.Index(i), time.Now())
-			}
-		case reflect.Struct:
-			timeField.Set(db.Statement.Context, db.Statement.ReflectValue, time.Now())
-		}
-	}
-
+	setValue(db, "ModifiedOn", time.Now())
 }
 
 // func updateTimeStampForUpdateCallback(scope *gorm.Scope) {

@@ -36,7 +36,7 @@ func GetUserList(c *gin.Context) {
 		return
 	}
 
-	if claims.Uid != userService.Id && claims.Uid != 2 {
+	if claims.Uid != userService.Id && claims.Uid != setting.AppSetting.AdminId {
 		fmt.Println("token用户信息不一致", claims.Uid, userService.Id)
 		gin_http.Response(c, http.StatusInternalServerError, e.ERROR_AUTH_CHECK_TOKEN_FAIL, nil)
 		return
@@ -134,13 +134,13 @@ func Register(c *gin.Context) {
 
 // @Summary 注销用户
 // @Produce  json
-// @Param id formData int true "id"
+// @Param id path int true "id"
 // @Param username formData string true "username"
 // @Param token header string true "token"
 // @Success 200 {object} gin_http.ResponseJSON
 // @Failure  400 {object} gin_http.ResponseJSON
 // @Failure  20008 {object} gin_http.ResponseJSON
-// @Router /delete_user [delete]
+// @Router /user/delete/{id} [delete]
 func DeleteUser(c *gin.Context) {
 
 	userService := service.GetUserService()
@@ -157,7 +157,7 @@ func DeleteUser(c *gin.Context) {
 		return
 	}
 
-	if claims.Uid != userService.Id {
+	if claims.Uid != userService.Id && claims.Uid != setting.AppSetting.AdminId {
 		fmt.Println("token用户信息不一致", claims.Uid, userService.Id)
 		gin_http.Response(c, http.StatusInternalServerError, e.ERROR_AUTH_CHECK_TOKEN_FAIL, nil)
 		return
@@ -173,13 +173,13 @@ func DeleteUser(c *gin.Context) {
 
 // @Summary 修改用户密码
 // @Produce  json
-// @Param id formData int true "id"
+// @Param id path int true "id"
 // @Param password formData string true "password"
 // @Param token header string true "token"
 // @Success 200 {object} gin_http.ResponseJSON
 // @Failure  400 {object} gin_http.ResponseJSON
 // @Failure  20009 {object} gin_http.ResponseJSON
-// @Router /update_password [put]
+// @Router /user/update/{id} [put]
 func UpdatePassword(c *gin.Context) {
 
 	userService := service.GetUserService()
@@ -199,7 +199,7 @@ func UpdatePassword(c *gin.Context) {
 		return
 	}
 
-	if claims.Uid != userService.Id {
+	if claims.Uid != userService.Id && claims.Uid != setting.AppSetting.AdminId {
 		fmt.Println("token用户信息不一致", claims.Uid, userService.Id)
 		gin_http.Response(c, http.StatusInternalServerError, e.ERROR_AUTH_CHECK_TOKEN_FAIL, nil)
 		return
@@ -244,4 +244,43 @@ func RefreshToken(c *gin.Context) {
 	data["expire_time"] = expire_time
 	gin_http.Response(c, http.StatusOK, e.SUCCESS, data)
 
+}
+
+// @Summary 更新用户
+// @Produce  json
+// @Param id path int true "id"
+// @Param token header string true "token"
+// @Success 200 {object} gin_http.ResponseJSON
+// @Router /user/update/{id} [delete]
+func UpdateUserState(c *gin.Context) {
+
+	userService := service.GetUserService()
+	httpCode, errCode := userService.Bind(c)
+
+	if errCode != e.SUCCESS {
+		gin_http.Response(c, httpCode, errCode, nil)
+		return
+	}
+
+	claims := userService.GetClaimsFromToken(c)
+	// token := c.GetHeader("token")
+	// claims, err := util.ParseToken(token)
+
+	if claims == nil {
+		gin_http.Response(c, http.StatusBadRequest, e.ERROR_AUTH, nil)
+		return
+	}
+
+	if claims.Uid != userService.Id && claims.Uid != setting.AppSetting.AdminId {
+		fmt.Println("token用户信息不一致", claims.Uid, userService.Id)
+		gin_http.Response(c, http.StatusInternalServerError, e.ERROR_AUTH_CHECK_TOKEN_FAIL, nil)
+		return
+	}
+
+	if err := userService.UpdateState(); err != nil {
+		gin_http.Response(c, http.StatusInternalServerError, e.ERROR_UPDATE_USER_FAIL, nil)
+		return
+	}
+	// logging.Info("用户修改密码成功,", "用户名:", userService.GetUsernameByID())
+	gin_http.Response(c, http.StatusOK, e.SUCCESS, nil)
 }

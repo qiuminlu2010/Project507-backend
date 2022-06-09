@@ -12,6 +12,7 @@ type UserParams struct {
 	Id       uint   `uri:"id"`
 	Username string `json:"username" form:"username" binding:"omitempty,printascii,gte=3,lte=20"`
 	Password string `json:"password" form:"password" binding:"omitempty,printascii,gte=6,lte=100"`
+	State    int    `json:"state" form:"state"`
 }
 
 type UserService struct {
@@ -60,6 +61,11 @@ func (s *UserService) UpdatePassword() error {
 	return model.UpdateUser(s.Id, data)
 }
 
+func (s *UserService) UpdateState() error {
+	data := make(map[string]interface{})
+	data["state"] = s.State
+	return model.UpdateUser(s.Id, data)
+}
 func (s *UserService) GetUsernameByID() string {
 	return model.GetUsernameByID(s.Id)
 }

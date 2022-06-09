@@ -23,6 +23,7 @@ type ArticleParams struct {
 	Content    string   `json:"content" form:"content"`
 	CreatedBy  string   `json:"created_by" form:"created_by"`
 	ModifiedBy string   `json:"modified_by" form:"created_by"`
+	State      int      `json:"state" form:"state" binding:"gte=0,lte=1"`
 	PageNum    int
 	PageSize   int
 }
@@ -197,6 +198,12 @@ func (s *ArticleService) Delete() error {
 	return model.DeleteArticle(s.Id)
 }
 
+func (s *ArticleService) Update() error {
+	data := make(map[string]interface{})
+	data["state"] = s.State
+	data["content"] = s.Content
+	return model.UpdateArticle(s.Id, data)
+}
 func (s *ArticleService) Count(data map[string]interface{}) (int64, error) {
 	return model.GetArticleTotal(data)
 }

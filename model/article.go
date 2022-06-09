@@ -12,9 +12,9 @@ type Image struct {
 }
 type Article struct {
 	Model
-	UserID  uint
-	Tags    []Tag   `gorm:"many2many:article_tags;"`
-	Images  []Image `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
+	UserID  uint    `json:"user_id"`
+	Tags    []Tag   `gorm:"many2many:article_tags;" json:"tags"`
+	Images  []Image `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;" json:"images"`
 	Title   string  `json:"title" form:"title"`
 	Content string  `json:"content" form:"content"`
 	Like    int     `json:"like" form:"like" binding:"-"`
@@ -23,7 +23,7 @@ type Article struct {
 	//TODO: Comments   []Comment
 	CreatedBy  string `json:"-" form:"created_by" binding:"-"`
 	ModifiedBy string `json:"-" form:"created_by" binding:"-"`
-	State      int    `json:"-" form:"state" binding:"-"`
+	State      int    `json:"state" form:"state" binding:"-"`
 }
 
 //通过ID判断文章是否存在
