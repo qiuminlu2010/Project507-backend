@@ -1,6 +1,6 @@
 {
   "data": [
-    { "icon": "home-filled", "title": "首页", "path": "/home/index" },
+    { "icon": "home-filled", "title": "首页", "path": "/admin/home" },
     {
       "icon": "box",
       "title": "用户管理",
@@ -8,7 +8,7 @@
       "children": [
         {
           "path": "/admin/user/list",
-          "title": "用户列",
+          "title": "用户列表",
           "icon": "menu"
         }
       ]

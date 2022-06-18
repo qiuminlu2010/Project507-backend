@@ -40,12 +40,12 @@ paths:
       - description: 标签
         in: formData
         items:
-          type: integer
-        name: tag_id
+          type: string
+        name: tag_name
         type: array
       - description: image
         in: formData
-        name: image
+        name: images
         required: true
         type: file
       - description: token
@@ -444,7 +444,7 @@ paths:
         required: true
         type: integer
       - description: uuid
-        in: header
+        in: formData
         name: uuid
         required: true
         type: string

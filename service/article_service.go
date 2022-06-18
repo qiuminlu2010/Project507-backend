@@ -2,7 +2,6 @@ package service
 
 import (
 	"encoding/json"
-	"errors"
 	"net/http"
 	"qiu/blog/model"
 	"qiu/blog/pkg/e"
@@ -20,6 +19,7 @@ type ArticleParams struct {
 	ImgName    []string `json:"-" form:"-" binding:"-"`
 	TagName    []string `json:"tag_name" form:"tag_name"`
 	TagID      []int    `json:"tag_id" form:"tag_id"`
+	Title      string   `json:"title" form:"title"`
 	Content    string   `json:"content" form:"content"`
 	CreatedBy  string   `json:"created_by" form:"created_by"`
 	ModifiedBy string   `json:"modified_by" form:"created_by"`
@@ -120,12 +120,14 @@ func (s *ArticleService) Add() error {
 
 func (s *ArticleService) AddArticleWithImg() error {
 	var tags []model.Tag
-	for _, tag_id := range s.TagID {
-		if !model.ExistTagByID(tag_id) {
-			return errors.New("标签ID不存在")
-		}
+	for _, tag_name := range s.TagName {
+		tag_id, err := model.GetTagIdByName(tag_name)
 		tag := model.Tag{}
-		tag.ID = uint(tag_id)
+		if err != nil {
+			tag.Name = tag_name
+		} else {
+			tag.ID = tag_id
+		}
 		tags = append(tags, tag)
 	}
 	var imgs []model.Image
@@ -136,6 +138,7 @@ func (s *ArticleService) AddArticleWithImg() error {
 		model.Article{
 			UserID:  s.UserID,
 			Content: s.Content,
+			Title:   s.Title,
 		}, tags, imgs); err != nil {
 		return err
 	}

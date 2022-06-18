@@ -61,16 +61,16 @@ const docTemplate = `{
                     {
                         "type": "array",
                         "items": {
-                            "type": "integer"
+                            "type": "string"
                         },
                         "description": "标签",
-                        "name": "tag_id",
+                        "name": "tag_name",
                         "in": "formData"
                     },
                     {
                         "type": "file",
                         "description": "image",
-                        "name": "image",
+                        "name": "images",
                         "in": "formData",
                         "required": true
                     },
@@ -672,7 +672,7 @@ const docTemplate = `{
                         "type": "string",
                         "description": "uuid",
                         "name": "uuid",
-                        "in": "header",
+                        "in": "formData",
                         "required": true
                     }
                 ],

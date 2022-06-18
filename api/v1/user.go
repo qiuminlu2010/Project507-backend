@@ -216,7 +216,7 @@ func UpdatePassword(c *gin.Context) {
 // @Summary 更新Token
 // @Produce  json
 // @Param id path uint true "id"
-// @Param uuid header string true "uuid"
+// @Param uuid formData string true "uuid"
 // @Success 200 {object} gin_http.ResponseJSON
 // @Router /user/refreshToken/{id} [post]
 func RefreshToken(c *gin.Context) {
@@ -227,7 +227,7 @@ func RefreshToken(c *gin.Context) {
 		return
 	}
 
-	uuid := c.GetHeader("uuid")
+	uuid := c.Param("uuid")
 	state := userService.CheckUUID(userService.Id, uuid)
 	if !state {
 		gin_http.Response(c, http.StatusMovedPermanently, e.ERROR_UUID_EXPIRE, nil)
@@ -239,7 +239,7 @@ func RefreshToken(c *gin.Context) {
 		return
 	}
 	data := make(map[string]interface{})
-	data["uid"] = userService.Id
+	// data["uid"] = userService.Id
 	data["token"] = token
 	data["expire_time"] = expire_time
 	gin_http.Response(c, http.StatusOK, e.SUCCESS, data)

@@ -82,8 +82,8 @@ func GetArticles(c *gin.Context) {
 // @Accept multipart/form-data
 // @Param user_id formData int true "用户id"
 // @Param content formData string true "内容"
-// @Param tag_id formData []uint false "标签"
-// @Param image formData file true "image"
+// @Param tag_name formData []string false "标签"
+// @Param images formData file true "image"
 // @Param token header string true "token"
 // @Router /api/v1/article/add [post]
 func AddArticle(c *gin.Context) {
@@ -105,20 +105,39 @@ func AddArticle(c *gin.Context) {
 		gin_http.Response(c, http.StatusBadRequest, e.ERROR_AUTH, nil)
 		return
 	}
-
-	file, err := c.FormFile("image")
+	form, err := c.MultipartForm()
 	if err != nil {
-		fmt.Println(err)
 		gin_http.Response(c, http.StatusBadRequest, e.ERROR_UPLOAD_IMAGE_FAIL, nil)
 		return
 	}
-	imageName := upload.GetImageName(file.Filename)
-	savePath := upload.GetImagePath() + imageName
-	fmt.Println("文件名", imageName)
-	fmt.Println("保存路径", savePath)
-	if !upload.CheckImageExt(imageName) || !upload.CheckImageSize(file) {
-		gin_http.Response(c, http.StatusBadRequest, e.ERROR_UPLOAD_CHECK_IMAGE_FORMAT, nil)
-		return
+	// 获取所有图片
+	files := form.File["images"]
+	// file, err := c.FormFile("image")
+	// if err != nil {
+	// 	fmt.Println(err)
+	// 	gin_http.Response(c, http.StatusBadRequest, e.ERROR_UPLOAD_IMAGE_FAIL, nil)
+	// 	return
+	// }
+	for _, file := range files {
+		imageName := upload.GetImageName(file.Filename)
+		savePath := upload.GetImagePath() + imageName
+		fmt.Println("文件名", imageName)
+		fmt.Println("保存路径", savePath)
+		if !upload.CheckImageExt(imageName) || !upload.CheckImageSize(file) {
+			gin_http.Response(c, http.StatusBadRequest, e.ERROR_UPLOAD_CHECK_IMAGE_FORMAT, nil)
+			return
+		}
+		if err = c.SaveUploadedFile(file, savePath); err != nil {
+			fmt.Println(err)
+			gin_http.Response(c, http.StatusInternalServerError, e.ERROR_UPLOAD_SAVE_IMAGE_FAIL, nil)
+			return
+		}
+
+		_, err = upload.Thumbnailify(imageName)
+		if err != nil {
+			fmt.Println(err.Error())
+		}
+		articleService.ImgName = append(articleService.ImgName, imageName)
 	}
 
 	// if err = upload.CheckImage(savePath); err != nil {
@@ -127,23 +146,12 @@ func AddArticle(c *gin.Context) {
 	// 	return
 	// }
 
-	httpCode, errCode = articleService.CheckTagName()
-	if errCode != e.SUCCESS {
-		gin_http.Response(c, httpCode, errCode, nil)
-		return
-	}
+	// httpCode, errCode = articleService.CheckTagName()
+	// if errCode != e.SUCCESS {
+	// 	gin_http.Response(c, httpCode, errCode, nil)
+	// 	return
+	// }
 
-	if err = c.SaveUploadedFile(file, savePath); err != nil {
-		fmt.Println(err)
-		gin_http.Response(c, http.StatusInternalServerError, e.ERROR_UPLOAD_SAVE_IMAGE_FAIL, nil)
-		return
-	}
-
-	_, err = upload.Thumbnailify(imageName)
-	if err != nil {
-		fmt.Println(err.Error())
-	}
-	articleService.ImgName = append(articleService.ImgName, imageName)
 	// err := articleService.Add()
 	err = articleService.AddArticleWithImg()
 	if err != nil {
