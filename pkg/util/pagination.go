@@ -7,12 +7,13 @@ import (
 	"qiu/blog/pkg/setting"
 )
 
-func GetPage(c *gin.Context) int {
+func GetPage(c *gin.Context) (int, int) {
 	result := 0
-	page, _ := com.StrTo(c.Query("pageNum")).Int()
+	page := 0
+	page, _ = com.StrTo(c.Query("pageNum")).Int()
 	if page > 0 {
-		result = (page - 1) * setting.AppSetting.PageSize
+		result = (page) * setting.AppSetting.PageSize
 	}
 
-	return result
+	return result, page
 }

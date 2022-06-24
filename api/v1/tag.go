@@ -23,10 +23,8 @@ import (
 // @Router /api/v1/tag/getList [get]
 func GetTags(c *gin.Context) {
 	tagService := service.GetTagService()
-
-	tagService.PageNum = util.GetPage(c)
+	tagService.PageNum, _ = util.GetPage(c)
 	tagService.PageSize = setting.AppSetting.PageSize
-
 	tags := tagService.Get()
 	gin_http.Response(c, http.StatusOK, e.SUCCESS, tags)
 }

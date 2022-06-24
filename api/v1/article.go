@@ -3,6 +3,7 @@ package v1
 import (
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 
@@ -48,12 +49,13 @@ func GetArticle(c *gin.Context) {
 
 // @Summary 获取文章列表
 // @Produce  json
-// @Param page query int false "Page"
+// @Param pageNum query int false "Page"
 // @Router /api/v1/article/list [get]
 func GetArticles(c *gin.Context) {
 
 	articleService := service.GetArticleService()
-	articleService.PageNum = util.GetPage(c)
+	page := 0
+	articleService.PageNum, page = util.GetPage(c)
 	articleService.PageSize = setting.AppSetting.PageSize
 
 	// data["delete_on"] = 0
@@ -72,7 +74,7 @@ func GetArticles(c *gin.Context) {
 	data := make(map[string]interface{})
 	data["datalist"] = articles
 	data["total"] = total
-	data["pageNum"] = articleService.PageNum
+	data["pageNum"] = page
 	data["pageSize"] = articleService.PageSize
 	gin_http.Response(c, http.StatusOK, e.SUCCESS, data)
 }
@@ -188,7 +190,7 @@ func AddArticleTags(c *gin.Context) {
 		gin_http.Response(c, http.StatusBadRequest, e.ERROR_GET_USERID_FAIL, nil)
 		return
 	}
-	if userID != claims.Uid {
+	if userID != claims.Uid && claims.Uid != setting.AppSetting.AdminId {
 		gin_http.Response(c, http.StatusBadRequest, e.ERROR_AUTH, nil)
 		return
 	}
@@ -343,4 +345,39 @@ func RecoverArticle(c *gin.Context) {
 		gin_http.Response(c, http.StatusInternalServerError, e.ERROR_REC_ARTICLE_FAIL, nil)
 	}
 	gin_http.Response(c, http.StatusOK, e.SUCCESS, nil)
+}
+
+// @Summary 添加文章点赞
+// @Produce  json
+// @Param id path uint true "文章ID"
+// @Param user_id formData uint true "用户ID"
+// @Param token header string true "token"
+// @Router /api/v1/article/like/{id} [post]
+func LikeArticle(c *gin.Context) {
+
+	articleService := service.GetArticleService()
+	param := service.ArticleLikeParams{}
+	if err := c.ShouldBind(&param); err != nil {
+		fmt.Println("绑定错误", err)
+		gin_http.Response(c, http.StatusBadRequest, e.INVALID_PARAMS, nil)
+		return
+	}
+	param.Id, _ = strconv.Atoi(c.Param("id"))
+	fmt.Println("绑定数据", param)
+	claims := articleService.GetClaimsFromToken(c)
+	if claims == nil {
+		gin_http.Response(c, http.StatusBadRequest, e.ERROR_AUTH, nil)
+		return
+	}
+	if param.UserID != claims.Uid {
+		gin_http.Response(c, http.StatusBadRequest, e.ERROR_AUTH, nil)
+		return
+	}
+
+	if err := articleService.AddArticleLikeUser(param); err != nil {
+		gin_http.Response(c, http.StatusInternalServerError, e.ERROR_LIKE_ARTICLE_FAIL, nil)
+		return
+	}
+	gin_http.Response(c, http.StatusOK, e.SUCCESS, nil)
+
 }

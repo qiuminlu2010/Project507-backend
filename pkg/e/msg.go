@@ -46,6 +46,8 @@ var MsgFlags = map[int]string{
 	ERROR_UPLOAD_IMAGE_FAIL:         "上传图片失败",
 	ERROR_ADMIN_MENU_LIST_FAIL:      "获取后台管理菜单失败",
 	ERROR_USER_LIST_FAIL:            "获取用户列表失败",
+	ERROR_LIKE_ARTICLE_FAIL:         "点赞失败",
+	ERROR_UNLIKE_ARTICLE_FAIL:       "取消点赞失败",
 }
 
 func GetMsg(code int) string {

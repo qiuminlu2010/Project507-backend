@@ -121,12 +121,34 @@ paths:
       - application/json
       responses: {}
       summary: 删除文章标签
+  /api/v1/article/like/{id}:
+    post:
+      parameters:
+      - description: 文章ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 用户ID
+        in: formData
+        name: user_id
+        required: true
+        type: integer
+      - description: token
+        in: header
+        name: token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: 添加文章点赞
   /api/v1/article/list:
     get:
       parameters:
       - description: Page
         in: query
-        name: page
+        name: pageNum
         type: integer
       produces:
       - application/json

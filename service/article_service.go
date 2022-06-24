@@ -11,22 +11,6 @@ import (
 	"strings"
 )
 
-type ArticleParams struct {
-	Id     uint `uri:"id"`
-	UserID uint `json:"user_id" form:"user_id"`
-	// ImgUrl     string   `json:"img_url" form:"img_url"`
-	// ThumbUrl   string   `json:"thumb_url" form:"thumb_url"`
-	ImgName    []string `json:"-" form:"-" binding:"-"`
-	TagName    []string `json:"tag_name" form:"tag_name"`
-	TagID      []int    `json:"tag_id" form:"tag_id"`
-	Title      string   `json:"title" form:"title"`
-	Content    string   `json:"content" form:"content"`
-	CreatedBy  string   `json:"created_by" form:"created_by"`
-	ModifiedBy string   `json:"modified_by" form:"created_by"`
-	State      int      `json:"state" form:"state" binding:"gte=0,lte=1"`
-	PageNum    int
-	PageSize   int
-}
 type ArticleService struct {
 	BaseService
 	ArticleParams
@@ -110,7 +94,7 @@ func (s *ArticleService) Add() error {
 
 	if err := model.AddArticle(
 		model.Article{
-			UserID:  s.UserID,
+			OwnerID: s.UserID,
 			Content: s.Content,
 		}, tags); err != nil {
 		return err
@@ -136,7 +120,7 @@ func (s *ArticleService) AddArticleWithImg() error {
 	}
 	if err := model.AddArticleWithImg(
 		model.Article{
-			UserID:  s.UserID,
+			OwnerID: s.UserID,
 			Content: s.Content,
 			Title:   s.Title,
 		}, tags, imgs); err != nil {
@@ -197,6 +181,11 @@ func (s *ArticleService) GetArticles(data map[string]interface{}) ([]*model.Arti
 	return articles, nil
 }
 
+func (s *ArticleService) AddArticleLikeUser(param ArticleLikeParams) error {
+	user := model.User{}
+	user.ID = (uint)(param.UserID)
+	return model.AddArticleLikeUser(uint(param.Id), user)
+}
 func (s *ArticleService) Delete() error {
 	return model.DeleteArticle(s.Id)
 }

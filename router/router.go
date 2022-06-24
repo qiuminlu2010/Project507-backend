@@ -53,6 +53,7 @@ func InitRouter() *gin.Engine {
 		apiv1.DELETE("/article/deleteTags/:id", v1.DeleteArticleTags)
 		apiv1.POST("/article/recover/:id", v1.RecoverArticle)
 		apiv1.PUT("/article/update/:id/state", v1.UpdateArticle)
+		apiv1.POST("/article/like/:id", v1.LikeArticle)
 
 		//上传图片
 		r.POST("/upload", v1.UploadImage)

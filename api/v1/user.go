@@ -41,7 +41,8 @@ func GetUserList(c *gin.Context) {
 		gin_http.Response(c, http.StatusInternalServerError, e.ERROR_AUTH_CHECK_TOKEN_FAIL, nil)
 		return
 	}
-	userService.PageNum = util.GetPage(c)
+	page := 0
+	userService.PageNum, page = util.GetPage(c)
 	userService.PageSize = setting.AppSetting.PageSize
 
 	total, err := userService.CountUser(nil)
@@ -57,7 +58,7 @@ func GetUserList(c *gin.Context) {
 	data := make(map[string]interface{})
 	data["datalist"] = userList
 	data["total"] = total
-	data["pageNum"] = userService.PageNum
+	data["pageNum"] = page
 	data["pageSize"] = userService.PageSize
 	gin_http.Response(c, http.StatusOK, e.SUCCESS, data)
 }

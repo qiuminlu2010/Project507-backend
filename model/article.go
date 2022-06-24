@@ -12,18 +12,27 @@ type Image struct {
 }
 type Article struct {
 	Model
-	UserID  uint    `json:"user_id"`
-	Tags    []Tag   `gorm:"many2many:article_tags;" json:"tags"`
-	Images  []Image `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;" json:"images"`
-	Title   string  `json:"title" form:"title"`
-	Content string  `json:"content" form:"content"`
-	Like    int     `json:"like" form:"like" binding:"-"`
-	Collect int     `json:"collect" form:"collect" binding:"-"`
-	Watch   int     `json:"watch" form:"watch" binding:"-"`
+	OwnerID   uint    `json:"owner_id"`
+	User      User    `gorm:"foreignkey:OwnerID" binding:"-" json:"-"` // 使用 UserRefer 作为外键
+	Tags      []Tag   `gorm:"many2many:article_tags;" json:"tags"`
+	Images    []Image `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;" json:"images"`
+	Title     string  `json:"title" form:"title"`
+	Content   string  `json:"content" form:"content"`
+	LikeCount int     `json:"like_count" form:"like_count" binding:"-"`
+	// Collect int     `json:"collect" form:"collect" binding:"-"`
+	// Watch   int     `json:"watch" form:"watch" binding:"-"`
+	LikedUsers []User `gorm:"many2many:article_like_users;" json:"-"`
+	IsLike     bool   `json:"is_like" form:"is_like" binding:"-"`
 	//TODO: Comments   []Comment
 	CreatedBy  string `json:"-" form:"created_by" binding:"-"`
 	ModifiedBy string `json:"-" form:"created_by" binding:"-"`
 	State      int    `json:"state" form:"state" binding:"-"`
+}
+
+type Comment struct {
+	Model
+	UserID  uint   `json:"user_id"`
+	Content string `json:"content" form:"content"`
 }
 
 //通过ID判断文章是否存在
@@ -149,6 +158,17 @@ func AddArticleWithImg(article Article, tags []Tag, imgs []Image) error {
 	return tx.Commit().Error
 }
 
+func AddArticleLikeUser(id uint, user User) error {
+	var article Article
+	if err := db.Where("id = ? ", id).First(&article).Error; err != nil {
+		return err
+	}
+	if err := db.Model(&article).Association("LikedUsers").Append(&user); err != nil {
+		return err
+	}
+	return nil
+}
+
 // DeleteArticle delete a single article
 func DeleteArticle(id uint) error {
 	var article Article
@@ -174,5 +194,5 @@ func GetArticleUserID(id uint) (uint, error) {
 	if err := db.Select("user_id").Where("id = ?", id).First(&article).Error; err != nil {
 		return 0, err
 	}
-	return article.UserID, nil
+	return article.OwnerID, nil
 }

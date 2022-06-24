@@ -179,6 +179,38 @@ const docTemplate = `{
                 "responses": {}
             }
         },
+        "/api/v1/article/like/{id}": {
+            "post": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "添加文章点赞",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "文章ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "用户ID",
+                        "name": "user_id",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "token",
+                        "name": "token",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
         "/api/v1/article/list": {
             "get": {
                 "produces": [
@@ -189,7 +221,7 @@ const docTemplate = `{
                     {
                         "type": "integer",
                         "description": "Page",
-                        "name": "page",
+                        "name": "pageNum",
                         "in": "query"
                     }
                 ],

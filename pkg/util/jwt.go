@@ -1,10 +1,12 @@
 package util
 
 import (
+	"fmt"
 	"time"
 
 	jwt "github.com/dgrijalva/jwt-go"
 
+	"qiu/blog/pkg/redis"
 	"qiu/blog/pkg/setting"
 )
 
@@ -32,7 +34,8 @@ func GenerateToken(uid uint) (string, int64, error) {
 
 	tokenClaims := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	token, err := tokenClaims.SignedString(jwtSecret)
-
+	fmt.Println("新建token缓存信息", token, claims)
+	redis.Set(token, claims, 3600)
 	return token, expireTime, err
 }
 

@@ -31,6 +31,20 @@ func (s *BaseService) Bind(c *gin.Context) (int, int) {
 	return http.StatusOK, e.SUCCESS
 }
 
+func (s *BaseService) BindParam(c *gin.Context, param interface{}) (int, int) {
+	var err error
+	if err = c.ShouldBind(&param); err != nil {
+		fmt.Println("绑定错误", err)
+		return http.StatusBadRequest, e.INVALID_PARAMS
+	}
+	if err = c.ShouldBindUri(&param); err != nil {
+		fmt.Println("绑定错误", err)
+		return http.StatusBadRequest, e.INVALID_PARAMS
+	}
+	fmt.Println("绑定数据", param)
+	return http.StatusOK, e.SUCCESS
+}
+
 func (s *BaseService) Valid() error {
 	validate := validator.New()
 	err := validate.Struct(s.model)
