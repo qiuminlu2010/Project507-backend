@@ -2,6 +2,7 @@ package service
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"qiu/blog/model"
 	"qiu/blog/pkg/e"
@@ -169,24 +170,66 @@ func (s *ArticleService) GetArticles(params ArticleGetParams) ([]*model.Article,
 		// 	return cacheArticles, nil
 		// }
 		// fmt.Println("ArticleList Cache", data)
+		if err := getArticleLikeInfo(cacheArticles, params.Uid); err != nil {
+			return nil, err
+		}
 		return cacheArticles, nil
 
 	}
-	data := make(map[string]interface{})
-	data["uid"] = params.Uid
+	// data := make(map[string]interface{})
+	// data["uid"] = params.Uid
 	articles, err := model.GetArticles(params.PageNum, params.PageSize, nil)
 	if err != nil {
 		return nil, err
 	}
+	if err := getArticleLikeInfo(articles, params.Uid); err != nil {
+		return nil, err
+	}
 	//TODO: 写数据库 缓存一致性问题
-	redis.Set(key, articles, time.Minute*3)
+	redis.SetBytes(key, articles, time.Minute*3)
 	return articles, nil
 }
 
-func (s *ArticleService) AddArticleLikeUser(param ArticleLikeParams) error {
+func getArticleLikeInfo(articles []*model.Article, uid int) error {
+	for _, article := range articles {
+		key := GetKeyName(e.CACHE_ARTICLE, article.ID, e.CACHE_LIKEUSERS)
+		if redis.Exists(key) == 0 {
+			fmt.Println("SET CACHE_KEY", key)
+			likeUsers, err := model.GetArticleLikeUsers(article.ID)
+			if err != nil {
+				return err
+			}
+			redis.SetBit(key, 0, 0)
+			for _, user := range likeUsers {
+				redis.SetBit(key, int64(user.UserId), 1)
+			}
+		}
+		article.LikeCount = redis.BitCount(key)
+		if uid != 0 {
+			article.IsLike = redis.GetBit(key, int64(uid)) == 1
+		}
+	}
+	return nil
+}
+
+func (s *ArticleService) UpdateArticleLike(param ArticleLikeParams) error {
+	key := GetKeyName(e.CACHE_ARTICLE, uint(param.Id), e.CACHE_LIKEUSERS)
+	if redis.Exists(key) != 0 {
+		redis.SetBit(key, int64(param.UserID), param.Type)
+		return nil
+	}
 	user := model.User{}
 	user.ID = (uint)(param.UserID)
-	return model.AddArticleLikeUser(uint(param.Id), user)
+	likeUsers, err := model.GetArticleLikeUsers(uint(param.Id))
+	if err != nil {
+		return err
+	}
+	for _, user := range likeUsers {
+		redis.SetBit(key, int64(user.UserId), 1)
+	}
+	redis.SetBit(key, int64(param.UserID), param.Type)
+	return nil
+	// return model.AddArticleLikeUser(uint(param.Id), user)
 }
 func (s *ArticleService) Delete() error {
 	return model.DeleteArticle(s.Id)

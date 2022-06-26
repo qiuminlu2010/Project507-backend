@@ -51,7 +51,7 @@ func Setup() error {
 }
 
 //redis.KeepTTL 10*time.Second
-func Set(key string, value interface{}, etime time.Duration) {
+func SetBytes(key string, value interface{}, etime time.Duration) {
 	data, err := json.Marshal(value)
 	if err != nil {
 		panic(err)
@@ -60,7 +60,11 @@ func Set(key string, value interface{}, etime time.Duration) {
 		panic(err)
 	}
 }
-
+func Set(key string, value interface{}, etime time.Duration) {
+	if err := rdb.Set(ctx, key, value, etime).Err(); err != nil {
+		panic(err)
+	}
+}
 func Get(key string) string {
 	ret, err := rdb.Get(ctx, key).Result()
 	if err != nil {
@@ -114,6 +118,33 @@ func HashMGet(key string, fields ...string) []interface{} {
 
 func HashKeyExist(key string, field string) bool {
 	ret, err := rdb.HExists(ctx, key, field).Result()
+	if err != nil {
+		panic(err)
+	}
+	return ret
+}
+
+func SetBit(key string, offset int64, value int) {
+	if err := rdb.SetBit(ctx, key, offset, value).Err(); err != nil {
+		panic(err)
+	}
+}
+
+func GetBit(key string, offset int64) int64 {
+	ret, err := rdb.GetBit(ctx, key, offset).Result()
+	if err != nil {
+		panic(err)
+	}
+	return ret
+}
+
+func BitCount(key string) int64 {
+	// l,err := rdb.StrLen(ctx, key).Result()
+	// if err != nil {
+	//     panic(err)
+	// }
+	// sit := redis.BitCount{}
+	ret, err := rdb.BitCount(ctx, key, &redis.BitCount{}).Result()
 	if err != nil {
 		panic(err)
 	}

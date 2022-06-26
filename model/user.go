@@ -15,6 +15,10 @@ type User struct {
 	State        int       `json:"state" form:"state" binding:"gte=0,lte=1"`
 }
 
+type UserId struct {
+	UserId uint `json:"user_id"`
+}
+
 func GetUserTotal(maps interface{}) (int64, error) {
 	var count int64
 	if err := db.Model(&User{}).Count(&count).Error; err != nil {

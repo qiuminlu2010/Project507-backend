@@ -165,6 +165,25 @@ func AddArticleWithImg(article Article, tags []Tag, imgs []Image) error {
 	return tx.Commit().Error
 }
 
+func GetArticleLikeUsers(id uint) ([]*UserId, error) {
+	var like_users []*UserId
+	// var like_users []uint
+	if err := db.Table("blog_article_like_users").Where("`article_id` = ?", id).Select("`user_id`").Find(&like_users).Error; err != nil {
+		return nil, err
+	}
+	// if err := db.Exec("select `user_id` from `blog_article_like_users` where `article_id` = ?", id).Scan(like_users).Error; err != nil {
+	// 	return nil, err
+	// }
+	return like_users, nil
+	// if err := tx.Model(&article).Association("LikedUsers").Find(&like_users); err != nil {
+	// 	tx.Rollback()
+	// 	return nil, err
+	// }
+	// tx.Model(&article).Preload("LikedUsers", func(db *gorm.DB) *gorm.DB {
+	// 	return db.Select("user_id")
+	// }).Find(&like_users)
+
+}
 func AddArticleLikeUser(id uint, user User) error {
 	tx := db.Begin()
 	defer func() {
@@ -196,6 +215,10 @@ func GetArticleLikeCount(article Article) int64 {
 	return db.Model(article).Association("LikeUsers").Count()
 }
 
+func AddArticleLikeUsers(article Article, users []User) error {
+	// db.Model(&article).
+	return nil
+}
 // DeleteArticle delete a single article
 func DeleteArticle(id uint) error {
 	var article Article

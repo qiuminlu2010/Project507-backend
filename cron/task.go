@@ -9,3 +9,4 @@ func ClearLoggingFile() {
 	time.Sleep(time.Second)
 	fmt.Println("clearing")
 }
+

@@ -134,6 +134,11 @@ paths:
         name: user_id
         required: true
         type: integer
+      - description: 类型
+        in: formData
+        name: type
+        required: true
+        type: integer
       - description: token
         in: header
         name: token
@@ -155,7 +160,7 @@ paths:
         name: page_size
         type: integer
       - description: uid
-        in: formData
+        in: query
         name: uid
         type: integer
       produces:

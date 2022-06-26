@@ -50,7 +50,7 @@ func GetArticle(c *gin.Context) {
 // @Produce  json
 // @Param page_num query int false "page_num"
 // @Param page_size query int false "page_size"
-// @Param uid formData int false "uid"
+// @Param uid query int false "uid"
 // @Router /api/v1/article/list [get]
 func GetArticles(c *gin.Context) {
 
@@ -327,6 +327,7 @@ func RecoverArticle(c *gin.Context) {
 // @Produce  json
 // @Param id path uint true "文章ID"
 // @Param user_id formData uint true "用户ID"
+// @Param type formData int true "类型"
 // @Param token header string true "token"
 // @Router /api/v1/article/like/{id} [post]
 func LikeArticle(c *gin.Context) {
@@ -344,7 +345,7 @@ func LikeArticle(c *gin.Context) {
 		gin_http.Response(c, http.StatusBadRequest, e.ERROR_AUTH_CHECK_TOKEN_FAIL, nil)
 		return
 	}
-	if err := articleService.AddArticleLikeUser(param); err != nil {
+	if err := articleService.UpdateArticleLike(param); err != nil {
 		gin_http.Response(c, http.StatusInternalServerError, e.ERROR_LIKE_ARTICLE_FAIL, nil)
 		return
 	}

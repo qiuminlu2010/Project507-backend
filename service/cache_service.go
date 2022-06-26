@@ -22,3 +22,7 @@ func GetArticleListParamsKey(pageNum int, pageSize int) string {
 	// 	keys = append(keys, strconv.Itoa(a.State))
 	// }
 }
+
+func FlushArticleLikeUsers() error {
+	return nil
+}

@@ -201,6 +201,13 @@ const docTemplate = `{
                         "required": true
                     },
                     {
+                        "type": "integer",
+                        "description": "类型",
+                        "name": "type",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
                         "type": "string",
                         "description": "token",
                         "name": "token",
@@ -234,7 +241,7 @@ const docTemplate = `{
                         "type": "integer",
                         "description": "uid",
                         "name": "uid",
-                        "in": "formData"
+                        "in": "query"
                     }
                 ],
                 "responses": {}

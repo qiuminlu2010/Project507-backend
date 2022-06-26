@@ -16,6 +16,7 @@ type ArticleParams struct {
 type ArticleLikeParams struct {
 	Id     int  `uri:"id"`
 	UserID uint `json:"user_id" form:"user_id"`
+	Type   int  `json:"type" form:"type"`
 }
 type ArticleGetParams struct {
 	Uid      int `json:"uid" form:"uid"`
