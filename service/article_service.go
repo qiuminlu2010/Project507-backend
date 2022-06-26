@@ -5,10 +5,8 @@ import (
 	"net/http"
 	"qiu/blog/model"
 	"qiu/blog/pkg/e"
-	"qiu/blog/pkg/logging"
 	"qiu/blog/pkg/redis"
-	"strconv"
-	"strings"
+	"time"
 )
 
 type ArticleService struct {
@@ -156,28 +154,32 @@ func (s *ArticleService) ExistByID() bool {
 // 	return article, nil
 // }
 
-func (s *ArticleService) GetArticles(data map[string]interface{}) ([]*model.Article, error) {
+func (s *ArticleService) GetArticles(params ArticleGetParams) ([]*model.Article, error) {
 	var (
-		articles, cacheArticles []*model.Article
+		// articles
+		cacheArticles []*model.Article
 	)
+	key := GetArticleListParamsKey(params.PageNum, params.PageSize)
+	if redis.Exists(key) != 0 {
+		data := redis.GetBytes(key)
+		// if err != nil {
+		// 	logging.Info(err)
+		// } else {
+		json.Unmarshal(data, &cacheArticles)
+		// 	return cacheArticles, nil
+		// }
+		// fmt.Println("ArticleList Cache", data)
+		return cacheArticles, nil
 
-	key := s.GetArticlesKey()
-	if redis.Exists(key) {
-		data, err := redis.Get(key)
-		if err != nil {
-			logging.Info(err)
-		} else {
-			json.Unmarshal(data, &cacheArticles)
-			return cacheArticles, nil
-		}
 	}
-
-	articles, err := model.GetArticles(s.PageNum, s.PageSize, data)
+	data := make(map[string]interface{})
+	data["uid"] = params.Uid
+	articles, err := model.GetArticles(params.PageNum, params.PageSize, nil)
 	if err != nil {
 		return nil, err
 	}
-
-	redis.Set(key, articles, 60)
+	//TODO: 写数据库 缓存一致性问题
+	redis.Set(key, articles, time.Minute*3)
 	return articles, nil
 }
 
@@ -215,28 +217,3 @@ func (s *ArticleService) GetUserID() (uint, error) {
 // func (a *ArticleService) GetArticleKey() string {
 // 	return e.CACHE_ARTICLE + "_" + strconv.Itoa(a.ID)
 // }
-
-func (s *ArticleService) GetArticlesKey() string {
-	keys := []string{
-		e.CACHE_ARTICLE,
-		"LIST",
-	}
-
-	// if a.ID > 0 {
-	// 	keys = append(keys, strconv.Itoa(a.ID))
-	// }
-	// if a.TagID > 0 {
-	// 	keys = append(keys, strconv.Itoa(a.TagID))
-	// }
-	// if a.State >= 0 {
-	// 	keys = append(keys, strconv.Itoa(a.State))
-	// }
-	if s.PageNum > 0 {
-		keys = append(keys, strconv.Itoa(s.PageNum))
-	}
-	if s.PageSize > 0 {
-		keys = append(keys, strconv.Itoa(s.PageSize))
-	}
-
-	return strings.Join(keys, "_")
-}

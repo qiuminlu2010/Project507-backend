@@ -11,6 +11,7 @@ import (
 	"os"
 	"path"
 	"strings"
+	"time"
 
 	"qiu/blog/pkg/file"
 	"qiu/blog/pkg/setting"
@@ -26,7 +27,7 @@ func GetImageFullUrl(name string) string {
 func GetImageName(name string) string {
 	ext := path.Ext(name)
 	fileName := strings.TrimSuffix(name, ext)
-	fileName = util.EncodeMD5(fileName)
+	fileName = util.EncodeMD5(fileName + time.Now().String())
 
 	return fileName + ext
 }

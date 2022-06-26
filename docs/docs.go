@@ -220,9 +220,21 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "Page",
-                        "name": "pageNum",
+                        "description": "page_num",
+                        "name": "page_num",
                         "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "page_size",
+                        "name": "page_size",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "uid",
+                        "name": "uid",
+                        "in": "formData"
                     }
                 ],
                 "responses": {}
@@ -293,10 +305,11 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "type": "string",
-                        "description": "CreatedBy",
-                        "name": "created_by",
-                        "in": "formData"
+                        "type": "integer",
+                        "description": "UserId",
+                        "name": "uid",
+                        "in": "formData",
+                        "required": true
                     },
                     {
                         "type": "string",

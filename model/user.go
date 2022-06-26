@@ -11,6 +11,7 @@ type User struct {
 	StudentId string `json:"student_id" form:"student_id" binding:"omitempty,numeric"`
 	// Articles     []Article `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;" json:"articles,omitempty" binding:"-"`
 	LikeArticles []Article `gorm:"many2many:article_like_users" binding:"-" json:"like_articles"`
+	Follows      []*User   `gorm:"many2many:user_follows"`
 	State        int       `json:"state" form:"state" binding:"gte=0,lte=1"`
 }
 
@@ -66,4 +67,8 @@ func GetUsernameByID(id uint) string {
 		return ""
 	}
 	return user.Username
+}
+
+func FollowUser(user User, followUser User) error {
+	return db.Model(&user).Association("Follows").Append(&followUser)
 }

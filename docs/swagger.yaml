@@ -146,9 +146,17 @@ paths:
   /api/v1/article/list:
     get:
       parameters:
-      - description: Page
+      - description: page_num
         in: query
-        name: pageNum
+        name: page_num
+        type: integer
+      - description: page_size
+        in: query
+        name: page_size
+        type: integer
+      - description: uid
+        in: formData
+        name: uid
         type: integer
       produces:
       - application/json
@@ -196,10 +204,11 @@ paths:
         name: name
         required: true
         type: string
-      - description: CreatedBy
+      - description: UserId
         in: formData
-        name: created_by
-        type: string
+        name: uid
+        required: true
+        type: integer
       - description: token
         in: header
         name: token

@@ -1,13 +1,11 @@
 package service
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 
 	"qiu/blog/pkg/e"
 	"qiu/blog/pkg/redis"
-	"qiu/blog/pkg/util"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
@@ -58,33 +56,42 @@ func (s *BaseService) Valid() error {
 	return nil
 }
 
-func (s *BaseService) GetClaimsFromToken(c *gin.Context) *util.Claims {
-
-	claims := &util.Claims{}
+func (s *BaseService) CheckTokenUid(c *gin.Context, uid uint) bool {
 	token := c.GetHeader("token")
-
 	if token == "" {
-		return nil
+		return false
 	}
-	if redis.Exists(token) {
-		data, err := redis.Get(token)
-		if err != nil {
-			return nil
-		} else {
-			json.Unmarshal(data, &claims)
-		}
-		fmt.Println("获取token缓存信息", claims)
-		return claims
+	key := GetKeyName("user", uid, "token")
+	if redis.Exists(key) != 0 {
+		cache_token := redis.Get(key)
+		return token == cache_token
 	}
-	claims, err := util.ParseToken(token)
-	if err != nil {
-		return nil
-	}
-	fmt.Println("新建token缓存信息", token, claims)
-	err = redis.Set(token, claims, 3600)
-	if err != nil {
-		fmt.Println(err)
-	}
-	return claims
-
+	return false
 }
+
+// func (s *BaseService) GetClaimsFromToken(c *gin.Context) *util.Claims {
+
+// claims := &util.Claims{}
+// token := c.GetHeader("token")
+
+// if token == "" {
+// 	return nil
+// }
+// if redis.Exists(token) != 0 {
+// 	data := redis.Get(token)
+// 	json.Unmarshal(data, &claims)
+// 	fmt.Println("获取token缓存信息", claims)
+// 	return claims
+// }
+// claims, err := util.ParseToken(token)
+// if err != nil {
+// 	return nil
+// }
+// fmt.Println("新建token缓存信息", token, claims)
+// err = redis.Set(token, claims, 3600)
+// if err != nil {
+// 	fmt.Println(err)
+// }
+// return claims
+
+// }

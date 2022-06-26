@@ -53,7 +53,7 @@ func GetTagArticles(c *gin.Context) {
 // @Summary 新增标签
 // @Produce  json
 // @Param name formData string true "Name"
-// @Param created_by formData string false "CreatedBy"
+// @Param uid formData uint true "UserId"
 // @Param token header string true "token"
 // @Success 200 {object} gin_http.ResponseJSON
 // @Failure  400 {object} gin_http.ResponseJSON
@@ -77,12 +77,6 @@ func AddTag(c *gin.Context) {
 	state := tagService.ExistTag()
 	if state {
 		gin_http.Response(c, http.StatusBadRequest, e.ERROR_EXIST_TAG, nil)
-		return
-	}
-
-	claims := tagService.GetClaimsFromToken(c)
-	if claims == nil {
-		gin_http.Response(c, http.StatusBadRequest, e.ERROR_AUTH, nil)
 		return
 	}
 
@@ -125,13 +119,6 @@ func EditTag(c *gin.Context) {
 		gin_http.Response(c, httpCode, errCode, nil)
 		return
 	}
-
-	claims := tagService.GetClaimsFromToken(c)
-	if claims == nil {
-		gin_http.Response(c, http.StatusBadRequest, e.ERROR_AUTH, nil)
-		return
-	}
-
 	// modified_by := tagService.GetModifiedBy()
 	// if modified_by == "" {
 	// 	tagService.SetModifiedBy(claims.Username)

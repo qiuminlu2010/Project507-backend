@@ -17,3 +17,7 @@ func GetPage(c *gin.Context) (int, int) {
 
 	return result, page
 }
+
+func GetPageNum(page int) int {
+	return page * setting.AppSetting.PageSize
+}

@@ -1,7 +1,6 @@
 package v1
 
 import (
-	"fmt"
 	"net/http"
 	"qiu/blog/pkg/e"
 	gin_http "qiu/blog/pkg/http"
@@ -30,17 +29,6 @@ import (
 func GetUserList(c *gin.Context) {
 
 	userService := service.GetUserService()
-	claims := userService.GetClaimsFromToken(c)
-	if claims == nil {
-		gin_http.Response(c, http.StatusBadRequest, e.ERROR_AUTH, nil)
-		return
-	}
-
-	if claims.Uid != userService.Id && claims.Uid != setting.AppSetting.AdminId {
-		fmt.Println("token用户信息不一致", claims.Uid, userService.Id)
-		gin_http.Response(c, http.StatusInternalServerError, e.ERROR_AUTH_CHECK_TOKEN_FAIL, nil)
-		return
-	}
 	page := 0
 	userService.PageNum, page = util.GetPage(c)
 	userService.PageSize = setting.AppSetting.PageSize
@@ -152,15 +140,8 @@ func DeleteUser(c *gin.Context) {
 		return
 	}
 
-	claims := userService.GetClaimsFromToken(c)
-	if claims == nil {
-		gin_http.Response(c, http.StatusBadRequest, e.ERROR_AUTH, nil)
-		return
-	}
-
-	if claims.Uid != userService.Id && claims.Uid != setting.AppSetting.AdminId {
-		fmt.Println("token用户信息不一致", claims.Uid, userService.Id)
-		gin_http.Response(c, http.StatusInternalServerError, e.ERROR_AUTH_CHECK_TOKEN_FAIL, nil)
+	if !userService.CheckTokenUid(c, userService.Id) {
+		gin_http.Response(c, http.StatusBadRequest, e.ERROR_AUTH_CHECK_TOKEN_FAIL, nil)
 		return
 	}
 
@@ -191,18 +172,8 @@ func UpdatePassword(c *gin.Context) {
 		return
 	}
 
-	claims := userService.GetClaimsFromToken(c)
-	// token := c.GetHeader("token")
-	// claims, err := util.ParseToken(token)
-
-	if claims == nil {
-		gin_http.Response(c, http.StatusBadRequest, e.ERROR_AUTH, nil)
-		return
-	}
-
-	if claims.Uid != userService.Id && claims.Uid != setting.AppSetting.AdminId {
-		fmt.Println("token用户信息不一致", claims.Uid, userService.Id)
-		gin_http.Response(c, http.StatusInternalServerError, e.ERROR_AUTH_CHECK_TOKEN_FAIL, nil)
+	if !userService.CheckTokenUid(c, userService.Id) {
+		gin_http.Response(c, http.StatusBadRequest, e.ERROR_AUTH_CHECK_TOKEN_FAIL, nil)
 		return
 	}
 
@@ -263,18 +234,8 @@ func UpdateUserState(c *gin.Context) {
 		return
 	}
 
-	claims := userService.GetClaimsFromToken(c)
-	// token := c.GetHeader("token")
-	// claims, err := util.ParseToken(token)
-
-	if claims == nil {
-		gin_http.Response(c, http.StatusBadRequest, e.ERROR_AUTH, nil)
-		return
-	}
-
-	if claims.Uid != userService.Id && claims.Uid != setting.AppSetting.AdminId {
-		fmt.Println("token用户信息不一致", claims.Uid, userService.Id)
-		gin_http.Response(c, http.StatusInternalServerError, e.ERROR_AUTH_CHECK_TOKEN_FAIL, nil)
+	if !userService.CheckTokenUid(c, userService.Id) {
+		gin_http.Response(c, http.StatusBadRequest, e.ERROR_AUTH_CHECK_TOKEN_FAIL, nil)
 		return
 	}
 

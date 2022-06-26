@@ -13,7 +13,8 @@ import (
 var jwtSecret = []byte(setting.AppSetting.JwtSecret)
 
 type Claims struct {
-	Uid uint `json:"uid"`
+	Uid uint          `json:"uid"`
+	TTL time.Duration `json:"ttl"`
 	// Username string `json:"username"`
 	// Password string `json:"password"`
 	jwt.StandardClaims
@@ -22,9 +23,10 @@ type Claims struct {
 func GenerateToken(uid uint) (string, int64, error) {
 	nowTime := time.Now()
 	expireTime := nowTime.Add(3 * time.Hour).Unix()
-
+	ttl := time.Hour * 3
 	claims := Claims{
 		uid,
+		ttl,
 		// username,
 		jwt.StandardClaims{
 			ExpiresAt: expireTime,
@@ -34,8 +36,11 @@ func GenerateToken(uid uint) (string, int64, error) {
 
 	tokenClaims := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	token, err := tokenClaims.SignedString(jwtSecret)
+
 	fmt.Println("新建token缓存信息", token, claims)
-	redis.Set(token, claims, 3600)
+	cacha_key := fmt.Sprintf("{%s:%d}:%s", "user", claims.Uid, "token")
+	redis.Set(cacha_key, token, claims.TTL)
+	// redis.Set(token, cache, 3600)
 	return token, expireTime, err
 }
 

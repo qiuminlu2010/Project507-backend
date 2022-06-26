@@ -1,11 +1,9 @@
 package service
 
 import (
-	"fmt"
 	"qiu/blog/model"
 	"qiu/blog/pkg/redis"
 	"qiu/blog/pkg/util"
-	"strconv"
 )
 
 type UserParams struct {
@@ -71,19 +69,17 @@ func (s *UserService) GetUsernameByID() string {
 }
 
 func (s *UserService) GetUUID(uid uint) string {
-	key := strconv.Itoa(int(uid)) + "_" + "uuid"
+	key := GetKeyName("user", uid, "uuid")
 	uuid := util.GenerateUUID()
-	fmt.Println(uuid)
-	redis.SetString(key, uuid, 60*60*24)
+	redis.Set(key, uuid, 60*60*24)
 	return uuid
 }
 
 func (s *UserService) CheckUUID(uid uint, uuid string) bool {
-	key := strconv.Itoa(int(uid)) + "_" + "uuid"
-	if !redis.Exists(key) {
+	key := GetKeyName("user", uid, "uuid")
+	if redis.Exists(key) == 0 {
 		return false
 	}
-	v, _ := redis.Get(key)
-	fmt.Println("CheckUUID", v, string(v), uuid)
-	return uuid == string(v)
+	v := redis.Get(key)
+	return uuid == v
 }

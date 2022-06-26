@@ -13,12 +13,12 @@ type Image struct {
 type Article struct {
 	Model
 	OwnerID   uint    `json:"owner_id"`
-	User      User    `gorm:"foreignkey:OwnerID" binding:"-" json:"-"` // 使用 UserRefer 作为外键
+	User      User    `gorm:"foreignkey:OwnerID" binding:"-" json:"-"` // 使用 OwnerID  作为外键
 	Tags      []Tag   `gorm:"many2many:article_tags;" json:"tags"`
-	Images    []Image `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;" json:"images"`
+	Images    []Image `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;foreignkey:ArticleID" json:"images"`
 	Title     string  `json:"title" form:"title"`
 	Content   string  `json:"content" form:"content"`
-	LikeCount int     `json:"like_count" form:"like_count" binding:"-"`
+	LikeCount int64   `json:"like_count" form:"like_count" binding:"-"`
 	// Collect int     `json:"collect" form:"collect" binding:"-"`
 	// Watch   int     `json:"watch" form:"watch" binding:"-"`
 	LikedUsers []User `gorm:"many2many:article_like_users;" json:"-"`
@@ -56,11 +56,18 @@ func GetArticleTotal(maps interface{}) (int64, error) {
 func GetArticles(pageNum int, pageSize int, maps interface{}) ([]*Article, error) {
 	var articles []*Article
 	// err := db.Preload("Tag").Where(maps).Offset(pageNum).Limit(pageSize).Find(&articles).Error
-	err := db.Offset(pageNum).Where(maps).Limit(pageSize).Preload(clause.Associations).Find(&articles).Error
+	// err := db.Offset(pageNum).Limit(pageSize).Preload(clause.Associations).Find(&articles).Error
+	err := db.Offset(pageNum).Limit(pageSize).Preload("Tags", func(db *gorm.DB) *gorm.DB {
+		return db.Select("name", "id")
+	}).Preload("Images", func(db *gorm.DB) *gorm.DB {
+		return db.Select("id", "article_id", "filename")
+	}).Find(&articles).Error
 	if err != nil && err != gorm.ErrRecordNotFound {
 		return nil, err
 	}
-
+	// for _, article := range articles {
+	// db.Model(article).Association("LikedUsers").Count()
+	// }
 	return articles, nil
 }
 
@@ -159,14 +166,34 @@ func AddArticleWithImg(article Article, tags []Tag, imgs []Image) error {
 }
 
 func AddArticleLikeUser(id uint, user User) error {
+	tx := db.Begin()
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+		}
+	}()
+	if err := tx.Error; err != nil {
+		return err
+	}
 	var article Article
-	if err := db.Where("id = ? ", id).First(&article).Error; err != nil {
+	if err := tx.Where("id = ? ", id).First(&article).Error; err != nil {
 		return err
 	}
-	if err := db.Model(&article).Association("LikedUsers").Append(&user); err != nil {
+	if err := tx.Model(&article).Association("LikedUsers").Append(&user); err != nil {
+		tx.Rollback()
 		return err
 	}
-	return nil
+	// cnt := tx.Model(&article).Association("LikedUsers").Count()
+
+	// if err := tx.Model(&article).Update("like_count", cnt).Error; err != nil {
+	// 	tx.Rollback()
+	// 	return err
+	// }
+	return tx.Commit().Error
+}
+
+func GetArticleLikeCount(article Article) int64 {
+	return db.Model(article).Association("LikeUsers").Count()
 }
 
 // DeleteArticle delete a single article
