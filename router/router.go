@@ -29,31 +29,31 @@ func InitRouter() *gin.Engine {
 	//用户类
 	r.POST("/user/register", v1.Register)
 	r.POST("/user/login", v1.Login)
-	r.POST("/user/refreshToken/:id", v1.RefreshToken)
+	r.POST("/user/:id/refreshToken", v1.RefreshToken)
 	//标签类
-	apiv1.GET("/tag/getArticles/:id", v1.GetTagArticles)
-	apiv1.GET("/tag/getList/", v1.GetTags)
+	apiv1.GET("/tag/:id/articles", v1.GetTagArticles)
+	apiv1.GET("/tag", v1.GetTags)
 	//文章类
-	apiv1.GET("/article/list/", v1.GetArticles)
-	apiv1.GET("/article/get/:id", v1.GetArticle)
+	apiv1.GET("/article", v1.GetArticles)
+	apiv1.GET("/article/:id", v1.GetArticle)
 
 	apiv1.Use(middleware.JWT())
 	{
 		//标签类
-		apiv1.POST("/tag/add", v1.AddTag)
-		apiv1.DELETE("/tag/delete/:id", v1.DeleteTag)
-		apiv1.PUT("/tag/update/:id", v1.EditTag)
-		apiv1.POST("/tag/recover/:id", v1.RecoverTag)
-		apiv1.DELETE("/tag/clear/:id", v1.ClearTag)
+		apiv1.POST("/tag", v1.AddTag)
+		apiv1.DELETE("/tag/:id", v1.DeleteTag)
+		apiv1.PUT("/tag/:id", v1.EditTag)
+		apiv1.POST("/tag/:id/recover", v1.RecoverTag)
+		apiv1.DELETE("/tag/:id/clear", v1.ClearTag)
 
 		//文章类
-		apiv1.POST("/article/add", v1.AddArticle)
-		apiv1.POST("/article/addTags/:id", v1.AddArticleTags)
-		apiv1.DELETE("/article/delete/:id", v1.DeleteArticle)
-		apiv1.DELETE("/article/deleteTags/:id", v1.DeleteArticleTags)
-		apiv1.POST("/article/recover/:id", v1.RecoverArticle)
-		apiv1.PUT("/article/update/:id/state", v1.UpdateArticle)
-		apiv1.POST("/article/like/:id", v1.LikeArticle)
+		apiv1.POST("/article", v1.AddArticle)
+		apiv1.POST("/article/:id/addTags", v1.AddArticleTags)
+		apiv1.DELETE("/article/:id", v1.DeleteArticle)
+		apiv1.DELETE("/article/:id", v1.DeleteArticleTags)
+		apiv1.POST("/article/:id/recover", v1.RecoverArticle)
+		apiv1.PUT("/article/:id/state", v1.UpdateArticle)
+		apiv1.POST("/article/:id/like", v1.LikeArticle)
 
 		//上传图片
 		r.POST("/upload", v1.UploadImage)

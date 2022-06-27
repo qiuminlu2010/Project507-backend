@@ -38,7 +38,7 @@ func GenerateToken(uid uint) (string, int64, error) {
 	token, err := tokenClaims.SignedString(jwtSecret)
 
 	fmt.Println("新建token缓存信息", token, claims)
-	cacha_key := fmt.Sprintf("{%s:%d}:%s", "user", claims.Uid, "token")
+	cacha_key := fmt.Sprintf("%s:%d:%s", "user", claims.Uid, "token")
 	redis.Set(cacha_key, token, claims.TTL)
 	// redis.Set(token, cache, 3600)
 	return token, expireTime, err

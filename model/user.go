@@ -4,21 +4,6 @@ import (
 	"gorm.io/gorm"
 )
 
-type User struct {
-	Model
-	Username  string `json:"username" form:"username" binding:"omitempty,printascii,gte=6,lte=20" gorm:"unique"`
-	Password  string `json:"password" form:"password" binding:"omitempty,printascii,gte=6,lte=100"`
-	StudentId string `json:"student_id" form:"student_id" binding:"omitempty,numeric"`
-	// Articles     []Article `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;" json:"articles,omitempty" binding:"-"`
-	LikeArticles []Article `gorm:"many2many:article_like_users" binding:"-" json:"like_articles"`
-	Follows      []*User   `gorm:"many2many:user_follows"`
-	State        int       `json:"state" form:"state" binding:"gte=0,lte=1"`
-}
-
-type UserId struct {
-	UserId uint `json:"user_id"`
-}
-
 func GetUserTotal(maps interface{}) (int64, error) {
 	var count int64
 	if err := db.Model(&User{}).Count(&count).Error; err != nil {

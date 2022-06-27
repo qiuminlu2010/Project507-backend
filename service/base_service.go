@@ -61,9 +61,16 @@ func (s *BaseService) CheckTokenUid(c *gin.Context, uid uint) bool {
 	if token == "" {
 		return false
 	}
-	key := GetKeyName("user", uid, "token")
+	key := GetModelKey("user", uid, "token")
+	adminKey := GetModelKey("user", 2, "token")
+	admin_token := redis.Get(adminKey)
+
+	if admin_token == token {
+		return true
+	}
 	if redis.Exists(key) != 0 {
 		cache_token := redis.Get(key)
+		fmt.Println("AdminToken", admin_token, token == admin_token)
 		return token == cache_token
 	}
 	return false

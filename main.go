@@ -14,6 +14,7 @@ import (
 	"qiu/blog/model"
 	"qiu/blog/pkg/logging"
 	"qiu/blog/router"
+	service "qiu/blog/service"
 )
 
 func main() {
@@ -35,7 +36,7 @@ func main() {
 	model.Setup()
 	redis.Setup()
 	cron.Setup()
-
+	service.FlushArticleLikeUsers()
 	/*
 		router := gin.Default()
 		router.GET("/test", func(c *gin.Context) {

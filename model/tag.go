@@ -3,15 +3,6 @@ package model
 import "gorm.io/gorm/clause"
 
 //https://blog.csdn.net/weixin_45604257/article/details/105139862
-type Tag struct {
-	Model
-	Name string `json:"name" form:"name" binding:"required,lte=20" gorm:"unique;not null"`
-	//Type       string `json:"type" form:"type" `
-	CreatedBy  string    `json:"-" form:"created_by" binding:"-" `
-	ModifiedBy string    `json:"-" form:"modified_by" binding:"-" `
-	State      int       `json:"-" form:"state" binding:"-" `
-	Articles   []Article `gorm:"many2many:article_tags;" binding:"-" json:"-"`
-}
 
 // func GetTags(pageNum int, pageSize int, maps interface{}) (tags []Tag) {
 // 	db.Where(maps).Offset(pageNum).Limit(pageSize).Find(&tags)

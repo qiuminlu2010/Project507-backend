@@ -43,13 +43,6 @@ func (t *LocalTime) Scan(v interface{}) error {
 	return fmt.Errorf("can not convert %v to timestamp", v)
 }
 
-type Model struct {
-	ID         uint           `gorm:"primary_key" uri:"id" `
-	CreatedOn  *LocalTime     `binding:"-" json:"created_on,omitempty"`
-	ModifiedOn *LocalTime     `binding:"-" json:"modified_on,omitempty"`
-	DeletedAt  gorm.DeletedAt `gorm:"index"  binding:"-" json:"-"`
-}
-
 func Setup() {
 	var (
 		err                                       error

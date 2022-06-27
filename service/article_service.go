@@ -192,7 +192,7 @@ func (s *ArticleService) GetArticles(params ArticleGetParams) ([]*model.Article,
 
 func getArticleLikeInfo(articles []*model.Article, uid int) error {
 	for _, article := range articles {
-		key := GetKeyName(e.CACHE_ARTICLE, article.ID, e.CACHE_LIKEUSERS)
+		key := GetModelKey(e.CACHE_ARTICLE, article.ID, e.CACHE_LIKEUSERS)
 		if redis.Exists(key) == 0 {
 			fmt.Println("SET CACHE_KEY", key)
 			likeUsers, err := model.GetArticleLikeUsers(article.ID)
@@ -205,6 +205,8 @@ func getArticleLikeInfo(articles []*model.Article, uid int) error {
 			}
 		}
 		article.LikeCount = redis.BitCount(key)
+		// cnt := model.GetArticleLikeCount(article)
+		// fmt.Println("LikeCount", cnt)
 		if uid != 0 {
 			article.IsLike = redis.GetBit(key, int64(uid)) == 1
 		}
@@ -213,9 +215,11 @@ func getArticleLikeInfo(articles []*model.Article, uid int) error {
 }
 
 func (s *ArticleService) UpdateArticleLike(param ArticleLikeParams) error {
-	key := GetKeyName(e.CACHE_ARTICLE, uint(param.Id), e.CACHE_LIKEUSERS)
+	key := GetModelKey(e.CACHE_ARTICLE, uint(param.Id), e.CACHE_LIKEUSERS)
+	messageKey := GetMessageKey(e.CACHE_ARTICLE, uint(param.Id), e.CACHE_LIKEUSERS)
 	if redis.Exists(key) != 0 {
 		redis.SetBit(key, int64(param.UserID), param.Type)
+		redis.SAdd(messageKey, param.UserID)
 		return nil
 	}
 	user := model.User{}
@@ -228,6 +232,7 @@ func (s *ArticleService) UpdateArticleLike(param ArticleLikeParams) error {
 		redis.SetBit(key, int64(user.UserId), 1)
 	}
 	redis.SetBit(key, int64(param.UserID), param.Type)
+	redis.SAdd(messageKey, param.UserID)
 	return nil
 	// return model.AddArticleLikeUser(uint(param.Id), user)
 }

@@ -3,6 +3,7 @@ package redis
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"time"
 
 	"github.com/go-redis/redis/v9"
@@ -71,6 +72,12 @@ func Get(key string) string {
 		panic(err)
 	}
 	return ret
+}
+
+func Del(key string) {
+	if err := rdb.Del(ctx, key).Err(); err != nil {
+		panic(err)
+	}
 }
 
 func GetBytes(key string) []byte {
@@ -146,6 +153,29 @@ func BitCount(key string) int64 {
 	// sit := redis.BitCount{}
 	ret, err := rdb.BitCount(ctx, key, &redis.BitCount{}).Result()
 	if err != nil {
+		panic(err)
+	}
+	return ret
+}
+
+func SAdd(key string, value interface{}) {
+	if err := rdb.SAdd(ctx, key, value).Err(); err != nil {
+		panic(err)
+	}
+}
+func ScanSetByPattern(pattern string) map[string][]string {
+	iter := rdb.Scan(ctx, 0, pattern, 0).Iterator()
+	ret := make(map[string][]string)
+	var err error
+	for iter.Next(ctx) {
+		key := iter.Val()
+		fmt.Println("Scan keys", key)
+		ret[key], err = rdb.SMembers(ctx, iter.Val()).Result()
+		if err != nil {
+			panic(err)
+		}
+	}
+	if err := iter.Err(); err != nil {
 		panic(err)
 	}
 	return ret

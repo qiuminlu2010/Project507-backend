@@ -5,36 +5,6 @@ import (
 	"gorm.io/gorm/clause"
 )
 
-type Image struct {
-	Model
-	ArticleID uint   `json:"-" form:"-" binding:"-"`
-	Filename  string `json:"filename" form:"filename" binding:"-"`
-}
-type Article struct {
-	Model
-	OwnerID   uint    `json:"owner_id"`
-	User      User    `gorm:"foreignkey:OwnerID" binding:"-" json:"-"` // 使用 OwnerID  作为外键
-	Tags      []Tag   `gorm:"many2many:article_tags;" json:"tags"`
-	Images    []Image `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;foreignkey:ArticleID" json:"images"`
-	Title     string  `json:"title" form:"title"`
-	Content   string  `json:"content" form:"content"`
-	LikeCount int64   `json:"like_count" form:"like_count" binding:"-"`
-	// Collect int     `json:"collect" form:"collect" binding:"-"`
-	// Watch   int     `json:"watch" form:"watch" binding:"-"`
-	LikedUsers []User `gorm:"many2many:article_like_users;" json:"-"`
-	IsLike     bool   `json:"is_like" form:"is_like" binding:"-"`
-	//TODO: Comments   []Comment
-	CreatedBy  string `json:"-" form:"created_by" binding:"-"`
-	ModifiedBy string `json:"-" form:"created_by" binding:"-"`
-	State      int    `json:"state" form:"state" binding:"-"`
-}
-
-type Comment struct {
-	Model
-	UserID  uint   `json:"user_id"`
-	Content string `json:"content" form:"content"`
-}
-
 //通过ID判断文章是否存在
 func ExistArticleByID(id uint) bool {
 	var art Article
@@ -211,14 +181,28 @@ func AddArticleLikeUser(id uint, user User) error {
 	return tx.Commit().Error
 }
 
-func GetArticleLikeCount(article Article) int64 {
-	return db.Model(article).Association("LikeUsers").Count()
+func GetArticleLikeCount(article *Article) int64 {
+	return db.Model(article).Association("LikedUsers").Count()
 }
 
-func AddArticleLikeUsers(article Article, users []User) error {
-	// db.Model(&article).
-	return nil
+func AddArticleLikeUsers(articleId uint, userIds []uint) error {
+	var data []ArticleIdUserId
+	for _, userId := range userIds {
+		data = append(data, ArticleIdUserId{ArticleId: articleId, UserId: uint(userId)})
+	}
+	// fmt.Println("ArticleIdUserId", data[0].ArticleId, data[0].UserId, userIds)
+	// var articleId_userId []*ArticleIdUserId
+	// var like_users []uint
+	return db.Table("blog_article_like_users").Clauses(clause.OnConflict{DoNothing: true}).Create(data).Error
+	// return db.Model(&article).Association("LikedUsers").Append(users)
 }
+
+func DeleteArticleLikeUsers(articleId uint, userIds []uint) error {
+	// db.Model(&article).
+	return db.Table("blog_article_like_users").Where("article_id = ?", articleId).Where("user_id in ?", userIds).Delete(ArticleIdUserId{}).Error
+	// return db.Model(&article).Association("LikedUsers").Delete(users)
+}
+
 // DeleteArticle delete a single article
 func DeleteArticle(id uint) error {
 	var article Article

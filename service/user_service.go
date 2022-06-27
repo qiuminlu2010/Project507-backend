@@ -69,14 +69,14 @@ func (s *UserService) GetUsernameByID() string {
 }
 
 func (s *UserService) GetUUID(uid uint) string {
-	key := GetKeyName("user", uid, "uuid")
+	key := GetModelKey("user", uid, "uuid")
 	uuid := util.GenerateUUID()
 	redis.Set(key, uuid, 60*60*24)
 	return uuid
 }
 
 func (s *UserService) CheckUUID(uid uint, uuid string) bool {
-	key := GetKeyName("user", uid, "uuid")
+	key := GetModelKey("user", uid, "uuid")
 	if redis.Exists(key) == 0 {
 		return false
 	}
