@@ -129,7 +129,7 @@ func Register(c *gin.Context) {
 // @Success 200 {object} gin_http.ResponseJSON
 // @Failure  400 {object} gin_http.ResponseJSON
 // @Failure  20008 {object} gin_http.ResponseJSON
-// @Router /user/delete/{id} [delete]
+// @Router /user/{id} [delete]
 func DeleteUser(c *gin.Context) {
 
 	userService := service.GetUserService()
@@ -161,7 +161,7 @@ func DeleteUser(c *gin.Context) {
 // @Success 200 {object} gin_http.ResponseJSON
 // @Failure  400 {object} gin_http.ResponseJSON
 // @Failure  20009 {object} gin_http.ResponseJSON
-// @Router /user/update/{id} [put]
+// @Router /user/{id} [put]
 func UpdatePassword(c *gin.Context) {
 
 	userService := service.GetUserService()
@@ -190,7 +190,7 @@ func UpdatePassword(c *gin.Context) {
 // @Param id path uint true "id"
 // @Param uuid formData string true "uuid"
 // @Success 200 {object} gin_http.ResponseJSON
-// @Router /user/refreshToken/{id} [post]
+// @Router /user/{id}/refreshToken [post]
 func RefreshToken(c *gin.Context) {
 	userService := service.GetUserService()
 	httpCode, errCode := userService.Bind(c)
@@ -223,7 +223,7 @@ func RefreshToken(c *gin.Context) {
 // @Param id path int true "id"
 // @Param token header string true "token"
 // @Success 200 {object} gin_http.ResponseJSON
-// @Router /user/update/{id} [delete]
+// @Router /user/{id} [delete]
 func UpdateUserState(c *gin.Context) {
 
 	userService := service.GetUserService()

@@ -51,7 +51,7 @@ func GetArticle(c *gin.Context) {
 // @Param page_num query int false "page_num"
 // @Param page_size query int false "page_size"
 // @Param uid query int false "uid"
-// @Router /api/v1/article/list [get]
+// @Router /api/v1/article [get]
 func GetArticles(c *gin.Context) {
 
 	articleService := service.GetArticleService()
@@ -95,7 +95,7 @@ func GetArticles(c *gin.Context) {
 // @Param tag_name formData []string false "标签"
 // @Param images formData file true "image"
 // @Param token header string true "token"
-// @Router /api/v1/article/add [post]
+// @Router /api/v1/article [post]
 func AddArticle(c *gin.Context) {
 	articleService := service.GetArticleService()
 	httpCode, errCode := articleService.Bind(c)
@@ -172,7 +172,7 @@ func AddArticle(c *gin.Context) {
 // @Param id path int true "文章ID"
 // @Param tag_id formData []uint false "标签ID"
 // @Param token header string true "token"
-// @Router /api/v1/article/addTags/{id} [post]
+// @Router /api/v1/article/{id}/addTags [post]
 func AddArticleTags(c *gin.Context) {
 
 	articleService := service.GetArticleService()
@@ -205,7 +205,7 @@ func AddArticleTags(c *gin.Context) {
 // @Param id path int true "文章ID"
 // @Param tag_id formData []int true "标签ID"
 // @Param token header string true "token"
-// @Router /api/v1/article/deleteTags/{id} [delete]
+// @Router /api/v1/article/{id}/deleteTags [delete]
 func DeleteArticleTags(c *gin.Context) {
 
 	articleService := service.GetArticleService()
@@ -236,7 +236,7 @@ func DeleteArticleTags(c *gin.Context) {
 // @Produce  json
 // @Param id path int true "文章ID"
 // @Param token header string true "token"
-// @Router /api/v1/article/delete/{id} [delete]
+// @Router /api/v1/article/{id} [delete]
 func DeleteArticle(c *gin.Context) {
 
 	articleService := service.GetArticleService()
@@ -267,7 +267,7 @@ func DeleteArticle(c *gin.Context) {
 // @Produce  json
 // @Param id path int true "文章ID"
 // @Param token header string true "token"
-// @Router /api/v1/article/update/{id} [put]
+// @Router /api/v1/article/{id} [put]
 func UpdateArticle(c *gin.Context) {
 
 	articleService := service.GetArticleService()
@@ -298,7 +298,7 @@ func UpdateArticle(c *gin.Context) {
 // @Produce  json
 // @Param id path int true "文章ID"
 // @Param token header string true "token"
-// @Router /api/v1/article/recover/{id} [post]
+// @Router /api/v1/article/{id}/recover [post]
 func RecoverArticle(c *gin.Context) {
 	articleService := service.GetArticleService()
 	httpCode, errCode := articleService.Bind(c)
@@ -329,7 +329,7 @@ func RecoverArticle(c *gin.Context) {
 // @Param user_id formData uint true "用户ID"
 // @Param type formData int true "类型"
 // @Param token header string true "token"
-// @Router /api/v1/article/like/{id} [post]
+// @Router /api/v1/article/{id}/like [post]
 func LikeArticle(c *gin.Context) {
 
 	articleService := service.GetArticleService()

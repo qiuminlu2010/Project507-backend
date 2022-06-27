@@ -20,7 +20,7 @@ import (
 // @Produce  json
 // @Param page query int false "Page"
 // @Success 200 {object}  gin_http.ResponseJSON
-// @Router /api/v1/tag/getList [get]
+// @Router /api/v1/tag [get]
 func GetTags(c *gin.Context) {
 	tagService := service.GetTagService()
 	tagService.PageNum, _ = util.GetPage(c)
@@ -33,7 +33,7 @@ func GetTags(c *gin.Context) {
 // @Produce  json
 // @Param id path int true "ID"
 // @Success 200 {object}  gin_http.ResponseJSON
-// @Router /api/v1/tag/getArticles/{id} [get]
+// @Router /api/v1/tag/{id} [get]
 func GetTagArticles(c *gin.Context) {
 	tagService := service.GetTagService()
 	httpCode, errCode := tagService.Bind(c)
@@ -59,7 +59,7 @@ func GetTagArticles(c *gin.Context) {
 // @Failure  400 {object} gin_http.ResponseJSON
 // @Failure  10001 {object} gin_http.ResponseJSON
 // @Failure  10006 {object} gin_http.ResponseJSON
-// @Router /api/v1/tag/add [post]
+// @Router /api/v1/tag [post]
 func AddTag(c *gin.Context) {
 
 	tagService := service.GetTagService()
@@ -110,7 +110,7 @@ func AddTag(c *gin.Context) {
 // @Success 200 {object} gin_http.ResponseJSON
 // @Failure  400 {object} gin_http.ResponseJSON
 // @Failure  10007 {object} gin_http.ResponseJSON
-// @Router /api/v1/tag/update/{id} [put]
+// @Router /api/v1/tag/{id} [put]
 func EditTag(c *gin.Context) {
 	tagService := service.GetTagService()
 	httpCode, errCode := tagService.Bind(c)
@@ -145,7 +145,7 @@ func EditTag(c *gin.Context) {
 // @Success 200 {object} gin_http.ResponseJSON
 // @Failure  400 {object} gin_http.ResponseJSON
 // @Failure  10008 {object} gin_http.ResponseJSON
-// @Router /api/v1/tag/delete/{id} [delete]
+// @Router /api/v1/tag/{id} [delete]
 func DeleteTag(c *gin.Context) {
 	tagService := service.GetTagService()
 	httpCode, errCode := tagService.Bind(c)
@@ -175,7 +175,7 @@ func DeleteTag(c *gin.Context) {
 // @Produce  json
 // @Param id path int true "ID"
 // @Param token header string true "token"
-// @Router /api/v1/tag/recover/{id} [post]
+// @Router /api/v1/tag/{id}/recover [post]
 func RecoverTag(c *gin.Context) {
 	tagService := service.GetTagService()
 	httpCode, errCode := tagService.Bind(c)
@@ -194,7 +194,7 @@ func RecoverTag(c *gin.Context) {
 // @Produce  json
 // @Param id path int true "ID"
 // @Param token header string true "token"
-// @Router /api/v1/tag/clear/{id} [delete]
+// @Router /api/v1/tag/{id}/clear [delete]
 func ClearTag(c *gin.Context) {
 	tagService := service.GetTagService()
 	httpCode, errCode := tagService.Bind(c)
