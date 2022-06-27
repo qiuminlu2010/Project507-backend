@@ -2,20 +2,15 @@ package service
 
 import (
 	"qiu/blog/model"
+	"qiu/blog/pkg/e"
 	"qiu/blog/pkg/redis"
 	"qiu/blog/pkg/util"
+	"strconv"
 )
-
-type UserParams struct {
-	Id       uint   `uri:"id"`
-	Username string `json:"username" form:"username" binding:"omitempty,printascii,gte=3,lte=20"`
-	Password string `json:"password" form:"password" binding:"omitempty,printascii,gte=6,lte=100"`
-	State    int    `json:"state" form:"state"`
-}
 
 type UserService struct {
 	BaseService
-	UserParams
+	UserLoginParams
 	PageNum  int
 	PageSize int
 }
@@ -82,4 +77,51 @@ func (s *UserService) CheckUUID(uid uint, uuid string) bool {
 	}
 	v := redis.Get(key)
 	return uuid == v
+}
+
+func (s *UserService) UpsertFollowUser(params UpsertUserFollowParams) error {
+
+	key := GetModelKey(e.CACHE_USER, uint(params.UserId), e.CACHE_FOLLOWS)
+	messageKey := GetMessageKey(e.CACHE_USER, uint(params.UserId), e.CACHE_FOLLOWS)
+
+	if redis.Exists(key) != 0 {
+		// redis.SetBit(key, int64(params.UserId), params.Type)
+		m := make(map[string]interface{})
+		m[strconv.Itoa(params.FollowId)] = params.Type
+
+		redis.HashSet(messageKey, m)
+
+		if params.Type == 1 {
+			redis.SAdd(key, params.FollowId)
+		} else {
+			redis.SDEL(key, params.FollowId)
+		}
+
+		return nil
+	}
+
+	Follows, err := model.GetFollows(uint(params.UserId))
+
+	if err != nil {
+		return err
+	}
+
+	for _, follow := range Follows {
+		m := make(map[string]interface{})
+		m[strconv.Itoa(follow.FollowId)] = 1
+		redis.SAdd(key, m)
+	}
+
+	m := make(map[string]interface{})
+	m[strconv.Itoa(params.FollowId)] = params.Type
+
+	redis.HashSet(messageKey, m)
+
+	if params.Type == 1 {
+		redis.SAdd(key, params.FollowId)
+	} else {
+		redis.SDEL(key, params.FollowId)
+	}
+
+	return nil
 }

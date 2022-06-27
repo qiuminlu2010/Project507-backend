@@ -1,6 +1,8 @@
 package model
 
 import (
+	"qiu/blog/pkg/e"
+
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
@@ -138,7 +140,7 @@ func AddArticleWithImg(article Article, tags []Tag, imgs []Image) error {
 func GetArticleLikeUsers(id uint) ([]*UserId, error) {
 	var like_users []*UserId
 	// var like_users []uint
-	if err := db.Table("blog_article_like_users").Where("`article_id` = ?", id).Select("`user_id`").Find(&like_users).Error; err != nil {
+	if err := db.Table(e.TABLE_ARTICLE_LIKE_USERS).Where("`article_id` = ?", id).Select("`user_id`").Find(&like_users).Error; err != nil {
 		return nil, err
 	}
 	// if err := db.Exec("select `user_id` from `blog_article_like_users` where `article_id` = ?", id).Scan(like_users).Error; err != nil {
@@ -193,13 +195,13 @@ func AddArticleLikeUsers(articleId uint, userIds []uint) error {
 	// fmt.Println("ArticleIdUserId", data[0].ArticleId, data[0].UserId, userIds)
 	// var articleId_userId []*ArticleIdUserId
 	// var like_users []uint
-	return db.Table("blog_article_like_users").Clauses(clause.OnConflict{DoNothing: true}).Create(data).Error
+	return db.Table(e.TABLE_ARTICLE_LIKE_USERS).Clauses(clause.OnConflict{DoNothing: true}).Create(data).Error
 	// return db.Model(&article).Association("LikedUsers").Append(users)
 }
 
 func DeleteArticleLikeUsers(articleId uint, userIds []uint) error {
 	// db.Model(&article).
-	return db.Table("blog_article_like_users").Where("article_id = ?", articleId).Where("user_id in ?", userIds).Delete(ArticleIdUserId{}).Error
+	return db.Table(e.TABLE_ARTICLE_LIKE_USERS).Where("article_id = ?", articleId).Where("user_id in ?", userIds).Delete(ArticleIdUserId{}).Error
 	// return db.Model(&article).Association("LikedUsers").Delete(users)
 }
 

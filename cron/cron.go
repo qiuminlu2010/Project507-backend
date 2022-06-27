@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"sync"
 
+	service "qiu/blog/service"
+
 	"github.com/robfig/cron/v3"
 )
 
@@ -12,6 +14,13 @@ var _timer Timer
 func Setup() {
 	_timer = NewTimerTask()
 	_timer.AddTaskByFunc("clearLogs", "0 0 0 * * *", ClearLoggingFile)
+	//开启任务
+	if err := service.FlushArticleLikeUsers(); err != nil {
+		panic(err)
+	}
+	if err := service.FlushUserFollows(); err != nil {
+		panic(err)
+	}
 }
 
 func Exit() {

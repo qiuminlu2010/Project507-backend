@@ -36,10 +36,11 @@ func GetArticleListParamsKey(pageNum int, pageSize int) string {
 }
 
 func FlushArticleLikeUsers() error {
+	fmt.Println("FlushArticleLikeUsers")
 	pattern := fmt.Sprintf("%s*%s", e.CACHE_MESSAGE, e.CACHE_LIKEUSERS)
 	data := redis.ScanSetByPattern(pattern)
 	for key, value := range data {
-		fmt.Println("ScanSetByPattern", key, value)
+		// fmt.Println("ScanSetByPattern", key, value)
 		var likeUsers []uint
 		var unlikeUsers []uint
 		articleId, _ := strconv.Atoi(strings.Split(key, ":")[2])
@@ -47,7 +48,7 @@ func FlushArticleLikeUsers() error {
 		// article.ID = uint(articleId)
 		for _, v := range value {
 			userId, _ := strconv.Atoi(v)
-			cache_key := GetModelKey(e.CACHE_ARTICLE, uint(userId), e.CACHE_LIKEUSERS)
+			cache_key := GetModelKey(e.CACHE_ARTICLE, uint(articleId), e.CACHE_LIKEUSERS)
 			// user := model.User{}
 			// user.ID = uint(userId)
 			if redis.GetBit(cache_key, int64(userId)) == 1 {
@@ -58,7 +59,7 @@ func FlushArticleLikeUsers() error {
 		}
 
 		if len(likeUsers) > 0 {
-			fmt.Println("likeUserId", articleId, likeUsers)
+			// fmt.Println("likeUserId", articleId, likeUsers)
 			if err := model.AddArticleLikeUsers(uint(articleId), likeUsers); err != nil {
 				panic(err)
 			}
@@ -68,7 +69,7 @@ func FlushArticleLikeUsers() error {
 			// addlikeArticleUsers(article, likeUsers)
 		}
 		if len(unlikeUsers) > 0 {
-			fmt.Println("unlikeUserId", articleId, unlikeUsers)
+			// fmt.Println("unlikeUserId", articleId, unlikeUsers)
 			if err := model.DeleteArticleLikeUsers(uint(articleId), unlikeUsers); err != nil {
 				panic(err)
 			}
@@ -76,6 +77,39 @@ func FlushArticleLikeUsers() error {
 		}
 		redis.Del(key)
 	}
+	fmt.Println("FlushArticleLikeUsers", "OK")
+	return nil
+}
+
+func FlushUserFollows() error {
+	fmt.Println("FlushUserFollows")
+	pattern := fmt.Sprintf("%s*%s", e.CACHE_MESSAGE, e.CACHE_FOLLOWS)
+	data := redis.ScanHashByPattern(pattern)
+	for key, value := range data {
+		var follow []int
+		var unFollow []int
+		userId, _ := strconv.Atoi(strings.Split(key, ":")[2])
+		for k, v := range value.(map[string]string) {
+			followId, _ := strconv.Atoi(k)
+			if v == "1" {
+				follow = append(follow, followId)
+			} else if v == "0" {
+				unFollow = append(unFollow, followId)
+			}
+		}
+		if len(follow) > 0 {
+			if err := model.FollowUsers(uint(userId), follow); err != nil {
+				panic(err)
+			}
+		}
+		if len(unFollow) > 0 {
+			if err := model.UnFollowUsers(uint(userId), unFollow); err != nil {
+				panic(err)
+			}
+		}
+		redis.Del(key)
+	}
+	fmt.Println("FlushUserFollows", "OK")
 	return nil
 }
 

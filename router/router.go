@@ -55,6 +55,8 @@ func InitRouter() *gin.Engine {
 		apiv1.PUT("/article/:id/state", v1.UpdateArticle)
 		apiv1.POST("/article/:id/like", v1.LikeArticle)
 
+		//用户类
+		apiv1.POST("/user/:id/follow", v1.FollowUser)
 		//上传图片
 		r.POST("/upload", v1.UploadImage)
 	}

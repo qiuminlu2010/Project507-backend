@@ -1,5 +1,27 @@
 package service
 
+type UserInfoParams struct {
+	UserId   int    `uri:"user_id" json:"user_id" form:"user_id"`
+	Username string `json:"username" form:"username"`
+}
+
+type UserFollowsParams struct {
+	UserInfoParams
+	Follows []UserInfoParams `json:"follows"`
+}
+
+type UpsertUserFollowParams struct {
+	UserInfoParams
+	FollowId int `json:"follow_id" form:"follow_id"`
+	Type     int `json:"type" form:"type" binding:"gte=0,lte=1"`
+}
+type UserLoginParams struct {
+	Id       uint   `uri:"id"`
+	Username string `json:"username" form:"username" binding:"omitempty,printascii,gte=3,lte=20"`
+	Password string `json:"password" form:"password" binding:"omitempty,printascii,gte=6,lte=100"`
+	State    int    `json:"state" form:"state"`
+}
+
 type ArticleParams struct {
 	Id         uint     `uri:"id"`
 	UserID     uint     `json:"user_id" form:"user_id"`
@@ -16,7 +38,7 @@ type ArticleParams struct {
 type ArticleLikeParams struct {
 	Id     int  `uri:"id"`
 	UserID uint `json:"user_id" form:"user_id"`
-	Type   int  `json:"type" form:"type"`
+	Type   int  `json:"type" form:"type" binding:"gte=0,lte=1"`
 }
 type ArticleGetParams struct {
 	Uid      int `json:"uid" form:"uid"`

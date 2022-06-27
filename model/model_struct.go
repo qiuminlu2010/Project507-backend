@@ -54,9 +54,18 @@ type UserId struct {
 	UserId uint `json:"user_id"`
 }
 
+type FollowId struct {
+	FollowId int `json:"follow_id"`
+}
+
 type ArticleIdUserId struct {
 	ArticleId uint `json:"article_id"`
 	UserId    uint `json:"user_id"`
+}
+
+type UserIdFollowId struct {
+	UserId   uint `json:"user_id"`
+	FollowId uint `json:"follow_id"`
 }
 type Tag struct {
 	Model

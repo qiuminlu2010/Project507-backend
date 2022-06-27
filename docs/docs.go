@@ -34,7 +34,34 @@ const docTemplate = `{
                 "responses": {}
             }
         },
-        "/api/v1/article/add": {
+        "/api/v1/article": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "获取文章列表",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "page_num",
+                        "name": "page_num",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "page_size",
+                        "name": "page_size",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "uid",
+                        "name": "uid",
+                        "in": "query"
+                    }
+                ],
+                "responses": {}
+            },
             "post": {
                 "consumes": [
                     "multipart/form-data"
@@ -85,7 +112,55 @@ const docTemplate = `{
                 "responses": {}
             }
         },
-        "/api/v1/article/addTags/{id}": {
+        "/api/v1/article/{id}": {
+            "put": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "更新文章",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "文章ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "token",
+                        "name": "token",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            },
+            "delete": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "删除文章",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "文章ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "token",
+                        "name": "token",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/api/v1/article/{id}/addTags": {
             "post": {
                 "produces": [
                     "application/json"
@@ -119,32 +194,7 @@ const docTemplate = `{
                 "responses": {}
             }
         },
-        "/api/v1/article/delete/{id}": {
-            "delete": {
-                "produces": [
-                    "application/json"
-                ],
-                "summary": "删除文章",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "文章ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "token",
-                        "name": "token",
-                        "in": "header",
-                        "required": true
-                    }
-                ],
-                "responses": {}
-            }
-        },
-        "/api/v1/article/deleteTags/{id}": {
+        "/api/v1/article/{id}/deleteTags": {
             "delete": {
                 "produces": [
                     "application/json"
@@ -179,7 +229,7 @@ const docTemplate = `{
                 "responses": {}
             }
         },
-        "/api/v1/article/like/{id}": {
+        "/api/v1/article/{id}/like": {
             "post": {
                 "produces": [
                     "application/json"
@@ -218,36 +268,7 @@ const docTemplate = `{
                 "responses": {}
             }
         },
-        "/api/v1/article/list": {
-            "get": {
-                "produces": [
-                    "application/json"
-                ],
-                "summary": "获取文章列表",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "page_num",
-                        "name": "page_num",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "page_size",
-                        "name": "page_size",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "uid",
-                        "name": "uid",
-                        "in": "query"
-                    }
-                ],
-                "responses": {}
-            }
-        },
-        "/api/v1/article/recover/{id}": {
+        "/api/v1/article/{id}/recover": {
             "post": {
                 "produces": [
                     "application/json"
@@ -272,32 +293,29 @@ const docTemplate = `{
                 "responses": {}
             }
         },
-        "/api/v1/article/update/{id}": {
-            "put": {
+        "/api/v1/tag": {
+            "get": {
                 "produces": [
                     "application/json"
                 ],
-                "summary": "更新文章",
+                "summary": "获取标签列表",
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "文章ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "token",
-                        "name": "token",
-                        "in": "header",
-                        "required": true
+                        "description": "Page",
+                        "name": "page",
+                        "in": "query"
                     }
                 ],
-                "responses": {}
-            }
-        },
-        "/api/v1/tag/add": {
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/gin_http.ResponseJSON"
+                        }
+                    }
+                }
+            },
             "post": {
                 "produces": [
                     "application/json"
@@ -354,76 +372,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/tag/clear/{id}": {
-            "delete": {
-                "produces": [
-                    "application/json"
-                ],
-                "summary": "清理标签(硬删除)",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "token",
-                        "name": "token",
-                        "in": "header",
-                        "required": true
-                    }
-                ],
-                "responses": {}
-            }
-        },
-        "/api/v1/tag/delete/{id}": {
-            "delete": {
-                "produces": [
-                    "application/json"
-                ],
-                "summary": "删除标签",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "token",
-                        "name": "token",
-                        "in": "header",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "10008": {
-                        "description": "",
-                        "schema": {
-                            "$ref": "#/definitions/gin_http.ResponseJSON"
-                        }
-                    },
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/gin_http.ResponseJSON"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/gin_http.ResponseJSON"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/v1/tag/getArticles/{id}": {
+        "/api/v1/tag/{id}": {
             "get": {
                 "produces": [
                     "application/json"
@@ -446,58 +395,7 @@ const docTemplate = `{
                         }
                     }
                 }
-            }
-        },
-        "/api/v1/tag/getList": {
-            "get": {
-                "produces": [
-                    "application/json"
-                ],
-                "summary": "获取标签列表",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Page",
-                        "name": "page",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/gin_http.ResponseJSON"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/v1/tag/recover/{id}": {
-            "post": {
-                "produces": [
-                    "application/json"
-                ],
-                "summary": "恢复标签",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "token",
-                        "name": "token",
-                        "in": "header",
-                        "required": true
-                    }
-                ],
-                "responses": {}
-            }
-        },
-        "/api/v1/tag/update/{id}": {
+            },
             "put": {
                 "produces": [
                     "application/json"
@@ -552,6 +450,137 @@ const docTemplate = `{
                         }
                     }
                 }
+            },
+            "delete": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "删除标签",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "token",
+                        "name": "token",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "10008": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/gin_http.ResponseJSON"
+                        }
+                    },
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/gin_http.ResponseJSON"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/gin_http.ResponseJSON"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/tag/{id}/clear": {
+            "delete": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "清理标签(硬删除)",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "token",
+                        "name": "token",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/api/v1/tag/{id}/recover": {
+            "post": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "恢复标签",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "token",
+                        "name": "token",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/api/v1/user/{id}/follow": {
+            "post": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "关注用户",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "用户ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "关注用户ID",
+                        "name": "follow_id",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "类型",
+                        "name": "type",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "token",
+                        "name": "token",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {}
             }
         },
         "/upload": {
@@ -587,57 +616,6 @@ const docTemplate = `{
                         "description": "{\"code\":200,\"data\":{},\"msg\":\"ok\"}",
                         "schema": {
                             "type": "string"
-                        }
-                    }
-                }
-            }
-        },
-        "/user/delete/{id}": {
-            "delete": {
-                "produces": [
-                    "application/json"
-                ],
-                "summary": "注销用户",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "id",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "username",
-                        "name": "username",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "token",
-                        "name": "token",
-                        "in": "header",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/gin_http.ResponseJSON"
-                        }
-                    },
-                    "20008": {
-                        "description": "",
-                        "schema": {
-                            "$ref": "#/definitions/gin_http.ResponseJSON"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/gin_http.ResponseJSON"
                         }
                     }
                 }
@@ -706,38 +684,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/user/refreshToken/{id}": {
-            "post": {
-                "produces": [
-                    "application/json"
-                ],
-                "summary": "更新Token",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "id",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "uuid",
-                        "name": "uuid",
-                        "in": "formData",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/gin_http.ResponseJSON"
-                        }
-                    }
-                }
-            }
-        },
         "/user/register": {
             "post": {
                 "produces": [
@@ -782,7 +728,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/user/update/{id}": {
+        "/user/{id}": {
             "put": {
                 "produces": [
                     "application/json"
@@ -850,6 +796,38 @@ const docTemplate = `{
                         "description": "token",
                         "name": "token",
                         "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/gin_http.ResponseJSON"
+                        }
+                    }
+                }
+            }
+        },
+        "/user/{id}/refreshToken": {
+            "post": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "更新Token",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "uuid",
+                        "name": "uuid",
+                        "in": "formData",
                         "required": true
                     }
                 ],

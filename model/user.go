@@ -1,7 +1,10 @@
 package model
 
 import (
+	"qiu/blog/pkg/e"
+
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 func GetUserTotal(maps interface{}) (int64, error) {
@@ -60,4 +63,23 @@ func GetUsernameByID(id uint) string {
 
 func FollowUser(user User, followUser User) error {
 	return db.Model(&user).Association("Follows").Append(&followUser)
+}
+
+func FollowUsers(userId uint, followIds []int) error {
+	var group []UserIdFollowId
+	for _, followId := range followIds {
+		group = append(group, UserIdFollowId{UserId: userId, FollowId: uint(followId)})
+	}
+	return db.Table(e.TABLE_USER_FOLLOWS).Clauses(clause.OnConflict{DoNothing: true}).Create(group).Error
+}
+
+func UnFollowUsers(userId uint, followIds []int) error {
+	return db.Table(e.TABLE_USER_FOLLOWS).Where("user_id = ?", userId).Where("follow_id in ?", followIds).Delete(UserIdFollowId{}).Error
+}
+func GetFollows(userId uint) ([]*FollowId, error) {
+	var followIds []*FollowId
+	if err := db.Table(e.TABLE_USER_FOLLOWS).Where("`user_id` = ?", userId).Select("`follow_id`").Find(&followIds).Error; err != nil {
+		return nil, err
+	}
+	return followIds, nil
 }

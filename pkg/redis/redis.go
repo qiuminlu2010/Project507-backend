@@ -163,6 +163,12 @@ func SAdd(key string, value interface{}) {
 		panic(err)
 	}
 }
+
+func SDEL(key string, value interface{}) {
+	if err := rdb.SRem(ctx, key, value).Err(); err != nil {
+		panic(err)
+	}
+}
 func ScanSetByPattern(pattern string) map[string][]string {
 	iter := rdb.Scan(ctx, 0, pattern, 0).Iterator()
 	ret := make(map[string][]string)
@@ -174,6 +180,20 @@ func ScanSetByPattern(pattern string) map[string][]string {
 		if err != nil {
 			panic(err)
 		}
+	}
+	if err := iter.Err(); err != nil {
+		panic(err)
+	}
+	return ret
+}
+
+func ScanHashByPattern(pattern string) map[string]interface{} {
+	iter := rdb.Scan(ctx, 0, pattern, 0).Iterator()
+	ret := make(map[string]interface{})
+	for iter.Next(ctx) {
+		key := iter.Val()
+		fmt.Println("Scan keys", key)
+		ret[key] = HashGetAll(key)
 	}
 	if err := iter.Err(); err != nil {
 		panic(err)

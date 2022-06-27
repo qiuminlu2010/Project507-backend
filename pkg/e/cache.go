@@ -7,4 +7,5 @@ const (
 	CACHE_USER         = "user"
 	CACHE_LIKEARTICLES = "like_articles"
 	CACHE_MESSAGE      = "message"
+	CACHE_FOLLOWS      = "follows"
 )
