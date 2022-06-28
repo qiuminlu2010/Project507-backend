@@ -341,7 +341,7 @@ func LikeArticle(c *gin.Context) {
 	}
 	param.Id, _ = strconv.Atoi(c.Param("id"))
 	fmt.Println("绑定数据", param)
-	if !articleService.CheckTokenUid(c, param.UserID) {
+	if !articleService.CheckTokenUid(c, uint(param.UserID)) {
 		gin_http.Response(c, http.StatusBadRequest, e.ERROR_AUTH_CHECK_TOKEN_FAIL, nil)
 		return
 	}

@@ -37,9 +37,9 @@ type ArticleParams struct {
 }
 
 type ArticleLikeParams struct {
-	Id     int  `uri:"id"`
-	UserID uint `json:"user_id" form:"user_id"`
-	Type   int  `json:"type" form:"type" binding:"gte=0,lte=1"`
+	Id     int `uri:"id"`
+	UserID int `json:"user_id" form:"user_id"`
+	Type   int `json:"type" form:"type" binding:"gte=0,lte=1"`
 }
 type ArticleGetParams struct {
 	Uid      int `json:"uid" form:"uid"`

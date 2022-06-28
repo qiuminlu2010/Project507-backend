@@ -58,6 +58,9 @@ func InitRouter() *gin.Engine {
 		//用户类
 		apiv1.POST("/user/:id/follow", v1.FollowUser)
 		apiv1.GET("/user/:id/follow", v1.GetFollows)
+		apiv1.GET("/user/:id/likeArticles", v1.GetUserLikeArticles)
+		apiv1.GET("/user/:id/articles", v1.GetUserArticles)
+
 		//上传图片
 		r.POST("/upload", v1.UploadImage)
 	}

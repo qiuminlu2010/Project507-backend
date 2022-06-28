@@ -1,6 +1,8 @@
 package model
 
-import "gorm.io/gorm"
+import (
+	"gorm.io/gorm"
+)
 
 type Model struct {
 	ID         uint           `gorm:"primary_key" uri:"id" `
@@ -49,6 +51,12 @@ type User struct {
 	Follows      []*User   `gorm:"many2many:user_follows"`
 	Avator       string    `json:"avator" form:"avator"`
 	State        int       `json:"state" form:"state" binding:"gte=0,lte=1"`
+}
+
+type ArticleLikeUsers struct {
+	ArticleID int
+	UserID    int
+	CreatedAt int `gorm:"index"  binding:"-" json:"created_at,omitempty"`
 }
 
 type UserInfo struct {

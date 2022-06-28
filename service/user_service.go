@@ -91,13 +91,6 @@ func (s *UserService) GetFollows(params UserFollowsParams) ([]model.UserInfo, er
 		if err := setUserFollowCache(params.UserId); err != nil {
 			return nil, err
 		}
-		// followIds, err = model.GetFollowIds(uint(params.UserId))
-		// if err != nil {
-		// 	return nil, err
-		// }
-		// for _, followId := range followIds {
-		// 	redis.SAdd(key, followId)
-		// }
 	}
 
 	value := redis.SGET(key)
@@ -161,33 +154,6 @@ func (s *UserService) UpsertFollowUser(params UpsertUserFollowParams) error {
 			return err
 		}
 	}
-	// if redis.Exists(key) != 0 {
-
-	// 	m := make(map[string]interface{})
-	// 	m[strconv.Itoa(params.FollowId)] = params.Type
-
-	// 	redis.HashSet(messageKey, m)
-
-	// 	if params.Type == 1 {
-	// 		redis.SAdd(key, params.FollowId)
-	// 	} else {
-	// 		redis.SDEL(key, params.FollowId)
-	// 	}
-
-	// 	return nil
-	// }
-
-	// Follows, err := model.GetFollows(uint(params.UserId))
-
-	// if err != nil {
-	// 	return err
-	// }
-
-	// for _, follow := range Follows {
-	// 	// m := make(map[string]interface{})
-	// 	// m[strconv.Itoa(follow.FollowId)] = 1
-	// 	redis.SAdd(key, follow.ID)
-	// }
 
 	m := make(map[string]interface{})
 	m[strconv.Itoa(params.FollowId)] = params.Type

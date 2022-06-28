@@ -94,6 +94,16 @@ func Setup() {
 	db.Callback().Create().Before("gorm:create").Register("update_modify_time", updateTimeStampForUpdateCallback)
 	db.Callback().Create().Before("gorm:create").Register("set_state", setState)
 	db.Callback().Update().Before("gorm:update").Register("update_modify_time", updateTimeStampForUpdateCallback)
+
+	err = db.SetupJoinTable(&Article{}, "LikedUsers", &ArticleLikeUsers{})
+	if err != nil {
+		panic(err)
+	}
+	err = db.SetupJoinTable(&User{}, "LikeArticles", &ArticleLikeUsers{})
+	if err != nil {
+		panic(err)
+	}
+
 	err = db.AutoMigrate(
 		&User{},
 		&Tag{},

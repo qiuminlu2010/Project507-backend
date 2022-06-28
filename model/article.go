@@ -187,22 +187,16 @@ func GetArticleLikeCount(article *Article) int64 {
 	return db.Model(article).Association("LikedUsers").Count()
 }
 
-func AddArticleLikeUsers(articleId uint, userIds []uint) error {
-	var data []ArticleIdUserId
-	for _, userId := range userIds {
-		data = append(data, ArticleIdUserId{ArticleId: articleId, UserId: uint(userId)})
-	}
-	// fmt.Println("ArticleIdUserId", data[0].ArticleId, data[0].UserId, userIds)
-	// var articleId_userId []*ArticleIdUserId
-	// var like_users []uint
+func AddArticleLikeUsers(data []ArticleLikeUsers) error {
+	// var data []ArticleIdUserId
+	// for _, userId := range userIds {
+	// 	data = append(data, ArticleIdUserId{ArticleId: articleId, UserId: uint(userId)})
+	// }
 	return db.Table(e.TABLE_ARTICLE_LIKE_USERS).Clauses(clause.OnConflict{DoNothing: true}).Create(data).Error
-	// return db.Model(&article).Association("LikedUsers").Append(users)
 }
 
 func DeleteArticleLikeUsers(articleId uint, userIds []uint) error {
-	// db.Model(&article).
 	return db.Table(e.TABLE_ARTICLE_LIKE_USERS).Where("article_id = ?", articleId).Where("user_id in ?", userIds).Delete(ArticleIdUserId{}).Error
-	// return db.Model(&article).Association("LikedUsers").Delete(users)
 }
 
 // DeleteArticle delete a single article

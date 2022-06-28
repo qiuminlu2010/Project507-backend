@@ -44,29 +44,38 @@ func GetArticleListParamsKey(pageNum int, pageSize int) string {
 func FlushArticleLikeUsers() error {
 	fmt.Println("FlushArticleLikeUsers")
 	pattern := fmt.Sprintf("%s*%s", e.CACHE_MESSAGE, e.CACHE_LIKEUSERS)
-	data := redis.ScanSetByPattern(pattern)
+	data := redis.ScanHashByPattern(pattern)
 	for key, value := range data {
 		// fmt.Println("ScanSetByPattern", key, value)
-		var likeUsers []uint
+		var likeUsers []model.ArticleLikeUsers
 		var unlikeUsers []uint
+		//message:article:2:like_users  1600000
 		articleId, _ := strconv.Atoi(strings.Split(key, ":")[2])
 		// article := model.Article{}
 		// article.ID = uint(articleId)
-		for _, v := range value {
-			userId, _ := strconv.Atoi(v)
-			cache_key := GetModelFieldKey(e.CACHE_ARTICLE, uint(articleId), e.CACHE_LIKEUSERS)
-			// user := model.User{}
-			// user.ID = uint(userId)
-			if redis.GetBit(cache_key, int64(userId)) == 1 {
-				likeUsers = append(likeUsers, uint(userId))
-			} else {
+		for k, v := range value.(map[string]string) {
+			userId, _ := strconv.Atoi(k)
+			v, err := strconv.Atoi(v)
+			if err != nil {
+				panic(err)
+			}
+			if v > 0 {
+				likeUsers = append(likeUsers, model.ArticleLikeUsers{UserID: userId, ArticleID: articleId, CreatedAt: v})
+			} else if v < 0 {
 				unlikeUsers = append(unlikeUsers, uint(userId))
 			}
+			// userId, _ := strconv.Atoi(v)
+			// cache_key := GetModelFieldKey(e.CACHE_ARTICLE, uint(articleId), e.CACHE_LIKEUSERS)
+			// if redis.GetBit(cache_key, int64(userId)) == 1 {
+			// 	likeUsers = append(likeUsers, uint(userId))
+			// } else {
+			// 	unlikeUsers = append(unlikeUsers, uint(userId))
+			// }
 		}
 
 		if len(likeUsers) > 0 {
 			// fmt.Println("likeUserId", articleId, likeUsers)
-			if err := model.AddArticleLikeUsers(uint(articleId), likeUsers); err != nil {
+			if err := model.AddArticleLikeUsers(likeUsers); err != nil {
 				panic(err)
 			}
 			// if err := model.GetArticleLikeCount(article); err != nil {
