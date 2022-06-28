@@ -3,6 +3,7 @@ package service
 type UserInfoParams struct {
 	UserId   int    `uri:"user_id" json:"user_id" form:"user_id"`
 	Username string `json:"username" form:"username"`
+	Avator   string `json:"avator" form:"avator"`
 }
 
 type UserFollowsParams struct {

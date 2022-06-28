@@ -13,7 +13,11 @@ var (
 	keyPattern = "%s:%d:%s"
 )
 
-func GetModelKey(modelName string, modelId uint, fieldName string) string {
+func GetModelIdKey(modelName string, modelId int) string {
+	return fmt.Sprintf("%s:%d", modelName, modelId)
+}
+
+func GetModelFieldKey(modelName string, modelId uint, fieldName string) string {
 	return fmt.Sprintf(keyPattern, modelName, modelId, fieldName)
 }
 
@@ -35,6 +39,8 @@ func GetArticleListParamsKey(pageNum int, pageSize int) string {
 	// }
 }
 
+//getModelsFromCache (modelName, modelIds)
+//SetUserInfoCache
 func FlushArticleLikeUsers() error {
 	fmt.Println("FlushArticleLikeUsers")
 	pattern := fmt.Sprintf("%s*%s", e.CACHE_MESSAGE, e.CACHE_LIKEUSERS)
@@ -48,7 +54,7 @@ func FlushArticleLikeUsers() error {
 		// article.ID = uint(articleId)
 		for _, v := range value {
 			userId, _ := strconv.Atoi(v)
-			cache_key := GetModelKey(e.CACHE_ARTICLE, uint(articleId), e.CACHE_LIKEUSERS)
+			cache_key := GetModelFieldKey(e.CACHE_ARTICLE, uint(articleId), e.CACHE_LIKEUSERS)
 			// user := model.User{}
 			// user.ID = uint(userId)
 			if redis.GetBit(cache_key, int64(userId)) == 1 {

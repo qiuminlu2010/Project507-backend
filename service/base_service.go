@@ -61,8 +61,8 @@ func (s *BaseService) CheckTokenUid(c *gin.Context, uid uint) bool {
 	if token == "" {
 		return false
 	}
-	key := GetModelKey("user", uid, "token")
-	adminKey := GetModelKey("user", 2, "token")
+	key := GetModelFieldKey("user", uid, "token")
+	adminKey := GetModelFieldKey("user", 2, "token")
 	admin_token := redis.Get(adminKey)
 
 	if admin_token == token {

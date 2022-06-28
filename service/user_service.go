@@ -1,11 +1,13 @@
 package service
 
 import (
+	"encoding/json"
 	"qiu/blog/model"
 	"qiu/blog/pkg/e"
 	"qiu/blog/pkg/redis"
 	"qiu/blog/pkg/util"
 	"strconv"
+	"time"
 )
 
 type UserService struct {
@@ -64,14 +66,14 @@ func (s *UserService) GetUsernameByID() string {
 }
 
 func (s *UserService) GetUUID(uid uint) string {
-	key := GetModelKey("user", uid, "uuid")
+	key := GetModelFieldKey("user", uid, "uuid")
 	uuid := util.GenerateUUID()
 	redis.Set(key, uuid, 60*60*24)
 	return uuid
 }
 
 func (s *UserService) CheckUUID(uid uint, uuid string) bool {
-	key := GetModelKey("user", uid, "uuid")
+	key := GetModelFieldKey("user", uid, "uuid")
 	if redis.Exists(key) == 0 {
 		return false
 	}
@@ -79,38 +81,113 @@ func (s *UserService) CheckUUID(uid uint, uuid string) bool {
 	return uuid == v
 }
 
-func (s *UserService) UpsertFollowUser(params UpsertUserFollowParams) error {
+func (s *UserService) GetFollows(params UserFollowsParams) ([]model.UserInfo, error) {
 
-	key := GetModelKey(e.CACHE_USER, uint(params.UserId), e.CACHE_FOLLOWS)
-	messageKey := GetMessageKey(e.CACHE_USER, uint(params.UserId), e.CACHE_FOLLOWS)
+	key := GetModelFieldKey(e.CACHE_USER, uint(params.UserId), e.CACHE_FOLLOWS)
+	var followIds []int
+	var err error
 
-	if redis.Exists(key) != 0 {
-		// redis.SetBit(key, int64(params.UserId), params.Type)
-		m := make(map[string]interface{})
-		m[strconv.Itoa(params.FollowId)] = params.Type
-
-		redis.HashSet(messageKey, m)
-
-		if params.Type == 1 {
-			redis.SAdd(key, params.FollowId)
-		} else {
-			redis.SDEL(key, params.FollowId)
+	if redis.Exists(key) == 0 {
+		if err := setUserFollowCache(params.UserId); err != nil {
+			return nil, err
 		}
-
-		return nil
+		// followIds, err = model.GetFollowIds(uint(params.UserId))
+		// if err != nil {
+		// 	return nil, err
+		// }
+		// for _, followId := range followIds {
+		// 	redis.SAdd(key, followId)
+		// }
 	}
 
-	Follows, err := model.GetFollows(uint(params.UserId))
+	value := redis.SGET(key)
+	followIds, err = util.StringsToInts(value)
 
+	if err != nil {
+		return nil, err
+	}
+
+	followUsers := getUserCache(followIds)
+	return followUsers, nil
+}
+
+func getUserCache(userIds []int) []model.UserInfo {
+	var userInfos []model.UserInfo
+	for _, userId := range userIds {
+		userKey := GetModelIdKey(e.CACHE_USER, userId)
+		if redis.Exists(userKey) == 0 {
+			err := setUserCache(userId)
+			if err != nil {
+				continue
+			}
+		}
+		var userInfo model.UserInfo
+		json.Unmarshal(redis.GetBytes(userKey), &userInfo)
+		userInfos = append(userInfos, userInfo)
+	}
+	return userInfos
+
+}
+
+func setUserCache(userId int) error {
+	userInfo, err := model.GetUser(uint(userId))
+	key := GetModelIdKey(e.CACHE_USER, userId)
 	if err != nil {
 		return err
 	}
+	redis.SetBytes(key, userInfo, 6*time.Hour)
+	return nil
+}
 
-	for _, follow := range Follows {
-		m := make(map[string]interface{})
-		m[strconv.Itoa(follow.FollowId)] = 1
-		redis.SAdd(key, m)
+func setUserFollowCache(userId int) error {
+	key := GetModelFieldKey(e.CACHE_USER, uint(userId), e.CACHE_FOLLOWS)
+	followIds, err := model.GetFollowIds(uint(userId))
+	if err != nil {
+		return err
 	}
+	for _, followId := range followIds {
+		redis.SAdd(key, followId)
+	}
+	return nil
+}
+
+func (s *UserService) UpsertFollowUser(params UpsertUserFollowParams) error {
+
+	key := GetModelFieldKey(e.CACHE_USER, uint(params.UserId), e.CACHE_FOLLOWS)
+	messageKey := GetMessageKey(e.CACHE_USER, uint(params.UserId), e.CACHE_FOLLOWS)
+
+	if redis.Exists(key) == 0 {
+		if err := setUserFollowCache(params.UserId); err != nil {
+			return err
+		}
+	}
+	// if redis.Exists(key) != 0 {
+
+	// 	m := make(map[string]interface{})
+	// 	m[strconv.Itoa(params.FollowId)] = params.Type
+
+	// 	redis.HashSet(messageKey, m)
+
+	// 	if params.Type == 1 {
+	// 		redis.SAdd(key, params.FollowId)
+	// 	} else {
+	// 		redis.SDEL(key, params.FollowId)
+	// 	}
+
+	// 	return nil
+	// }
+
+	// Follows, err := model.GetFollows(uint(params.UserId))
+
+	// if err != nil {
+	// 	return err
+	// }
+
+	// for _, follow := range Follows {
+	// 	// m := make(map[string]interface{})
+	// 	// m[strconv.Itoa(follow.FollowId)] = 1
+	// 	redis.SAdd(key, follow.ID)
+	// }
 
 	m := make(map[string]interface{})
 	m[strconv.Itoa(params.FollowId)] = params.Type

@@ -169,6 +169,14 @@ func SDEL(key string, value interface{}) {
 		panic(err)
 	}
 }
+
+func SGET(key string) []string {
+	ret, err := rdb.SMembers(ctx, key).Result()
+	if err != nil {
+		panic(err)
+	}
+	return ret
+}
 func ScanSetByPattern(pattern string) map[string][]string {
 	iter := rdb.Scan(ctx, 0, pattern, 0).Iterator()
 	ret := make(map[string][]string)

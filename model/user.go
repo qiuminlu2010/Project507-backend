@@ -7,6 +7,14 @@ import (
 	"gorm.io/gorm/clause"
 )
 
+func GetUser(userId uint) (UserInfo, error) {
+	var user UserInfo
+	if err := db.Model(User{}).Where("id = ?", userId).First(&user).Error; err != nil {
+		return user, err
+	}
+	return user, nil
+
+}
 func GetUserTotal(maps interface{}) (int64, error) {
 	var count int64
 	if err := db.Model(&User{}).Count(&count).Error; err != nil {
@@ -76,10 +84,22 @@ func FollowUsers(userId uint, followIds []int) error {
 func UnFollowUsers(userId uint, followIds []int) error {
 	return db.Table(e.TABLE_USER_FOLLOWS).Where("user_id = ?", userId).Where("follow_id in ?", followIds).Delete(UserIdFollowId{}).Error
 }
-func GetFollows(userId uint) ([]*FollowId, error) {
-	var followIds []*FollowId
+func GetFollowIds(userId uint) ([]int, error) {
+	// var followIds []*FollowId
+	var followIds []int
 	if err := db.Table(e.TABLE_USER_FOLLOWS).Where("`user_id` = ?", userId).Select("`follow_id`").Find(&followIds).Error; err != nil {
 		return nil, err
 	}
 	return followIds, nil
+}
+
+func GetFollows(userId uint) ([]User, error) {
+	var user User
+	user.ID = userId
+
+	var follows []User
+	if err := db.Model(&user).Association("Follows").Find(follows); err != nil {
+		return nil, err
+	}
+	return follows, nil
 }

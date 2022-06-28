@@ -545,6 +545,29 @@ const docTemplate = `{
             }
         },
         "/api/v1/user/{id}/follow": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "关注列表",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "用户ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "token",
+                        "name": "token",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            },
             "post": {
                 "produces": [
                     "application/json"

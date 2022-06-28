@@ -276,3 +276,25 @@ func FollowUser(c *gin.Context) {
 	}
 	gin_http.Response(c, http.StatusOK, e.SUCCESS, nil)
 }
+
+// @Summary 关注列表
+// @Produce  json
+// @Param id path uint true "用户ID"
+// @Param token header string true "token"
+// @Router /api/v1/user/{id}/follow [get]
+func GetFollows(c *gin.Context) {
+	userService := service.GetUserService()
+	params := service.UserFollowsParams{}
+	params.UserId, _ = strconv.Atoi(c.Param("id"))
+	fmt.Println("绑定数据", params)
+	if !userService.CheckTokenUid(c, uint(params.UserId)) {
+		gin_http.Response(c, http.StatusBadRequest, e.ERROR_AUTH_CHECK_TOKEN_FAIL, nil)
+		return
+	}
+	data, err := userService.GetFollows(params)
+	if err != nil {
+		gin_http.Response(c, http.StatusInternalServerError, e.EEROR_USER_UPSERT_FOLLOW_FAIL, nil)
+		return
+	}
+	gin_http.Response(c, http.StatusOK, e.SUCCESS, data)
+}

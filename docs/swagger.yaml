@@ -367,6 +367,22 @@ paths:
       responses: {}
       summary: 恢复标签
   /api/v1/user/{id}/follow:
+    get:
+      parameters:
+      - description: 用户ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: token
+        in: header
+        name: token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: 关注列表
     post:
       parameters:
       - description: 用户ID
