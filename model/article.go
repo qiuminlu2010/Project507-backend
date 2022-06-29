@@ -31,7 +31,10 @@ func GetArticlesByIds(articleIds []int) ([]*Article, error) {
 	}).Preload("Images", func(db *gorm.DB) *gorm.DB {
 		return db.Select("id", "article_id", "filename")
 	}).Find(&articles).Error
-	if err != nil && err != gorm.ErrRecordNotFound {
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, nil
+		}
 		return nil, err
 	}
 	return articles, nil
@@ -40,15 +43,21 @@ func GetArticlesByIds(articleIds []int) ([]*Article, error) {
 func GetArticle(articleId int) (*Article, error) {
 
 	var article Article
-	err := db.Preload("Tags", func(db *gorm.DB) *gorm.DB {
+	// article.ID = uint(articleId)
+	err := db.Where("id = ?", articleId).Preload("Tags", func(db *gorm.DB) *gorm.DB {
 		return db.Select("name", "id")
 	}).Preload("Images", func(db *gorm.DB) *gorm.DB {
 		return db.Select("id", "article_id", "filename")
 	}).Find(&article).Error
-	if err != nil && err != gorm.ErrRecordNotFound {
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, nil
+		}
 		return nil, err
 	}
-
+	if article.ID == 0 {
+		return nil, nil
+	}
 	return &article, nil
 
 	// tx := db.Begin()
@@ -158,7 +167,7 @@ func AddArticle(article Article, tags []Tag) error {
 }
 
 // AddArticle add a single article
-func AddArticleWithImg(article Article, tags []Tag, imgs []Image) error {
+func AddArticleWithImg(article Article, tags []Tag, imgs []Image) (uint, error) {
 	tx := db.Begin()
 	defer func() {
 		if r := recover(); r != nil {
@@ -167,23 +176,23 @@ func AddArticleWithImg(article Article, tags []Tag, imgs []Image) error {
 	}()
 
 	if err := tx.Error; err != nil {
-		return err
+		return 0, err
 	}
 
 	if err := tx.Create(&article).Error; err != nil {
 		tx.Rollback()
-		return err
+		return 0, err
 	}
 
 	if err := tx.Model(&article).Association("Tags").Append(tags); err != nil {
 		tx.Rollback()
-		return err
+		return 0, err
 	}
 	if err := tx.Model(&article).Association("Images").Append(imgs); err != nil {
 		tx.Rollback()
-		return err
+		return 0, err
 	}
-	return tx.Commit().Error
+	return article.ID, tx.Commit().Error
 }
 
 func GetArticleLikeUsers(id uint) ([]*UserId, error) {

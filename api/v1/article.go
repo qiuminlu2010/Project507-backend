@@ -100,13 +100,19 @@ func GetArticles(c *gin.Context) {
 // @Router /api/v1/article [post]
 func AddArticle(c *gin.Context) {
 	articleService := service.GetArticleService()
-	httpCode, errCode := articleService.Bind(c)
-	if errCode != e.SUCCESS {
-		gin_http.Response(c, httpCode, errCode, nil)
+	params := service.ArticleAddParams{}
+	if err := c.ShouldBind(&params); err != nil {
+		fmt.Println("绑定错误", err)
+		gin_http.Response(c, http.StatusBadRequest, e.INVALID_PARAMS, nil)
 		return
 	}
+	// httpCode, errCode := articleService.Bind(c)
+	// if errCode != e.SUCCESS {
+	// 	gin_http.Response(c, httpCode, errCode, nil)
+	// 	return
+	// }
 
-	if !articleService.CheckTokenUid(c, articleService.UserID) {
+	if !articleService.CheckTokenUid(c, params.UserID) {
 		gin_http.Response(c, http.StatusBadRequest, e.ERROR_AUTH_CHECK_TOKEN_FAIL, nil)
 		return
 	}
@@ -143,7 +149,7 @@ func AddArticle(c *gin.Context) {
 		if err != nil {
 			fmt.Println(err.Error())
 		}
-		articleService.ImgName = append(articleService.ImgName, imageName)
+		params.ImgName = append(params.ImgName, imageName)
 	}
 
 	// if err = upload.CheckImage(savePath); err != nil {
@@ -159,7 +165,7 @@ func AddArticle(c *gin.Context) {
 	// }
 
 	// err := articleService.Add()
-	err = articleService.AddArticleWithImg()
+	err = articleService.AddArticleWithImg(&params)
 	if err != nil {
 		gin_http.Response(c, http.StatusInternalServerError, e.ERROR_ADD_ARTICLE_FAIL, nil)
 		return
@@ -183,8 +189,8 @@ func AddArticleTags(c *gin.Context) {
 		gin_http.Response(c, httpCode, errCode, nil)
 		return
 	}
-
-	userID, err := articleService.GetUserID()
+	articleId, _ := strconv.Atoi(c.Param("id"))
+	userID, err := articleService.GetUserID(articleId)
 	if err != nil {
 		gin_http.Response(c, http.StatusBadRequest, e.ERROR_GET_USERID_FAIL, nil)
 		return
@@ -216,8 +222,8 @@ func DeleteArticleTags(c *gin.Context) {
 		gin_http.Response(c, httpCode, errCode, nil)
 		return
 	}
-
-	userID, err := articleService.GetUserID()
+	articleId, _ := strconv.Atoi(c.Param("id"))
+	userID, err := articleService.GetUserID(articleId)
 	if err != nil {
 		gin_http.Response(c, http.StatusBadRequest, e.ERROR_GET_USERID_FAIL, nil)
 		return
@@ -242,13 +248,14 @@ func DeleteArticleTags(c *gin.Context) {
 func DeleteArticle(c *gin.Context) {
 
 	articleService := service.GetArticleService()
-	httpCode, errCode := articleService.Bind(c)
-	if errCode != e.SUCCESS {
-		gin_http.Response(c, httpCode, errCode, nil)
-		return
-	}
-
-	userID, err := articleService.GetUserID()
+	// httpCode, errCode := articleService.Bind(c)
+	// if errCode != e.SUCCESS {
+	// 	gin_http.Response(c, httpCode, errCode, nil)
+	// 	return
+	// }
+	articleId, _ := strconv.Atoi(c.Param("id"))
+	fmt.Println("绑定数据", articleId)
+	userID, err := articleService.GetUserID(articleId)
 	if err != nil {
 		gin_http.Response(c, http.StatusBadRequest, e.ERROR_GET_USERID_FAIL, nil)
 		return
@@ -258,7 +265,7 @@ func DeleteArticle(c *gin.Context) {
 		return
 	}
 
-	if err := articleService.Delete(); err != nil {
+	if err := articleService.Delete(articleId); err != nil {
 		gin_http.Response(c, http.StatusInternalServerError, e.ERROR_DELETE_ARTICLE_FAIL, nil)
 		return
 	}
@@ -278,8 +285,8 @@ func UpdateArticle(c *gin.Context) {
 		gin_http.Response(c, httpCode, errCode, nil)
 		return
 	}
-
-	userID, err := articleService.GetUserID()
+	articleId, _ := strconv.Atoi(c.Param("id"))
+	userID, err := articleService.GetUserID(articleId)
 	if err != nil {
 		gin_http.Response(c, http.StatusBadRequest, e.ERROR_GET_USERID_FAIL, nil)
 		return
@@ -308,8 +315,8 @@ func RecoverArticle(c *gin.Context) {
 		gin_http.Response(c, httpCode, errCode, nil)
 		return
 	}
-
-	userID, err := articleService.GetUserID()
+	articleId, _ := strconv.Atoi(c.Param("id"))
+	userID, err := articleService.GetUserID(articleId)
 	if err != nil {
 		gin_http.Response(c, http.StatusBadRequest, e.ERROR_GET_USERID_FAIL, nil)
 		return

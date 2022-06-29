@@ -141,6 +141,7 @@ func setUserFollowCache(userId int) error {
 	for _, followId := range followIds {
 		redis.SAdd(key, followId)
 	}
+	redis.Expire(key, e.DURATION_FOLLOWS)
 	return nil
 }
 

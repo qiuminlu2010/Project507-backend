@@ -196,12 +196,25 @@ func ZRevRange(key string, start int64, stop int64) []string {
 	return ret
 }
 
+func ZRem(key string, member interface{}) {
+	if err := rdb.ZRem(ctx, key, member).Err(); err != nil {
+		panic(err)
+	}
+
+}
+
 func ZCard(key string) int64 {
 	ret, err := rdb.ZCard(ctx, key).Result()
 	if err != nil {
 		panic(err)
 	}
 	return ret
+}
+
+func Expire(key string, timestamp time.Duration) {
+	if err := rdb.Expire(ctx, key, timestamp).Err(); err != nil {
+		panic(err)
+	}
 }
 func ScanSetByPattern(pattern string) map[string][]string {
 	iter := rdb.Scan(ctx, 0, pattern, 0).Iterator()
