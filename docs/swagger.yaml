@@ -366,6 +366,23 @@ paths:
       - application/json
       responses: {}
       summary: 恢复标签
+  /api/v1/user/{id}/articles:
+    get:
+      parameters:
+      - description: 用户ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: token
+        in: header
+        name: token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: 用户动态列表
   /api/v1/user/{id}/follow:
     get:
       parameters:
@@ -409,6 +426,23 @@ paths:
       - application/json
       responses: {}
       summary: 关注用户
+  /api/v1/user/{id}/likeArticles:
+    get:
+      parameters:
+      - description: 用户ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: token
+        in: header
+        name: token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: 用户喜欢列表
   /upload:
     post:
       consumes:

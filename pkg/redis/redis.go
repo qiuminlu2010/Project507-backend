@@ -177,6 +177,32 @@ func SGET(key string) []string {
 	}
 	return ret
 }
+
+func ZAdd(key string, score float64, value interface{}) {
+	z := redis.Z{
+		Score:  score,
+		Member: value,
+	}
+	if err := rdb.ZAdd(ctx, key, z).Err(); err != nil {
+		panic(err)
+	}
+}
+
+func ZRevRange(key string, start int64, stop int64) []string {
+	ret, err := rdb.ZRevRange(ctx, key, start, stop).Result()
+	if err != nil {
+		panic(err)
+	}
+	return ret
+}
+
+func ZCard(key string) int64 {
+	ret, err := rdb.ZCard(ctx, key).Result()
+	if err != nil {
+		panic(err)
+	}
+	return ret
+}
 func ScanSetByPattern(pattern string) map[string][]string {
 	iter := rdb.Scan(ctx, 0, pattern, 0).Iterator()
 	ret := make(map[string][]string)

@@ -103,3 +103,19 @@ func GetFollows(userId uint) ([]User, error) {
 	}
 	return follows, nil
 }
+
+func GetLikeArticleIds(userId uint) ([]int, error) {
+	var likeArticleIds []int
+	if err := db.Table(e.TABLE_ARTICLE_LIKE_USERS).Where("`user_id` = ?", userId).Select("`article_id`").Find(&likeArticleIds).Error; err != nil {
+		return nil, err
+	}
+	return likeArticleIds, nil
+}
+
+func GetLikeArticles(userId uint) ([]ArticleLikeUsers, error) {
+	var likeArticles []ArticleLikeUsers
+	if err := db.Table(e.TABLE_ARTICLE_LIKE_USERS).Where("user_id = ?", userId).Find(&likeArticles).Error; err != nil {
+		return nil, err
+	}
+	return likeArticles, nil
+}

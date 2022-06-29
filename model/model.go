@@ -140,12 +140,12 @@ func setState(db *gorm.DB) {
 }
 
 func updateTimeStampForCreateCallback(db *gorm.DB) {
-	setValue(db, "CreatedOn", time.Now())
+	setValue(db, "CreatedOn", time.Now().Unix())
 
 }
 
 func updateTimeStampForUpdateCallback(db *gorm.DB) {
-	setValue(db, "ModifiedOn", time.Now())
+	setValue(db, "ModifiedOn", time.Now().Unix())
 }
 
 // func updateTimeStampForUpdateCallback(scope *gorm.Scope) {

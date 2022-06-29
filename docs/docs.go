@@ -544,6 +544,31 @@ const docTemplate = `{
                 "responses": {}
             }
         },
+        "/api/v1/user/{id}/articles": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "用户动态列表",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "用户ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "token",
+                        "name": "token",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
         "/api/v1/user/{id}/follow": {
             "get": {
                 "produces": [
@@ -593,6 +618,31 @@ const docTemplate = `{
                         "description": "类型",
                         "name": "type",
                         "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "token",
+                        "name": "token",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/api/v1/user/{id}/likeArticles": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "用户喜欢列表",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "用户ID",
+                        "name": "id",
+                        "in": "path",
                         "required": true
                     },
                     {

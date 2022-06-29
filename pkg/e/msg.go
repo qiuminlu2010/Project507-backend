@@ -48,7 +48,8 @@ var MsgFlags = map[int]string{
 	ERROR_USER_LIST_FAIL:            "获取用户列表失败",
 	ERROR_LIKE_ARTICLE_FAIL:         "点赞操作失败",
 	ERROR_UNLIKE_ARTICLE_FAIL:       "取消点赞失败",
-	EEROR_USER_UPSERT_FOLLOW_FAIL:   "用户关注操作失败",
+	ERROR_USER_UPSERT_FOLLOW_FAIL:   "用户关注操作失败",
+	ERROR_GET_LIKE_ARTICLES_FAIL:    "获取点赞列表失败",
 }
 
 func GetMsg(code int) string {

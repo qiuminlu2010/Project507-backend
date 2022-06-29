@@ -6,8 +6,8 @@ import (
 
 type Model struct {
 	ID         uint           `gorm:"primary_key" uri:"id" `
-	CreatedOn  *LocalTime     `binding:"-" json:"created_on,omitempty"`
-	ModifiedOn *LocalTime     `binding:"-" json:"modified_on,omitempty"`
+	CreatedOn  int            `gorm:"index" binding:"-" json:"created_on,omitempty"`
+	ModifiedOn int            `binding:"-" json:"modified_on,omitempty"`
 	DeletedAt  gorm.DeletedAt `gorm:"index"  binding:"-" json:"-"`
 }
 
@@ -30,9 +30,26 @@ type Article struct {
 	LikedUsers []User `gorm:"many2many:article_like_users;" json:"-"`
 	IsLike     bool   `json:"is_like" form:"is_like" binding:"-"`
 	//TODO: Comments   []Comment
-	CreatedBy  string `json:"-" form:"created_by" binding:"-"`
-	ModifiedBy string `json:"-" form:"created_by" binding:"-"`
-	State      int    `json:"state" form:"state" binding:"-"`
+	// CreatedBy  string `json:"-" form:"created_by" binding:"-"`
+	// ModifiedBy string `json:"-" form:"created_by" binding:"-"`
+	State int `json:"state" form:"state" binding:"-"`
+}
+
+type ArticleInfo struct {
+	ID        uint    `json:"id" form:"id"`
+	CreatedOn int     `binding:"-" json:"created_on,omitempty"`
+	OwnerID   uint    `json:"owner_id"`
+	Title     string  `json:"title" form:"title"`
+	Content   string  `json:"content" form:"content"`
+	LikeCount int64   `json:"like_count" form:"like_count" binding:"-"`
+	IsLike    bool    `json:"is_like" form:"is_like" binding:"-"`
+	Images    []Image `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;foreignkey:ArticleID" json:"images"`
+	Tags      []Tag   `gorm:"many2many:article_tags;" json:"tags"`
+}
+
+type ArticleCache struct {
+	ID        uint `json:"id" form:"id"`
+	CreatedOn int  `binding:"-" json:"created_on,omitempty"`
 }
 
 type Comment struct {

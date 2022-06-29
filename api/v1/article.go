@@ -69,16 +69,18 @@ func GetArticles(c *gin.Context) {
 	page := params.PageNum
 	params.PageNum = params.PageNum * params.PageSize
 	fmt.Println("绑定数据", params)
-	total, err := articleService.Count(nil)
-	if err != nil {
-		gin_http.Response(c, http.StatusInternalServerError, e.ERROR_COUNT_ARTICLE_FAIL, nil)
-		return
-	}
+
 	articles, err := articleService.GetArticles(params)
 	if err != nil {
 		gin_http.Response(c, http.StatusInternalServerError, e.ERROR_GET_ARTICLES_FAIL, nil)
 		return
 	}
+
+	total := articleService.Count(nil)
+	// if err != nil {
+	// 	gin_http.Response(c, http.StatusInternalServerError, e.ERROR_COUNT_ARTICLE_FAIL, nil)
+	// 	return
+	// }
 	data := make(map[string]interface{})
 	data["datalist"] = articles
 	data["total"] = total

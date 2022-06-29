@@ -24,12 +24,9 @@ func GetArticleTotal(maps interface{}) (int64, error) {
 	return count, nil
 }
 
-//获取文章列表
-func GetArticles(pageNum int, pageSize int, maps interface{}) ([]*Article, error) {
+func GetArticlesByIds(articleIds []int) ([]*Article, error) {
 	var articles []*Article
-	// err := db.Preload("Tag").Where(maps).Offset(pageNum).Limit(pageSize).Find(&articles).Error
-	// err := db.Offset(pageNum).Limit(pageSize).Preload(clause.Associations).Find(&articles).Error
-	err := db.Offset(pageNum).Limit(pageSize).Preload("Tags", func(db *gorm.DB) *gorm.DB {
+	err := db.Order("created_on desc").Where("id in ?", articleIds).Preload("Tags", func(db *gorm.DB) *gorm.DB {
 		return db.Select("name", "id")
 	}).Preload("Images", func(db *gorm.DB) *gorm.DB {
 		return db.Select("id", "article_id", "filename")
@@ -37,9 +34,61 @@ func GetArticles(pageNum int, pageSize int, maps interface{}) ([]*Article, error
 	if err != nil && err != gorm.ErrRecordNotFound {
 		return nil, err
 	}
-	// for _, article := range articles {
-	// db.Model(article).Association("LikedUsers").Count()
+	return articles, nil
+}
+
+func GetArticle(articleId int) (*Article, error) {
+
+	var article Article
+	err := db.Preload("Tags", func(db *gorm.DB) *gorm.DB {
+		return db.Select("name", "id")
+	}).Preload("Images", func(db *gorm.DB) *gorm.DB {
+		return db.Select("id", "article_id", "filename")
+	}).Find(&article).Error
+	if err != nil && err != gorm.ErrRecordNotFound {
+		return nil, err
+	}
+
+	return &article, nil
+
+	// tx := db.Begin()
+	// defer func() {
+	// 	if r := recover(); r != nil {
+	// 		tx.Rollback()
+	// 	}
+	// }()
+	// var article ArticleInfo
+	// if err := tx.Model(Article{}).Where("id = ? ", articleId).First(&article).Error; err != nil {
+	// 	tx.Rollback()
+	// 	return article, err
 	// }
+	// if err := tx.Select("name", "id").Where("id in (?)", db.Table(e.TABLE_ARTICLE_TAGS).Where("`article_id` = ?", articleId).Select("`tag_id`")).Find(&article.Tags).Error; err != nil {
+	// 	tx.Rollback()
+	// 	return article, err
+	// }
+	// return article, tx.Commit().Error
+}
+
+func GetArticlesCache() ([]*ArticleCache, error) {
+	var articles []*ArticleCache
+	if err := db.Model(Article{}).Select("id", "created_on").Find(&articles).Error; err != nil {
+		return articles, err
+	}
+	return articles, nil
+}
+
+//获取文章列表
+func GetArticles(pageNum int, pageSize int, maps interface{}) ([]*Article, error) {
+	var articles []*Article
+	err := db.Order("created_on desc").Offset(pageNum).Limit(pageSize).Preload("Tags", func(db *gorm.DB) *gorm.DB {
+		return db.Select("name", "id")
+	}).Preload("Images", func(db *gorm.DB) *gorm.DB {
+		return db.Select("id", "article_id", "filename")
+	}).Find(&articles).Error
+	if err != nil && err != gorm.ErrRecordNotFound {
+		return nil, err
+	}
+
 	return articles, nil
 }
 
@@ -203,7 +252,7 @@ func DeleteArticleLikeUsers(articleId uint, userIds []uint) error {
 func DeleteArticle(id uint) error {
 	var article Article
 	article.ID = id
-	return db.Where("id = ?", id).Delete(Article{}).Error
+	return db.Where("id = ?", id).Delete(&article).Error
 }
 
 func RecoverArticle(id uint) error {
@@ -221,7 +270,7 @@ func RecoverArticle(id uint) error {
 
 func GetArticleUserID(id uint) (uint, error) {
 	var article Article
-	if err := db.Select("user_id").Where("id = ?", id).First(&article).Error; err != nil {
+	if err := db.Select("owner_id").Where("id = ?", id).First(&article).Error; err != nil {
 		return 0, err
 	}
 	return article.OwnerID, nil
