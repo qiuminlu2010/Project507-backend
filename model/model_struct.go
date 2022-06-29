@@ -18,7 +18,7 @@ type Image struct {
 }
 type Article struct {
 	Model
-	OwnerID   uint    `json:"owner_id"`
+	OwnerID   uint    `gorm:"index" json:"owner_id"`
 	User      User    `gorm:"foreignkey:OwnerID" binding:"-" json:"-"` // 使用 OwnerID  作为外键
 	Tags      []Tag   `gorm:"many2many:article_tags;" json:"tags"`
 	Images    []Image `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;foreignkey:ArticleID" json:"images"`
@@ -54,8 +54,8 @@ type ArticleCache struct {
 
 type Comment struct {
 	Model
-	UserID  uint   `json:"user_id"`
-	Content string `json:"content" form:"content"`
+	UserID  uint `json:"user_id"`
+	Content uint `json:"content" form:"content"`
 }
 
 type User struct {
@@ -64,10 +64,12 @@ type User struct {
 	Password  string `json:"password" form:"password" binding:"omitempty,printascii,gte=6,lte=100"`
 	StudentId string `json:"student_id" form:"student_id" binding:"omitempty,numeric"`
 	// Articles     []Article `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;" json:"articles,omitempty" binding:"-"`
-	LikeArticles []Article `gorm:"many2many:article_like_users" binding:"-" json:"like_articles"`
-	Follows      []*User   `gorm:"many2many:user_follows"`
-	Avator       string    `json:"avator" form:"avator"`
-	State        int       `json:"state" form:"state" binding:"gte=0,lte=1"`
+	LikeArticles []*Article `gorm:"many2many:article_like_users" binding:"-" json:"like_articles"`
+	Follows      []*User    `gorm:"many2many:user_follows"`
+	// FollowNum    int        `json:"follow_num" form:"follow_num" binding:"-"`
+	// FanNum       int        `json:"fan_num" form:"fan_num" binding:"-"`
+	Avator string `json:"avator" form:"avator"`
+	State  int    `json:"state" form:"state" binding:"gte=0,lte=1"`
 }
 
 type ArticleLikeUsers struct {
@@ -76,12 +78,27 @@ type ArticleLikeUsers struct {
 	CreatedAt int `gorm:"index"  binding:"-" json:"created_at,omitempty"`
 }
 
-type UserInfo struct {
+type UserArticlesCache struct {
+	ID        uint
+	OwnerID   int
+	CreatedOn int
+}
+
+type UserBase struct {
 	ID       uint   `json:"id" form:"id"`
 	Username string `json:"username" form:"username"`
 	Avator   string `json:"avator" form:"avator"`
+	// FollowNum int    `json:"follow_num" form:"follow_num" binding:"-"`
+	// FanNum    int    `json:"fan_num" form:"fan_num" binding:"-"`
+	// TODO: LikeNum int
 }
 
+type UserInfo struct {
+	UserBase
+	FollowNum int64 `json:"follow_num" form:"follow_num" binding:"-"`
+	FanNum    int64 `json:"fan_num" form:"fan_num" binding:"-"`
+	// TODO: LikeNum int
+}
 type UserId struct {
 	UserId uint `json:"user_id"`
 }

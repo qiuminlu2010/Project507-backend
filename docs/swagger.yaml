@@ -366,6 +366,18 @@ paths:
       - application/json
       responses: {}
       summary: 恢复标签
+  /api/v1/user/{id}:
+    get:
+      parameters:
+      - description: 用户ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses: {}
+      summary: 获取用户信息
   /api/v1/user/{id}/articles:
     get:
       parameters:
@@ -374,16 +386,19 @@ paths:
         name: id
         required: true
         type: integer
-      - description: token
-        in: header
-        name: token
-        required: true
-        type: string
+      - description: page_num
+        in: query
+        name: page_num
+        type: integer
+      - description: page_size
+        in: query
+        name: page_size
+        type: integer
       produces:
       - application/json
       responses: {}
       summary: 用户动态列表
-  /api/v1/user/{id}/follow:
+  /api/v1/user/{id}/fans:
     get:
       parameters:
       - description: 用户ID
@@ -399,7 +414,8 @@ paths:
       produces:
       - application/json
       responses: {}
-      summary: 关注列表
+      summary: 粉丝列表
+  /api/v1/user/{id}/follow:
     post:
       parameters:
       - description: 用户ID
@@ -426,6 +442,23 @@ paths:
       - application/json
       responses: {}
       summary: 关注用户
+  /api/v1/user/{id}/follows:
+    get:
+      parameters:
+      - description: 用户ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: token
+        in: header
+        name: token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: 关注列表
   /api/v1/user/{id}/likeArticles:
     get:
       parameters:
@@ -439,6 +472,14 @@ paths:
         name: token
         required: true
         type: string
+      - description: page_num
+        in: query
+        name: page_num
+        type: integer
+      - description: page_size
+        in: query
+        name: page_size
+        type: integer
       produces:
       - application/json
       responses: {}
@@ -476,6 +517,11 @@ paths:
         name: id
         required: true
         type: integer
+      - description: username
+        in: formData
+        name: username
+        required: true
+        type: string
       - description: token
         in: header
         name: token
@@ -488,7 +534,16 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/gin_http.ResponseJSON'
-      summary: 更新用户
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/gin_http.ResponseJSON'
+        "20008":
+          description: ""
+          schema:
+            $ref: '#/definitions/gin_http.ResponseJSON'
+      summary: 注销用户
+  /user/{id}/password:
     put:
       parameters:
       - description: id
@@ -543,9 +598,14 @@ paths:
           schema:
             $ref: '#/definitions/gin_http.ResponseJSON'
       summary: 更新Token
-  /user/list:
-    get:
+  /user/{id}/state:
+    put:
       parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: integer
       - description: token
         in: header
         name: token
@@ -558,7 +618,7 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/gin_http.ResponseJSON'
-      summary: 用户列表
+      summary: 更新用户
   /user/login:
     post:
       parameters:
@@ -613,4 +673,20 @@ paths:
           schema:
             $ref: '#/definitions/gin_http.ResponseJSON'
       summary: 用户注册
+  /users:
+    get:
+      parameters:
+      - description: token
+        in: header
+        name: token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/gin_http.ResponseJSON'
+      summary: 用户列表
 swagger: "2.0"

@@ -3,73 +3,34 @@ package model
 import (
 	"qiu/blog/pkg/e"
 
-	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
 
-func GetUser(userId uint) (UserInfo, error) {
-	var user UserInfo
-	if err := db.Model(User{}).Where("id = ?", userId).First(&user).Error; err != nil {
-		return user, err
-	}
-	return user, nil
-
-}
-func GetUserTotal(maps interface{}) (int64, error) {
-	var count int64
-	if err := db.Model(&User{}).Count(&count).Error; err != nil {
-		return 0, err
-	}
-	return count, nil
-}
-
-func GetUserList(pageNum int, pageSize int, maps interface{}) ([]*User, error) {
-	var users []*User
-	err := db.Offset(pageNum).Where(maps).Limit(pageSize).Find(&users).Error
-	if err != nil && err != gorm.ErrRecordNotFound {
+func GetUser(userId uint) (*UserBase, error) {
+	var user UserBase
+	if err := db.Model(&User{}).Where("id = ?", userId).First(&user).Error; err != nil {
 		return nil, err
 	}
+	return &user, nil
 
-	return users, nil
 }
 
-//TODO: GetUserArticle
-func ExistUsername(username string) error {
-	var user User
-	return db.Where("username = ?", username).First(&user).Error
-}
-
-func ValidLogin(username string, password string) (User, error) {
-	var user User
-	if err := db.Where("username = ? AND password = ?", username, password).First(&user).Error; err != nil {
-		return user, err
+func GetUserInfo(userId uint) (*UserInfo, error) {
+	var user UserInfo
+	if err := db.Model(&User{}).Select("id", "username", "avator").Where("id = ?", userId).First(&user).Error; err != nil {
+		return nil, err
 	}
-	return user, nil
-}
-
-func AddUser(user User) error {
-	return db.Create(&user).Error
-}
-
-func UpdateUser(id uint, data interface{}) error {
-	return db.Model(&User{}).Where("id = ?", id).Updates(data).Error
-
-}
-
-func DeleteUser(id uint) error {
-	return db.Where("id = ?", id).Delete(&User{}).Error
-}
-
-func GetUsernameByID(id uint) string {
-	var user User
-	err := db.Select("username").Where("id = ?", id).First(&user).Error
-	if err != nil {
-		return ""
+	if err := db.Table(e.TABLE_USER_FOLLOWS).Where("follow_id = ?", userId).Count(&user.FanNum).Error; err != nil {
+		return nil, err
 	}
-	return user.Username
+	if err := db.Table(e.TABLE_USER_FOLLOWS).Where("user_id = ?", userId).Count(&user.FollowNum).Error; err != nil {
+		return nil, err
+	}
+	return &user, nil
+
 }
 
-func FollowUser(user User, followUser User) error {
+func FollowUser(user *User, followUser *User) error {
 	return db.Model(&user).Association("Follows").Append(&followUser)
 }
 
@@ -84,6 +45,7 @@ func FollowUsers(userId uint, followIds []int) error {
 func UnFollowUsers(userId uint, followIds []int) error {
 	return db.Table(e.TABLE_USER_FOLLOWS).Where("user_id = ?", userId).Where("follow_id in ?", followIds).Delete(UserIdFollowId{}).Error
 }
+
 func GetFollowIds(userId uint) ([]int, error) {
 	// var followIds []*FollowId
 	var followIds []int
@@ -93,15 +55,31 @@ func GetFollowIds(userId uint) ([]int, error) {
 	return followIds, nil
 }
 
-func GetFollows(userId uint) ([]User, error) {
+func GetFollows(userId uint) ([]*User, error) {
 	var user User
 	user.ID = userId
 
-	var follows []User
-	if err := db.Model(&user).Association("Follows").Find(follows); err != nil {
+	var follows []*User
+	if err := db.Model(&user).Association("Follows").Find(&follows); err != nil {
 		return nil, err
 	}
 	return follows, nil
+}
+
+func CountFollows(userId int) (int64, error) {
+	var count int64
+	if err := db.Table(e.TABLE_USER_FOLLOWS).Where("user_id = ?", userId).Count(&count).Error; err != nil {
+		return 0, err
+	}
+	return count, nil
+}
+
+func GetUserArticles(userId uint) ([]*UserArticlesCache, error) {
+	var userArticlesCache []*UserArticlesCache
+	if err := db.Model(&Article{}).Where("`owner_id` = ?", userId).Find(&userArticlesCache).Error; err != nil {
+		return nil, err
+	}
+	return userArticlesCache, nil
 }
 
 func GetLikeArticleIds(userId uint) ([]int, error) {
@@ -112,10 +90,38 @@ func GetLikeArticleIds(userId uint) ([]int, error) {
 	return likeArticleIds, nil
 }
 
-func GetLikeArticles(userId uint) ([]ArticleLikeUsers, error) {
-	var likeArticles []ArticleLikeUsers
+func GetLikeArticles(userId uint) ([]*ArticleLikeUsers, error) {
+	var likeArticles []*ArticleLikeUsers
 	if err := db.Table(e.TABLE_ARTICLE_LIKE_USERS).Where("user_id = ?", userId).Find(&likeArticles).Error; err != nil {
 		return nil, err
 	}
 	return likeArticles, nil
+}
+
+func GetFanIds(userId uint) ([]int, error) {
+	// var followIds []*FollowId
+	var fanIds []int
+	if err := db.Table(e.TABLE_USER_FOLLOWS).Where("`follow_id` = ?", userId).Select("`user_id`").Find(&fanIds).Error; err != nil {
+		return nil, err
+	}
+	return fanIds, nil
+}
+
+func GetFans(userId uint) ([]*UserBase, error) {
+	var user User
+	user.ID = userId
+
+	var fans []*UserBase
+	// if err := db.Model(&user).Association("Follows").Find(fans); err != nil {
+	// 	return nil, err
+	// }
+	return fans, nil
+}
+
+func CountFans(userId int) (int64, error) {
+	var count int64
+	if err := db.Table(e.TABLE_USER_FOLLOWS).Where("follow_id = ?", userId).Count(&count).Error; err != nil {
+		return 0, err
+	}
+	return count, nil
 }

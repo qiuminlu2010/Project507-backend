@@ -47,7 +47,7 @@ func FlushArticleLikeUsers() error {
 	data := redis.ScanHashByPattern(pattern)
 	for key, value := range data {
 		// fmt.Println("ScanSetByPattern", key, value)
-		var likeUsers []model.ArticleLikeUsers
+		var likeUsers []*model.ArticleLikeUsers
 		var unlikeUsers []uint
 		//message:article:2:like_users  1600000
 		articleId, _ := strconv.Atoi(strings.Split(key, ":")[2])
@@ -60,7 +60,7 @@ func FlushArticleLikeUsers() error {
 				panic(err)
 			}
 			if v > 0 {
-				likeUsers = append(likeUsers, model.ArticleLikeUsers{UserID: userId, ArticleID: articleId, CreatedAt: v})
+				likeUsers = append(likeUsers, &model.ArticleLikeUsers{UserID: userId, ArticleID: articleId, CreatedAt: v})
 			} else if v < 0 {
 				unlikeUsers = append(unlikeUsers, uint(userId))
 			}

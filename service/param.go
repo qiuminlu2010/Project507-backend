@@ -6,13 +6,20 @@ type UserInfoParams struct {
 	Avator   string `json:"avator" form:"avator"`
 }
 
-type UserFollowsParams struct {
-	UserInfoParams
-	Follows []UserInfoParams `json:"follows"`
+type UserGetParams struct {
+	UserId   int `json:"user_id" form:"user_id"`
+	PageNum  int `json:"page_num" form:"page_num"`
+	PageSize int `json:"page_size" form:"page_size"`
 }
 
+// type UserIdParams
+// type UserFollowsParams struct {
+// 	UserInfoParams
+// 	Follows []UserInfoParams `json:"follows"`
+// }
+
 type UpsertUserFollowParams struct {
-	UserInfoParams
+	UserId   int `json:"user_id" form:"user_id"`
 	FollowId int `json:"follow_id" form:"follow_id"`
 	Type     int `json:"type" form:"type" binding:"gte=0,lte=1"`
 }

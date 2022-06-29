@@ -87,6 +87,7 @@ func (s *ArticleService) Add() error {
 	return nil
 }
 
+//添加文章： 1.更新数据库 2.添加文章目录缓存 3.删除用户缓存 or 添加用户缓存
 func (s *ArticleService) AddArticleWithImg(params *ArticleAddParams) error {
 	var tags []model.Tag
 	for _, tag_name := range params.TagName {
@@ -113,9 +114,17 @@ func (s *ArticleService) AddArticleWithImg(params *ArticleAddParams) error {
 	if err != nil {
 		return err
 	}
-	redis.ZAdd(e.CACHE_ARTICLES, float64(time.Now().Unix()), articleId)
+	duration := float64(time.Now().Unix())
+	redis.ZAdd(e.CACHE_ARTICLES, duration, articleId)
+
+	userKey := GetModelFieldKey(e.CACHE_USER, params.UserID, e.CACHE_ARTICLES)
+	// redis.Del(userKey)
+	if redis.Exists(userKey) != 0 {
+		redis.ZAdd(userKey, duration, articleId)
+	}
 	return nil
 }
+
 func (s *ArticleService) ExistByID() bool {
 	return model.ExistArticleByID(s.Id)
 }
@@ -334,7 +343,6 @@ func setArticleLikeCache(articleId uint) error {
 }
 
 //(userId, pageNum, pageSize) => []ArticleInfo
-
 func (s *UserService) GetLikeArticles(params *ArticleGetParams) ([]*model.ArticleInfo, error) {
 	//user:id:like_articles
 	key := GetModelFieldKey(e.CACHE_USER, uint(params.Uid), e.CACHE_LIKEARTICLES)

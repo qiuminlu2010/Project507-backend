@@ -245,7 +245,7 @@ func GetArticleLikeCount(article *Article) int64 {
 	return db.Model(article).Association("LikedUsers").Count()
 }
 
-func AddArticleLikeUsers(data []ArticleLikeUsers) error {
+func AddArticleLikeUsers(data []*ArticleLikeUsers) error {
 	// var data []ArticleIdUserId
 	// for _, userId := range userIds {
 	// 	data = append(data, ArticleIdUserId{ArticleId: articleId, UserId: uint(userId)})

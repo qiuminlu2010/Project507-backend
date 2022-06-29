@@ -6,6 +6,7 @@ import (
 
 	jwt "github.com/dgrijalva/jwt-go"
 
+	"qiu/blog/pkg/e"
 	"qiu/blog/pkg/redis"
 	"qiu/blog/pkg/setting"
 )
@@ -22,8 +23,8 @@ type Claims struct {
 
 func GenerateToken(uid uint) (string, int64, error) {
 	nowTime := time.Now()
-	expireTime := nowTime.Add(3 * time.Hour).Unix()
-	ttl := time.Hour * 3
+	expireTime := nowTime.Add(e.DURATION_USER_TOKEN).Unix()
+	ttl := e.DURATION_USER_TOKEN
 	claims := Claims{
 		uid,
 		ttl,

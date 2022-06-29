@@ -52,7 +52,7 @@ func GetAdminMenu(c *gin.Context) {
 // @Produce  json
 // @Param token header string true "token"
 // @Success 200 {object} gin_http.ResponseJSON
-// @Router /user/list [get]
+// @Router /users [get]
 func GetUserList(c *gin.Context) {
 
 	userService := service.GetUserService()
@@ -188,7 +188,7 @@ func DeleteUser(c *gin.Context) {
 // @Success 200 {object} gin_http.ResponseJSON
 // @Failure  400 {object} gin_http.ResponseJSON
 // @Failure  20009 {object} gin_http.ResponseJSON
-// @Router /user/{id} [put]
+// @Router /user/{id}/password [put]
 func UpdatePassword(c *gin.Context) {
 
 	userService := service.GetUserService()
@@ -250,7 +250,7 @@ func RefreshToken(c *gin.Context) {
 // @Param id path int true "id"
 // @Param token header string true "token"
 // @Success 200 {object} gin_http.ResponseJSON
-// @Router /user/{id} [delete]
+// @Router /user/{id}/state [put]
 func UpdateUserState(c *gin.Context) {
 
 	userService := service.GetUserService()

@@ -12,6 +12,26 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// @Summary 获取用户信息
+// @Produce  json
+// @Param id path uint true "用户ID"
+// @Router /api/v1/user/{id} [get]
+func GetUserInfo(c *gin.Context) {
+	userService := service.GetUserService()
+	var err error
+	userId, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		gin_http.Response(c, http.StatusBadRequest, e.INVALID_PARAMS, nil)
+		return
+	}
+	data, err := userService.GetUserInfo(userId)
+	if err != nil {
+		gin_http.Response(c, http.StatusInternalServerError, e.ERROR_GET_USER_INFO_FAIL, nil)
+		return
+	}
+	gin_http.Response(c, http.StatusOK, e.SUCCESS, data)
+}
+
 // @Summary 关注用户
 // @Produce  json
 // @Param id path uint true "用户ID"
@@ -22,12 +42,18 @@ import (
 func FollowUser(c *gin.Context) {
 	userService := service.GetUserService()
 	params := service.UpsertUserFollowParams{}
-	if err := c.ShouldBind(&params); err != nil {
+
+	var err error
+	if err = c.ShouldBind(&params); err != nil {
 		fmt.Println("绑定错误", err)
 		gin_http.Response(c, http.StatusBadRequest, e.INVALID_PARAMS, nil)
 		return
 	}
-	params.UserId, _ = strconv.Atoi(c.Param("id"))
+	params.UserId, err = strconv.Atoi(c.Param("id"))
+	if err != nil {
+		gin_http.Response(c, http.StatusBadRequest, e.INVALID_PARAMS, nil)
+		return
+	}
 	fmt.Println("绑定数据", params)
 	if !userService.CheckTokenUid(c, uint(params.UserId)) {
 		gin_http.Response(c, http.StatusBadRequest, e.ERROR_AUTH_CHECK_TOKEN_FAIL, nil)
@@ -44,17 +70,49 @@ func FollowUser(c *gin.Context) {
 // @Produce  json
 // @Param id path uint true "用户ID"
 // @Param token header string true "token"
-// @Router /api/v1/user/{id}/follow [get]
+// @Router /api/v1/user/{id}/follows [get]
 func GetFollows(c *gin.Context) {
 	userService := service.GetUserService()
-	params := service.UserFollowsParams{}
-	params.UserId, _ = strconv.Atoi(c.Param("id"))
+	params := service.UserGetParams{}
+
+	var err error
+	params.UserId, err = strconv.Atoi(c.Param("id"))
 	fmt.Println("绑定数据", params)
+
+	if err != nil {
+		gin_http.Response(c, http.StatusBadRequest, e.INVALID_PARAMS, nil)
+		return
+	}
 	if !userService.CheckTokenUid(c, uint(params.UserId)) {
 		gin_http.Response(c, http.StatusBadRequest, e.ERROR_AUTH_CHECK_TOKEN_FAIL, nil)
 		return
 	}
-	data, err := userService.GetFollows(params)
+	data, err := userService.GetFollows(&params)
+	if err != nil {
+		gin_http.Response(c, http.StatusInternalServerError, e.ERROR_USER_UPSERT_FOLLOW_FAIL, nil)
+		return
+	}
+	gin_http.Response(c, http.StatusOK, e.SUCCESS, data)
+}
+
+// @Summary 粉丝列表
+// @Produce  json
+// @Param id path uint true "用户ID"
+// @Param token header string true "token"
+// @Router /api/v1/user/{id}/fans [get]
+func GetFans(c *gin.Context) {
+	userService := service.GetUserService()
+
+	userId, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		gin_http.Response(c, http.StatusBadRequest, e.INVALID_PARAMS, nil)
+		return
+	}
+	if !userService.CheckTokenUid(c, uint(userId)) {
+		gin_http.Response(c, http.StatusBadRequest, e.ERROR_AUTH_CHECK_TOKEN_FAIL, nil)
+		return
+	}
+	data, err := userService.GetFans(userId)
 	if err != nil {
 		gin_http.Response(c, http.StatusInternalServerError, e.ERROR_USER_UPSERT_FOLLOW_FAIL, nil)
 		return
@@ -65,23 +123,43 @@ func GetFollows(c *gin.Context) {
 // @Summary 用户动态列表
 // @Produce  json
 // @Param id path uint true "用户ID"
-// @Param token header string true "token"
+// @Param page_num query int false "page_num"
+// @Param page_size query int false "page_size"
 // @Router /api/v1/user/{id}/articles [get]
 func GetUserArticles(c *gin.Context) {
-	// userService := service.GetUserService()
-	// params := service.UserFollowsParams{}
-	// params.UserId, _ = strconv.Atoi(c.Param("id"))
-	// fmt.Println("绑定数据", params)
-	// if !userService.CheckTokenUid(c, uint(params.UserId)) {
-	// 	gin_http.Response(c, http.StatusBadRequest, e.ERROR_AUTH_CHECK_TOKEN_FAIL, nil)
-	// 	return
-	// }
-	// data, err := userService.GetFollows(params)
-	// if err != nil {
-	// 	gin_http.Response(c, http.StatusInternalServerError, e.ERROR_USER_UPSERT_FOLLOW_FAIL, nil)
-	// 	return
-	// }
-	// gin_http.Response(c, http.StatusOK, e.SUCCESS, data)
+
+	userService := service.GetUserService()
+	params := service.ArticleGetParams{}
+
+	var err error
+	params.Uid, err = strconv.Atoi(c.Param("id"))
+
+	if err != nil {
+		gin_http.Response(c, http.StatusBadRequest, e.INVALID_PARAMS, nil)
+		return
+	}
+
+	if params.PageSize == 0 {
+		params.PageSize = setting.AppSetting.PageSize
+	}
+
+	page := params.PageNum
+	params.PageNum = params.PageNum * params.PageSize
+
+	fmt.Println("绑定数据", params)
+
+	articles, err := userService.GetUserArticles(&params)
+	if err != nil {
+		fmt.Println("GetUserLikeArticles", err)
+		gin_http.Response(c, http.StatusInternalServerError, e.ERROR_GET_USER_ARTICLES_FAIL, nil)
+		return
+	}
+	data := make(map[string]interface{})
+	data["data"] = articles
+	// data["total"] = total
+	data["pageNum"] = page
+	data["pageSize"] = params.PageSize
+	gin_http.Response(c, http.StatusOK, e.SUCCESS, data)
 }
 
 // @Summary 用户喜欢列表

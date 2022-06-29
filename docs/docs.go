@@ -544,12 +544,60 @@ const docTemplate = `{
                 "responses": {}
             }
         },
+        "/api/v1/user/{id}": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "获取用户信息",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "用户ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
         "/api/v1/user/{id}/articles": {
             "get": {
                 "produces": [
                     "application/json"
                 ],
                 "summary": "用户动态列表",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "用户ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "page_num",
+                        "name": "page_num",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "page_size",
+                        "name": "page_size",
+                        "in": "query"
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/api/v1/user/{id}/fans": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "粉丝列表",
                 "parameters": [
                     {
                         "type": "integer",
@@ -570,29 +618,6 @@ const docTemplate = `{
             }
         },
         "/api/v1/user/{id}/follow": {
-            "get": {
-                "produces": [
-                    "application/json"
-                ],
-                "summary": "关注列表",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "用户ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "token",
-                        "name": "token",
-                        "in": "header",
-                        "required": true
-                    }
-                ],
-                "responses": {}
-            },
             "post": {
                 "produces": [
                     "application/json"
@@ -631,6 +656,31 @@ const docTemplate = `{
                 "responses": {}
             }
         },
+        "/api/v1/user/{id}/follows": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "关注列表",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "用户ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "token",
+                        "name": "token",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
         "/api/v1/user/{id}/likeArticles": {
             "get": {
                 "produces": [
@@ -651,6 +701,18 @@ const docTemplate = `{
                         "name": "token",
                         "in": "header",
                         "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "page_num",
+                        "name": "page_num",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "page_size",
+                        "name": "page_size",
+                        "in": "query"
                     }
                 ],
                 "responses": {}
@@ -689,31 +751,6 @@ const docTemplate = `{
                         "description": "{\"code\":200,\"data\":{},\"msg\":\"ok\"}",
                         "schema": {
                             "type": "string"
-                        }
-                    }
-                }
-            }
-        },
-        "/user/list": {
-            "get": {
-                "produces": [
-                    "application/json"
-                ],
-                "summary": "用户列表",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "token",
-                        "name": "token",
-                        "in": "header",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/gin_http.ResponseJSON"
                         }
                     }
                 }
@@ -802,6 +839,57 @@ const docTemplate = `{
             }
         },
         "/user/{id}": {
+            "delete": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "注销用户",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "username",
+                        "name": "username",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "token",
+                        "name": "token",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/gin_http.ResponseJSON"
+                        }
+                    },
+                    "20008": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/gin_http.ResponseJSON"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/gin_http.ResponseJSON"
+                        }
+                    }
+                }
+            }
+        },
+        "/user/{id}/password": {
             "put": {
                 "produces": [
                     "application/json"
@@ -850,8 +938,42 @@ const docTemplate = `{
                         }
                     }
                 }
-            },
-            "delete": {
+            }
+        },
+        "/user/{id}/refreshToken": {
+            "post": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "更新Token",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "uuid",
+                        "name": "uuid",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/gin_http.ResponseJSON"
+                        }
+                    }
+                }
+            }
+        },
+        "/user/{id}/state": {
+            "put": {
                 "produces": [
                     "application/json"
                 ],
@@ -882,25 +1004,18 @@ const docTemplate = `{
                 }
             }
         },
-        "/user/{id}/refreshToken": {
-            "post": {
+        "/users": {
+            "get": {
                 "produces": [
                     "application/json"
                 ],
-                "summary": "更新Token",
+                "summary": "用户列表",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "id",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
                         "type": "string",
-                        "description": "uuid",
-                        "name": "uuid",
-                        "in": "formData",
+                        "description": "token",
+                        "name": "token",
+                        "in": "header",
                         "required": true
                     }
                 ],

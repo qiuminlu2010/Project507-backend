@@ -26,10 +26,16 @@ func InitRouter() *gin.Engine {
 
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	r.GET("/data/:imgType/:imgName", v1.DownloadImg)
-	//用户类
+
+	//管理类
 	r.POST("/user/register", v1.Register)
 	r.POST("/user/login", v1.Login)
 	r.POST("/user/:id/refreshToken", v1.RefreshToken)
+
+	//用户类
+	apiv1.GET("/user/:id", v1.GetUserInfo)
+	apiv1.GET("/user/:id/articles", v1.GetUserArticles)
+
 	//标签类
 	apiv1.GET("/tag/:id/articles", v1.GetTagArticles)
 	apiv1.GET("/tag", v1.GetTags)
@@ -57,9 +63,9 @@ func InitRouter() *gin.Engine {
 
 		//用户类
 		apiv1.POST("/user/:id/follow", v1.FollowUser)
-		apiv1.GET("/user/:id/follow", v1.GetFollows)
+		apiv1.GET("/user/:id/follows", v1.GetFollows)
+		apiv1.GET("/user/:id/fans", v1.GetFans)
 		apiv1.GET("/user/:id/likeArticles", v1.GetUserLikeArticles)
-		apiv1.GET("/user/:id/articles", v1.GetUserArticles)
 
 		//上传图片
 		r.POST("/upload", v1.UploadImage)
@@ -67,10 +73,10 @@ func InitRouter() *gin.Engine {
 	r.Use(middleware.JWT())
 	{
 		//用户类
-		r.DELETE("/user/delete/:id", v1.DeleteUser)
-		r.PUT("/user/update/:id/password", v1.UpdatePassword)
-		r.PUT("/user/update/:id/state", v1.UpdateUserState)
-		r.GET("/user/list", v1.GetUserList)
+		r.DELETE("/user/:id", v1.DeleteUser)
+		r.PUT("/user/:id/password", v1.UpdatePassword)
+		r.PUT("/user/:id/state", v1.UpdateUserState)
+		r.GET("/users", v1.GetUserList)
 
 		//后台管理
 		r.GET("/admin/menu/list", v1.GetAdminMenu)
