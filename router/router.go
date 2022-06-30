@@ -67,8 +67,9 @@ func InitRouter() *gin.Engine {
 
 		//评论
 		apiv1.POST("/comment", v1.AddComment)
-		apiv1.POST("/comment/:id/reply", v1.AddReply)
+		// apiv1.POST("/comment/:id/reply", v1.AddReply)
 		apiv1.DELETE("/comment/:id", v1.DeleteComment)
+		apiv1.POST("/comment/:id/like", v1.LikeComment)
 		// apiv1.DELETE("/reply/:id", v1.DeleteReply)
 
 		//用户类

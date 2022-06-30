@@ -1,6 +1,12 @@
 package model
 
-import "gorm.io/gorm"
+import (
+	"fmt"
+	"qiu/blog/pkg/e"
+
+	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
+)
 
 func AddComment(userId int, articleId int, content string) error {
 	comment := Comment{UserID: uint(userId), ArticleID: uint(articleId), Content: content}
@@ -17,7 +23,7 @@ func AddReply(userId int, articleId int, replyId int, content string) error {
 	var comment Comment
 	// comment.ID = uint(replyId)
 	// comment.ArticleID = uint(articleId)
-	if err := db.Where("id = ?", replyId).Where("article_id = ?", articleId).First(&comment).Error; err != nil {
+	if err := db.Where("id = ?", replyId).Where("article_id = ?", articleId).Where("`reply_id` IS NULL").First(&comment).Error; err != nil {
 		return err
 	}
 	reply := Comment{UserID: uint(userId), ArticleID: uint(articleId), Content: content}
@@ -30,17 +36,42 @@ func AddReply(userId int, articleId int, replyId int, content string) error {
 	return nil
 }
 
-func GetComments(articleId int, pageNum int, pageSize int) ([]*Comment, error) {
+func GetComments(articleId int, userId int, pageNum int, pageSize int) ([]*Comment, error) {
 	var comments []*Comment
-	err := db.Model(&Comment{}).Where("`article_id` = ?", articleId).Where("`reply_id` IS NULL").Order("created_on desc").Offset(pageNum).Limit(pageSize).
-		Select("id", "user_id", "article_id", "created_on", "username", "avator", "content", "like_count").Preload(
+	likeCountSql := ",(select count(*) from `blog_user_like_comments` where `blog_comment`.`id` = comment_id) as like_count"
+	selectSql := "`id`,`user_id`,`article_id`,`created_on`,`username`,`avator`,`content`" + likeCountSql
+	isLikeSql := ""
+	if userId > 0 {
+		isLikeSql = fmt.Sprintf(",(select count(*) from `blog_user_like_comments` where `blog_comment`.`id` = comment_id and user_id = %d) as is_like", userId)
+		selectSql += isLikeSql
+	}
+	err := db.Table("blog_comment").Where("`article_id` = ?", articleId).Where("`reply_id` IS NULL").Order("created_on desc").Offset(pageNum).Limit(pageSize).
+		Select(selectSql).Preload(
 		"Replies", func(db *gorm.DB) *gorm.DB {
 			return db.Select("id", "created_on", "user_id", "article_id", "reply_id", "username", "avator", "content", "like_count")
 		}).Find(&comments).Error
 	if err != nil {
 		return nil, err
 	}
+
+	// isLikeSql := ""
+	// if userId > 0 {
+	// 	isLikeSql = fmt.Sprintf(",(select count(*) from `blog_user_like_comments` where `blog_comment`.`id` = comment_id and user_id = %d) as is_like", userId)
+	// 	selectSql += isLikeSql
+	// }
 	return comments, nil
+}
+
+func AddCommentLike(userId int, CommentId int) error {
+	// data := make(map[string]interface{})
+	// data["user_id"] = userId
+	// data["comment_id"] = CommentId
+	data := CommentIdUserId{UserId: uint(userId), CommentID: uint(CommentId)}
+	return db.Table(e.TABLE_USER_LIKE_COMMENTS).Clauses(clause.OnConflict{DoNothing: true}).Create(&data).Error
+}
+
+func DeleteCommentLike(userId int, CommentId int) error {
+	return db.Table(e.TABLE_USER_LIKE_COMMENTS).Where("comment_id = ?", CommentId).Where("user_id = ?", userId).Delete(CommentIdUserId{}).Error
 }
 
 func DeleteComment(commentId int) error {
@@ -58,9 +89,9 @@ func DeleteComment(commentId int) error {
 // 	return nil
 // }
 
-func DeleteReply(replyId int) error {
-	return db.Delete(&Reply{}, replyId).Error
-}
+// func DeleteReply(replyId int) error {
+// 	return db.Delete(&Reply{}, replyId).Error
+// }
 
 func GetArticleOwnerIdByCommentId(commentId int) (uint, error) {
 	var article Article

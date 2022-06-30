@@ -62,6 +62,7 @@ type Comment struct {
 	Avator    string    `json:"avator"`
 	Content   string    `json:"content" form:"content" binding:"gte=1,lte=200"`
 	LikeCount int       `json:"like_count" `
+	IsLike    int       `json:"is_like"`
 	Replies   []Comment `gorm:"foreignkey:ReplyID" json:"replies"`
 }
 
@@ -73,6 +74,11 @@ type Reply struct {
 	Avator    string `json:"avator"`
 	Content   string `json:"content" form:"content" binding:"gte=1,lte=200"`
 	LikeCount int    `json:"like_count" `
+}
+
+type CommentIdUserId struct {
+	CommentID uint `json:"comment_id"`
+	UserId    uint `json:"user_id"`
 }
 
 // type CommentInfo struct {
@@ -102,12 +108,13 @@ type User struct {
 	Password  string `json:"password" form:"password" binding:"omitempty,printascii,gte=6,lte=100"`
 	StudentId string `json:"student_id" form:"student_id" binding:"omitempty,numeric"`
 	// Articles     []Article `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;" json:"articles,omitempty" binding:"-"`
-	LikeArticles []*Article `gorm:"many2many:article_like_users" binding:"-" json:"like_articles"`
-	Follows      []*User    `gorm:"many2many:user_follows"`
 	// FollowNum    int        `json:"follow_num" form:"follow_num" binding:"-"`
 	// FanNum       int        `json:"fan_num" form:"fan_num" binding:"-"`
-	Avator string `json:"avator" form:"avator"`
-	State  int    `json:"state" form:"state" binding:"gte=0,lte=1"`
+	Avator       string     `json:"avator" form:"avator"`
+	State        int        `json:"state" form:"state" binding:"gte=0,lte=1"`
+	LikeArticles []*Article `gorm:"many2many:article_like_users" binding:"-" json:"like_articles"`
+	Follows      []*User    `gorm:"many2many:user_follows"`
+	LikeComments []*Comment `gorm:"many2many:user_like_comments" binding:"-" json:"-"`
 }
 
 type ArticleLikeUsers struct {

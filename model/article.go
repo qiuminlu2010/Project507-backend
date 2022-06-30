@@ -254,7 +254,7 @@ func AddArticleLikeUsers(data []*ArticleLikeUsers) error {
 }
 
 func DeleteArticleLikeUsers(articleId uint, userIds []uint) error {
-	return db.Table(e.TABLE_ARTICLE_LIKE_USERS).Where("article_id = ?", articleId).Where("user_id in ?", userIds).Delete(ArticleIdUserId{}).Error
+	return db.Table(e.TABLE_ARTICLE_LIKE_USERS).Where("article_id = ?", articleId).Where("user_id in ?", userIds).Delete(CommentIdUserId{}).Error
 }
 
 // DeleteArticle delete a single article

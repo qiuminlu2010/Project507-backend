@@ -78,12 +78,19 @@ type CommentAddParams struct {
 
 type CommentGetParams struct {
 	ArticleId int `json:"article_id" form:"article_id" binding:"required,gt=0"`
+	UserId    int `json:"user_id" form:"user_id" `
 	PageNum   int `json:"page_num" form:"page_num"`
 	PageSize  int `json:"page_size" form:"page_size"`
 }
 
-type ReplyAddParams struct {
-	ReplyId int    `json:"comment_id" form:"comment_id" `
-	UserId  int    `json:"user_id" form:"user_id" binding:"required,gt=0"`
-	Content string `json:"content" form:"content" binding:"gt=0"`
+// type ReplyAddParams struct {
+// 	ReplyId int    `json:"comment_id" form:"comment_id" `
+// 	UserId  int    `json:"user_id" form:"user_id" binding:"required,gt=0"`
+// 	Content string `json:"content" form:"content" binding:"gt=0"`
+// }
+
+type LikeCommentParams struct {
+	UserId    int `json:"user_id" form:"user_id" binding:"required,gt=0"`
+	CommentId int `json:"comment_id" form:"comment_id" `
+	Type      int `json:"type" form:"type" binding:"gte=0,lte=1"`
 }

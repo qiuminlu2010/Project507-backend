@@ -25,12 +25,42 @@ func AddComment(c *gin.Context) {
 	commentService := service.GetCommentSerivice()
 	params := service.CommentAddParams{}
 
-	// articleId, err := strconv.Atoi(c.Param("id"))
-	// if err != nil || articleId <= 0 {
-	// 	fmt.Println("绑定错误", err)
-	// 	gin_http.Response(c, http.StatusBadRequest, e.INVALID_PARAMS, nil)
-	// 	return
-	// }
+	if err := c.ShouldBind(&params); err != nil {
+		fmt.Println("绑定错误", err)
+		gin_http.Response(c, http.StatusBadRequest, e.INVALID_PARAMS, nil)
+		return
+	}
+
+	if !commentService.CheckTokenUid(c, uint(params.UserId)) {
+		gin_http.Response(c, http.StatusBadRequest, e.ERROR_AUTH_CHECK_TOKEN_FAIL, nil)
+		return
+	}
+
+	if err := commentService.Add(&params); err != nil {
+		gin_http.Response(c, http.StatusInternalServerError, e.ERROR_COMMENT_ADD_FAIL, nil)
+		return
+	}
+	gin_http.Response(c, http.StatusOK, e.SUCCESS, nil)
+}
+
+// @Summary 点赞评论
+// @Produce  json
+// @Param id path int true "评论id"
+// @Param user_id formData int true "用户id"
+// @Param type formData int true "操作类型"
+// @Param token header string true "token"
+// @Router /api/v1/comment/{id}/like [post]
+func LikeComment(c *gin.Context) {
+
+	commentService := service.GetCommentSerivice()
+	params := service.LikeCommentParams{}
+
+	commentId, err := strconv.Atoi(c.Param("id"))
+	if err != nil || commentId <= 0 {
+		fmt.Println("绑定错误", err)
+		gin_http.Response(c, http.StatusBadRequest, e.INVALID_PARAMS, nil)
+		return
+	}
 
 	if err := c.ShouldBind(&params); err != nil {
 		fmt.Println("绑定错误", err)
@@ -43,10 +73,10 @@ func AddComment(c *gin.Context) {
 		return
 	}
 
-	// params.ArticleId = articleId
+	params.CommentId = commentId
 
-	if err := commentService.Add(&params); err != nil {
-		gin_http.Response(c, http.StatusInternalServerError, e.ERROR_COMMENT_ADD_FAIL, nil)
+	if err := commentService.Like(&params); err != nil {
+		gin_http.Response(c, http.StatusInternalServerError, e.ERROR_COMMENT_LIKE_FAIL, nil)
 		return
 	}
 	gin_http.Response(c, http.StatusOK, e.SUCCESS, nil)
@@ -55,6 +85,7 @@ func AddComment(c *gin.Context) {
 // @Summary 获取评论
 // @Produce  json
 // @Param article_id path int true "文章id"
+// @Param user_id query int false "用户id"
 // @Param page_num query int false "page_num"
 // @Param page_size query int false "page_size"
 // @Router /api/v1/comments/{article_id} [get]
@@ -106,37 +137,37 @@ func GetComments(c *gin.Context) {
 // @Param content formData string true "内容"
 // @Param token header string true "token"
 // @Router /api/v1/comment/{id}/reply [post]
-func AddReply(c *gin.Context) {
+// func AddReply(c *gin.Context) {
 
-	commentService := service.GetCommentSerivice()
-	params := service.CommentAddParams{}
+// 	commentService := service.GetCommentSerivice()
+// 	params := service.CommentAddParams{}
 
-	commentId, err := strconv.Atoi(c.Param("id"))
-	if err != nil || commentId <= 0 {
-		fmt.Println("绑定错误", err)
-		gin_http.Response(c, http.StatusBadRequest, e.INVALID_PARAMS, nil)
-		return
-	}
+// 	commentId, err := strconv.Atoi(c.Param("id"))
+// 	if err != nil || commentId <= 0 {
+// 		fmt.Println("绑定错误", err)
+// 		gin_http.Response(c, http.StatusBadRequest, e.INVALID_PARAMS, nil)
+// 		return
+// 	}
 
-	if err := c.ShouldBind(&params); err != nil {
-		fmt.Println("绑定错误", err)
-		gin_http.Response(c, http.StatusBadRequest, e.INVALID_PARAMS, nil)
-		return
-	}
+// 	if err := c.ShouldBind(&params); err != nil {
+// 		fmt.Println("绑定错误", err)
+// 		gin_http.Response(c, http.StatusBadRequest, e.INVALID_PARAMS, nil)
+// 		return
+// 	}
 
-	if !commentService.CheckTokenUid(c, uint(params.UserId)) {
-		gin_http.Response(c, http.StatusBadRequest, e.ERROR_AUTH_CHECK_TOKEN_FAIL, nil)
-		return
-	}
+// 	if !commentService.CheckTokenUid(c, uint(params.UserId)) {
+// 		gin_http.Response(c, http.StatusBadRequest, e.ERROR_AUTH_CHECK_TOKEN_FAIL, nil)
+// 		return
+// 	}
 
-	params.ReplyId = commentId
+// 	params.ReplyId = commentId
 
-	if err := commentService.Reply(&params); err != nil {
-		gin_http.Response(c, http.StatusInternalServerError, e.ERROR_COMMENT_REPLY_FAIL, nil)
-		return
-	}
-	gin_http.Response(c, http.StatusOK, e.SUCCESS, nil)
-}
+// 	if err := commentService.Reply(&params); err != nil {
+// 		gin_http.Response(c, http.StatusInternalServerError, e.ERROR_COMMENT_REPLY_FAIL, nil)
+// 		return
+// 	}
+// 	gin_http.Response(c, http.StatusOK, e.SUCCESS, nil)
+// }
 
 // @Summary 删除评论
 // @Produce  json

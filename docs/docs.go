@@ -363,13 +363,20 @@ const docTemplate = `{
                 "responses": {}
             }
         },
-        "/api/v1/comment/{id}/reply": {
+        "/api/v1/comment/{id}/like": {
             "post": {
                 "produces": [
                     "application/json"
                 ],
-                "summary": "回复评论",
+                "summary": "点赞评论",
                 "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "评论id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
                     {
                         "type": "integer",
                         "description": "用户id",
@@ -379,22 +386,8 @@ const docTemplate = `{
                     },
                     {
                         "type": "integer",
-                        "description": "文章id",
-                        "name": "article_id",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "评论id",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "内容",
-                        "name": "content",
+                        "description": "操作类型",
+                        "name": "type",
                         "in": "formData",
                         "required": true
                     },
@@ -425,6 +418,12 @@ const docTemplate = `{
                     },
                     {
                         "type": "integer",
+                        "description": "用户id",
+                        "name": "user_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
                         "description": "page_num",
                         "name": "page_num",
                         "in": "query"
@@ -434,31 +433,6 @@ const docTemplate = `{
                         "description": "page_size",
                         "name": "page_size",
                         "in": "query"
-                    }
-                ],
-                "responses": {}
-            }
-        },
-        "/api/v1/reply/{id}": {
-            "delete": {
-                "produces": [
-                    "application/json"
-                ],
-                "summary": "删除回复",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "回复id",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "token",
-                        "name": "token",
-                        "in": "header",
-                        "required": true
                     }
                 ],
                 "responses": {}
