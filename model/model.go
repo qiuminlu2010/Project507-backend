@@ -109,6 +109,8 @@ func Setup() {
 		&Tag{},
 		&Article{},
 		&Image{},
+		&Comment{},
+		// &Reply{},
 	)
 	if err != nil {
 		log.Println("register table failed", err)

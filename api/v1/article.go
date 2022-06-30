@@ -144,7 +144,7 @@ func AddArticle(c *gin.Context) {
 			gin_http.Response(c, http.StatusInternalServerError, e.ERROR_UPLOAD_SAVE_IMAGE_FAIL, nil)
 			return
 		}
-
+		//TODO: 异步
 		_, err = upload.Thumbnailify(imageName)
 		if err != nil {
 			fmt.Println(err.Error())
@@ -253,7 +253,13 @@ func DeleteArticle(c *gin.Context) {
 	// 	gin_http.Response(c, httpCode, errCode, nil)
 	// 	return
 	// }
-	articleId, _ := strconv.Atoi(c.Param("id"))
+	articleId, err := strconv.Atoi(c.Param("id"))
+	if err != nil || articleId <= 0 {
+		fmt.Println("绑定错误", err)
+		gin_http.Response(c, http.StatusBadRequest, e.INVALID_PARAMS, nil)
+		return
+	}
+
 	fmt.Println("绑定数据", articleId)
 	userID, err := articleService.GetUserID(articleId)
 	if err != nil {
@@ -348,9 +354,15 @@ func LikeArticle(c *gin.Context) {
 		gin_http.Response(c, http.StatusBadRequest, e.INVALID_PARAMS, nil)
 		return
 	}
-	param.Id, _ = strconv.Atoi(c.Param("id"))
+	var err error
+	param.ArticleId, err = strconv.Atoi(c.Param("id"))
+	if err != nil || param.ArticleId <= 0 {
+		fmt.Println("绑定错误", err)
+		gin_http.Response(c, http.StatusBadRequest, e.INVALID_PARAMS, nil)
+		return
+	}
 	fmt.Println("绑定数据", param)
-	if !articleService.CheckTokenUid(c, uint(param.UserID)) {
+	if !articleService.CheckTokenUid(c, uint(param.UserId)) {
 		gin_http.Response(c, http.StatusBadRequest, e.ERROR_AUTH_CHECK_TOKEN_FAIL, nil)
 		return
 	}

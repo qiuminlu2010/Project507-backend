@@ -231,6 +231,7 @@ func getArticlesCache(stringIds []string, cachekey string) ([]*model.ArticleInfo
 	return articles, nil
 }
 
+//文章列表 1.设置缓存 articles (score:timestamp memeber:article_id) 2. 设置缓存 article:id (ArticleInfo) 3.获取 []article_id 4.获取 []ArticleInfo
 func (s *ArticleService) GetArticles(params ArticleGetParams) ([]*model.ArticleInfo, error) {
 	var (
 		err      error
@@ -297,29 +298,29 @@ func getArticleLikeInfo(articles []*model.ArticleInfo, uid int) error {
 
 //点赞操作： 1.修改缓存 article:id:like_users  2.修改缓存 user:id:like_articles 3 添加消息缓存 message:article:id:like_users
 func (s *ArticleService) UpdateArticleLike(param ArticleLikeParams) error {
-	acticleKey := GetModelFieldKey(e.CACHE_ARTICLE, uint(param.Id), e.CACHE_LIKEUSERS)
-	messageKey := GetMessageKey(e.CACHE_ARTICLE, uint(param.Id), e.CACHE_LIKEUSERS)
-	userKey := GetModelFieldKey(e.CACHE_USER, uint(param.UserID), e.CACHE_LIKEARTICLES)
+	acticleKey := GetModelFieldKey(e.CACHE_ARTICLE, uint(param.ArticleId), e.CACHE_LIKEUSERS)
+	messageKey := GetMessageKey(e.CACHE_ARTICLE, uint(param.ArticleId), e.CACHE_LIKEUSERS)
+	userKey := GetModelFieldKey(e.CACHE_USER, uint(param.UserId), e.CACHE_LIKEARTICLES)
 	if redis.Exists(acticleKey) == 0 {
-		if err := setArticleLikeCache(uint(param.Id)); err != nil {
+		if err := setArticleLikeCache(uint(param.ArticleId)); err != nil {
 			return err
 		}
 	}
 	if redis.Exists(userKey) == 0 {
-		if err := setLikeArticleCache(param.UserID); err != nil {
+		if err := setLikeArticleCache(param.UserId); err != nil {
 			return err
 		}
 	}
 
-	redis.SetBit(acticleKey, int64(param.UserID), param.Type)
+	redis.SetBit(acticleKey, int64(param.UserId), param.Type)
 
 	m := make(map[string]interface{})
 	if param.Type == 1 {
-		m[strconv.Itoa(param.UserID)] = time.Now().Unix()
-		redis.ZAdd(userKey, float64(time.Now().Unix()), param.Id)
+		m[strconv.Itoa(param.UserId)] = time.Now().Unix()
+		redis.ZAdd(userKey, float64(time.Now().Unix()), param.ArticleId)
 	} else {
-		m[strconv.Itoa(param.UserID)] = -time.Now().Unix()
-		redis.ZRem(userKey, param.Id)
+		m[strconv.Itoa(param.UserId)] = -time.Now().Unix()
+		redis.ZRem(userKey, param.ArticleId)
 	}
 
 	redis.HashSet(messageKey, m)
@@ -328,6 +329,7 @@ func (s *ArticleService) UpdateArticleLike(param ArticleLikeParams) error {
 	// return model.AddArticleLikeUser(uint(param.Id), user)
 }
 
+// 1.获取[]like_id 2.设置位图
 func setArticleLikeCache(articleId uint) error {
 	key := GetModelFieldKey(e.CACHE_ARTICLE, articleId, e.CACHE_LIKEUSERS)
 	likeUsers, err := model.GetArticleLikeUsers(articleId)

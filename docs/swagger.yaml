@@ -199,6 +199,123 @@ paths:
       - application/json
       responses: {}
       summary: 恢复文章
+  /api/v1/comment:
+    post:
+      parameters:
+      - description: 用户id
+        in: formData
+        name: user_id
+        required: true
+        type: integer
+      - description: 文章id
+        in: formData
+        name: article_id
+        required: true
+        type: integer
+      - description: 回复评论id
+        in: formData
+        name: reply_id
+        type: integer
+      - description: 内容
+        in: formData
+        name: content
+        required: true
+        type: string
+      - description: token
+        in: header
+        name: token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: 添加评论
+  /api/v1/comment/{id}:
+    delete:
+      parameters:
+      - description: 评论id
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: token
+        in: header
+        name: token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: 删除评论
+  /api/v1/comment/{id}/reply:
+    post:
+      parameters:
+      - description: 用户id
+        in: formData
+        name: user_id
+        required: true
+        type: integer
+      - description: 文章id
+        in: formData
+        name: article_id
+        required: true
+        type: integer
+      - description: 评论id
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 内容
+        in: formData
+        name: content
+        required: true
+        type: string
+      - description: token
+        in: header
+        name: token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: 回复评论
+  /api/v1/comments/{article_id}:
+    get:
+      parameters:
+      - description: 文章id
+        in: path
+        name: article_id
+        required: true
+        type: integer
+      - description: page_num
+        in: query
+        name: page_num
+        type: integer
+      - description: page_size
+        in: query
+        name: page_size
+        type: integer
+      produces:
+      - application/json
+      responses: {}
+      summary: 获取评论
+  /api/v1/reply/{id}:
+    delete:
+      parameters:
+      - description: 回复id
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: token
+        in: header
+        name: token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: 删除回复
   /api/v1/tag:
     get:
       parameters:

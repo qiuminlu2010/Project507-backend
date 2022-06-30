@@ -18,21 +18,22 @@ type Image struct {
 }
 type Article struct {
 	Model
-	OwnerID   uint    `gorm:"index" json:"owner_id"`
-	User      User    `gorm:"foreignkey:OwnerID" binding:"-" json:"-"` // 使用 OwnerID  作为外键
-	Tags      []Tag   `gorm:"many2many:article_tags;" json:"tags"`
-	Images    []Image `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;foreignkey:ArticleID" json:"images"`
-	Title     string  `json:"title" form:"title"`
-	Content   string  `json:"content" form:"content"`
-	LikeCount int64   `json:"like_count" form:"like_count" binding:"-"`
+	OwnerID   uint   `gorm:"index" json:"owner_id"`
+	User      User   `gorm:"foreignkey:OwnerID" binding:"-" json:"-"` // 使用 OwnerID  作为外键
+	Title     string `json:"title" form:"title"`
+	Content   string `json:"content" form:"content"`
+	LikeCount int64  `json:"like_count" form:"like_count" binding:"-"`
 	// Collect int     `json:"collect" form:"collect" binding:"-"`
 	// Watch   int     `json:"watch" form:"watch" binding:"-"`
-	LikedUsers []User `gorm:"many2many:article_like_users;" json:"-"`
-	IsLike     bool   `json:"is_like" form:"is_like" binding:"-"`
+	State      int     `json:"state" form:"state" binding:"-"`
+	IsLike     bool    `json:"is_like" form:"is_like" binding:"-"`
+	Tags       []Tag   `gorm:"many2many:article_tags;" json:"tags"`
+	Images     []Image `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;foreignkey:ArticleID" json:"images"`
+	LikedUsers []User  `gorm:"many2many:article_like_users;" json:"-"`
 	//TODO: Comments   []Comment
 	// CreatedBy  string `json:"-" form:"created_by" binding:"-"`
 	// ModifiedBy string `json:"-" form:"created_by" binding:"-"`
-	State int `json:"state" form:"state" binding:"-"`
+
 }
 
 type ArticleInfo struct {
@@ -54,10 +55,47 @@ type ArticleCache struct {
 
 type Comment struct {
 	Model
-	UserID  uint `json:"user_id"`
-	Content uint `json:"content" form:"content"`
+	UserID    uint      `json:"user_id"`
+	ArticleID uint      `json:"article_id"`
+	ReplyID   *uint     `json:"reply_id"`
+	Username  string    `json:"username"`
+	Avator    string    `json:"avator"`
+	Content   string    `json:"content" form:"content" binding:"gte=1,lte=200"`
+	LikeCount int       `json:"like_count" `
+	Replies   []Comment `gorm:"foreignkey:ReplyID" json:"replies"`
 }
 
+type Reply struct {
+	Model
+	UserID    uint   `json:"user_id"`
+	CommentID uint   `json:"comment_id"`
+	Username  string `json:"username"`
+	Avator    string `json:"avator"`
+	Content   string `json:"content" form:"content" binding:"gte=1,lte=200"`
+	LikeCount int    `json:"like_count" `
+}
+
+// type CommentInfo struct {
+// 	ID        uint    `json:"id" form:"id"`
+// 	CreatedOn int     `gorm:"index" binding:"-" json:"created_on,omitempty"`
+// 	UserID    uint    `json:"user_id"`
+// 	ArticleID uint    `json:"article_id"`
+// 	Username  string  `json:"username"`
+// 	Avator    string  `json:"avator"`
+// 	Content   string  `json:"content" form:"content" binding:"gte=1,lte=200"`
+// 	Replies   []Reply `json:"replies"`
+// 	LikeCount int     `json:"like_count" `
+// }
+// type ReplyInfo struct {
+// 	ID        uint   `json:"id" form:"id"`
+// 	CreatedOn int    `gorm:"index" binding:"-" json:"created_on,omitempty"`
+// 	UserID    uint   `json:"user_id"`
+// 	CommentID uint   `json:"comment_id"`
+// 	Username  string `json:"username"`
+// 	Avator    string `json:"avator"`
+// 	Content   string `json:"content" form:"content" binding:"gte=1,lte=200"`
+// 	LikeCount int    `json:"like_count" `
+// }
 type User struct {
 	Model
 	Username  string `json:"username" form:"username" binding:"omitempty,printascii,gte=6,lte=20" gorm:"unique"`

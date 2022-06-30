@@ -206,6 +206,9 @@ func (s *UserService) GetUserArticles(params *ArticleGetParams) ([]*model.Articl
 	if err != nil {
 		return nil, err
 	}
+	if err = getArticleLikeInfo(articles, params.Uid); err != nil {
+		return nil, err
+	}
 	return articles, nil
 }
 
