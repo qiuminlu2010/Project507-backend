@@ -30,8 +30,9 @@ func GetUserInfo(userId uint) (*UserInfo, error) {
 
 }
 
-func FollowUser(user *User, followUser *User) error {
-	return db.Model(&user).Association("Follows").Append(&followUser)
+func FollowUser(userId int, followId int) error {
+	return db.Table(e.TABLE_USER_FOLLOWS).Clauses(clause.OnConflict{DoNothing: true}).Create(&UserIdFollowId{UserId: uint(userId), FollowId: uint(followId)}).Error
+	// return db.Model(&user).Association("Follows").Append(&followUser)
 }
 
 func FollowUsers(userId uint, followIds []int) error {
@@ -40,6 +41,10 @@ func FollowUsers(userId uint, followIds []int) error {
 		group = append(group, UserIdFollowId{UserId: userId, FollowId: uint(followId)})
 	}
 	return db.Table(e.TABLE_USER_FOLLOWS).Clauses(clause.OnConflict{DoNothing: true}).Create(group).Error
+}
+
+func UnFollowUser(userId int, followId int) error {
+	return db.Table(e.TABLE_USER_FOLLOWS).Where("user_id = ?", userId).Where("follow_id = ?", followId).Delete(UserIdFollowId{}).Error
 }
 
 func UnFollowUsers(userId uint, followIds []int) error {

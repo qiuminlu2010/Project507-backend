@@ -417,3 +417,12 @@ func (s *ArticleService) GetUserID(articleId int) (uint, error) {
 // func (a *ArticleService) GetArticleKey() string {
 // 	return e.CACHE_ARTICLE + "_" + strconv.Itoa(a.ID)
 // }
+
+// func (s *ArticleService) SetThumbnail(imageName string) {
+// 	_, err = upload.Thumbnailify(imageName)
+// 	if err != nil {
+// 		fmt.Println(err.Error())
+// 	} else {
+// 		model.SetThumbnail()
+// 	}
+// }

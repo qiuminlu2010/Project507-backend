@@ -15,6 +15,7 @@ type Image struct {
 	Model
 	ArticleID uint   `json:"-" form:"-" binding:"-"`
 	Filename  string `json:"filename" form:"filename" binding:"-"`
+	Thumbnail int    `json:"-" form:"-"`
 }
 type Article struct {
 	Model

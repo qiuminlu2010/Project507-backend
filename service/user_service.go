@@ -6,7 +6,6 @@ import (
 	"qiu/blog/pkg/e"
 	"qiu/blog/pkg/redis"
 	"qiu/blog/pkg/util"
-	"strconv"
 )
 
 type UserService struct {
@@ -159,23 +158,30 @@ func setUserFollowCache(userId int) error {
 func (s *UserService) UpsertFollowUser(params UpsertUserFollowParams) error {
 
 	key := GetModelFieldKey(e.CACHE_USER, uint(params.UserId), e.CACHE_FOLLOWS)
-	messageKey := GetMessageKey(e.CACHE_USER, uint(params.UserId), e.CACHE_FOLLOWS)
+	// messageKey := GetMessageKey(e.CACHE_USER, uint(params.UserId), e.CACHE_FOLLOWS)
 
-	if redis.Exists(key) == 0 {
-		if err := setUserFollowCache(params.UserId); err != nil {
-			return err
-		}
-	}
+	// if redis.Exists(key) == 0 {
+	// 	if err := setUserFollowCache(params.UserId); err != nil {
+	// 		return err
+	// 	}
+	// }
 
-	m := make(map[string]interface{})
-	m[strconv.Itoa(params.FollowId)] = params.Type
+	// m := make(map[string]interface{})
+	// m[strconv.Itoa(params.FollowId)] = params.Type
 
-	redis.HashSet(messageKey, m)
+	// redis.HashSet(messageKey, m)
 
 	if params.Type == 1 {
-		redis.SAdd(key, params.FollowId)
+		model.FollowUser(params.UserId, params.FollowId)
+		if redis.Exists(key) != 0 {
+			redis.SAdd(key, params.FollowId)
+		}
+
 	} else {
-		redis.SDEL(key, params.FollowId)
+		model.UnFollowUser(params.UserId, params.FollowId)
+		if redis.Exists(key) != 0 {
+			redis.SDEL(key, params.FollowId)
+		}
 	}
 
 	return nil

@@ -106,11 +106,6 @@ func AddArticle(c *gin.Context) {
 		gin_http.Response(c, http.StatusBadRequest, e.INVALID_PARAMS, nil)
 		return
 	}
-	// httpCode, errCode := articleService.Bind(c)
-	// if errCode != e.SUCCESS {
-	// 	gin_http.Response(c, httpCode, errCode, nil)
-	// 	return
-	// }
 
 	if !articleService.CheckTokenUid(c, params.UserID) {
 		gin_http.Response(c, http.StatusBadRequest, e.ERROR_AUTH_CHECK_TOKEN_FAIL, nil)
@@ -122,14 +117,10 @@ func AddArticle(c *gin.Context) {
 		gin_http.Response(c, http.StatusBadRequest, e.ERROR_UPLOAD_IMAGE_FAIL, nil)
 		return
 	}
+
 	// 获取所有图片
 	files := form.File["images"]
-	// file, err := c.FormFile("image")
-	// if err != nil {
-	// 	fmt.Println(err)
-	// 	gin_http.Response(c, http.StatusBadRequest, e.ERROR_UPLOAD_IMAGE_FAIL, nil)
-	// 	return
-	// }
+
 	for _, file := range files {
 		imageName := upload.GetImageName(file.Filename)
 		savePath := upload.GetImagePath() + imageName
@@ -144,27 +135,10 @@ func AddArticle(c *gin.Context) {
 			gin_http.Response(c, http.StatusInternalServerError, e.ERROR_UPLOAD_SAVE_IMAGE_FAIL, nil)
 			return
 		}
-		//TODO: 异步
-		_, err = upload.Thumbnailify(imageName)
-		if err != nil {
-			fmt.Println(err.Error())
-		}
+
 		params.ImgName = append(params.ImgName, imageName)
 	}
 
-	// if err = upload.CheckImage(savePath); err != nil {
-	// 	fmt.Println(err)
-	// 	gin_http.Response(c, http.StatusBadRequest, e.ERROR_UPLOAD_CHECK_IMAGE_FAIL, nil)
-	// 	return
-	// }
-
-	// httpCode, errCode = articleService.CheckTagName()
-	// if errCode != e.SUCCESS {
-	// 	gin_http.Response(c, httpCode, errCode, nil)
-	// 	return
-	// }
-
-	// err := articleService.Add()
 	err = articleService.AddArticleWithImg(&params)
 	if err != nil {
 		gin_http.Response(c, http.StatusInternalServerError, e.ERROR_ADD_ARTICLE_FAIL, nil)
@@ -172,6 +146,16 @@ func AddArticle(c *gin.Context) {
 	}
 
 	gin_http.Response(c, http.StatusOK, e.SUCCESS, nil)
+
+	for _, imageName := range params.ImgName {
+		//TODO: 异步
+		go func(s string) {
+			_, err = upload.Thumbnailify(s)
+			if err != nil {
+				fmt.Println(err.Error())
+			}
+		}(imageName)
+	}
 
 }
 
