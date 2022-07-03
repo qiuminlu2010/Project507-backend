@@ -1,6 +1,10 @@
 package model
 
-import "gorm.io/gorm/clause"
+import (
+	"qiu/blog/pkg/e"
+
+	"gorm.io/gorm/clause"
+)
 
 //https://blog.csdn.net/weixin_45604257/article/details/105139862
 
@@ -14,12 +18,31 @@ func GetTags(pageNum int, pageSize int) (tags []Tag) {
 	return
 }
 
-func GetTagArticles(tag_id uint) (articles []Article, err error) {
+// func GetTagArticles(pageNum int, pageSize int, tagName string) ([]int, error) {
+// 	var articles []*Article
+// 	tagIdsql := db.Model(&Tag{}).Where("name = ?", tagName).Select("id")
+// 	articleIdSql := db.Table(e.TABLE_ARTICLE_TAGS).Where("tag_id = ?", tagIdsql).Select("article_id")
+// 	err:=db.Model(&Article{}).Where("id in (?)",articleIdSql).Offset(pageNum).Limit(pageSize).Order("created_on desc").Find(&articles).Error
+// 	if err := db.Table(e.TABLE_ARTICLE_TAGS).Where(
+// 		"tag_id = ?", db.Model(&Tag{}).Where("name = ?", tagName).
+// 			Select("id")).Select("article_id").Find(&articleIds).Error; err != nil {
+// 		return nil, err
+// 	}
+// 	return articleIds, nil
+// }
+func GetTagArticleIds(tagName string) ([]int, error) {
+	// db.Model(&Tag{}).Where("name = ?",tagName).Select("id")
+	var articleIds []int
+	if err := db.Table(e.TABLE_ARTICLE_TAGS).Where(
+		"tag_id = (?)", db.Model(&Tag{}).Where("name = ?", tagName).
+			Select("id")).Select("article_id").Find(&articleIds).Error; err != nil {
+		return nil, err
+	}
 	// err := db.Preload("Tag").Where(maps).Offset(pageNum).Limit(pageSize).Find(&articles).Error
-	var tag Tag
-	tag.ID = tag_id
-	err = db.Model(&tag).Association("Articles").Find(&articles)
-	return
+	// var tag Tag
+	// tag.ID = tag_id
+	// err = db.Model(&tag).Association("Articles").Find(&articles)
+	return articleIds, nil
 }
 
 func GetTagTotal(maps interface{}) (count int64) {

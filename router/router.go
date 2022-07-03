@@ -37,8 +37,8 @@ func InitRouter() *gin.Engine {
 	apiv1.GET("/user/:id/articles", v1.GetUserArticles)
 
 	//标签类
-	apiv1.GET("/tag/:id/articles", v1.GetTagArticles)
-	apiv1.GET("/tag", v1.GetTags)
+	apiv1.GET("/tag", v1.GetTagArticles)
+	apiv1.GET("/tags", v1.GetTags)
 
 	//文章类
 	apiv1.GET("/article", v1.GetArticles)

@@ -2,6 +2,7 @@ package service
 
 import (
 	"qiu/blog/model"
+	"qiu/blog/pkg/e"
 )
 
 type TagParams struct {
@@ -42,8 +43,8 @@ func (s *TagService) SetModifiedBy(modified_by string) {
 
 func (s *TagService) Add() error {
 	return model.AddTag(model.Tag{
-		Name:      s.Name,
-		CreatedBy: s.CreatedBy,
+		Name: s.Name,
+		// CreatedBy: s.CreatedBy,
 	})
 }
 
@@ -61,8 +62,24 @@ func (s *TagService) Update() error {
 func (s *TagService) Get() []model.Tag {
 	return model.GetTags(s.PageNum, s.PageSize)
 }
-func (s *TagService) GetArticles() ([]model.Article, error) {
-	return model.GetTagArticles(s.Id)
+func (s *TagService) GetArticles(params *TagArticleGetParams) ([]*model.ArticleInfo, error) {
+	articleIds, err := model.GetTagArticleIds(params.TagName)
+	if err != nil {
+		return nil, err
+	}
+	articles, err := getArticlesCache(articleIds, e.CACHE_ARTICLES)
+	if err != nil {
+		return nil, err
+	}
+	if err = getArticleLikeInfo(articles, params.Uid); err != nil {
+		return nil, err
+	}
+	return articles, nil
+	// articles, err := model.GetArticlesById(params.PageNum, params.PageSize, articleIds)
+	// if err != nil {
+	// 	return nil, err
+	// }
+	// return articles, nil
 }
 func (s *TagService) Recovery() error {
 	return model.RecoverTag(s.Id)

@@ -443,12 +443,31 @@ const docTemplate = `{
                 "produces": [
                     "application/json"
                 ],
-                "summary": "获取标签列表",
+                "summary": "获取该标签的所有文章",
                 "parameters": [
                     {
+                        "type": "string",
+                        "description": "tag_name",
+                        "name": "tag_name",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
                         "type": "integer",
-                        "description": "Page",
-                        "name": "page",
+                        "description": "tag_name",
+                        "name": "uid",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "page_num",
+                        "name": "page_num",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "page_size",
+                        "name": "page_size",
                         "in": "query"
                     }
                 ],
@@ -518,29 +537,6 @@ const docTemplate = `{
             }
         },
         "/api/v1/tag/{id}": {
-            "get": {
-                "produces": [
-                    "application/json"
-                ],
-                "summary": "获取该标签的所有文章",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/gin_http.ResponseJSON"
-                        }
-                    }
-                }
-            },
             "put": {
                 "produces": [
                     "application/json"
@@ -687,6 +683,30 @@ const docTemplate = `{
                     }
                 ],
                 "responses": {}
+            }
+        },
+        "/api/v1/tags": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "获取标签列表",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Page",
+                        "name": "page",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/gin_http.ResponseJSON"
+                        }
+                    }
+                }
             }
         },
         "/api/v1/user/{id}": {

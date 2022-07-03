@@ -50,7 +50,7 @@ type ArticleLikeParams struct {
 }
 
 type ArticleGetParams struct {
-	Uid      int `json:"uid" form:"uid" binding:"gt=0"`
+	Uid      int `json:"uid" form:"uid" binding:"gte=0"`
 	PageNum  int `json:"page_num" form:"page_num" binding:"gte=0"`
 	PageSize int `json:"page_size" form:"page_size" binding:"gte=0"`
 }
@@ -61,6 +61,13 @@ type ArticleAddParams struct {
 	Content string   `json:"content" form:"content" binding:"gt=0"`
 	TagName []string `json:"tag_name" form:"tag_name" `
 	ImgName []string `json:"-" form:"-" binding:"-"`
+}
+
+type TagArticleGetParams struct {
+	Uid      int    `json:"uid" form:"uid" binding:"gte=0"`
+	TagName  string `json:"tag_name" form:"tag_name" binding:"gte=0"`
+	PageNum  int    `json:"page_num" form:"page_num" binding:"gte=0"`
+	PageSize int    `json:"page_size" form:"page_size" binding:"gte=0"`
 }
 
 // type ArticleGetParams struct {

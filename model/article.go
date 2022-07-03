@@ -101,6 +101,20 @@ func GetArticles(pageNum int, pageSize int, maps interface{}) ([]*Article, error
 	return articles, nil
 }
 
+func GetArticlesById(pageNum int, pageSize int, articleIds []int) ([]*Article, error) {
+	var articles []*Article
+	err := db.Order("created_on desc").Offset(pageNum).Limit(pageSize).Where("id in (?)", articleIds).Preload("Tags", func(db *gorm.DB) *gorm.DB {
+		return db.Select("name", "id")
+	}).Preload("Images", func(db *gorm.DB) *gorm.DB {
+		return db.Select("id", "article_id", "filename")
+	}).Find(&articles).Error
+	if err != nil && err != gorm.ErrRecordNotFound {
+		return nil, err
+	}
+
+	return articles, nil
+}
+
 //通过ID查询文章
 func GetArticleById(id uint) (*Article, error) {
 	var article Article

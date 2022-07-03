@@ -1,6 +1,8 @@
 package v1
 
 import (
+	"fmt"
+
 	"github.com/gin-gonic/gin"
 
 	"qiu/blog/pkg/util"
@@ -20,7 +22,7 @@ import (
 // @Produce  json
 // @Param page query int false "Page"
 // @Success 200 {object}  gin_http.ResponseJSON
-// @Router /api/v1/tag [get]
+// @Router /api/v1/tags [get]
 func GetTags(c *gin.Context) {
 	tagService := service.GetTagService()
 	tagService.PageNum, _ = util.GetPage(c)
@@ -31,22 +33,38 @@ func GetTags(c *gin.Context) {
 
 // @Summary 获取该标签的所有文章
 // @Produce  json
-// @Param id path int true "ID"
+// @Param tag_name query string true "tag_name"
+// @Param uid query int false "tag_name"
+// @Param page_num query int false "page_num"
+// @Param page_size query int false "page_size"
 // @Success 200 {object}  gin_http.ResponseJSON
-// @Router /api/v1/tag/{id} [get]
+// @Router /api/v1/tag [get]
 func GetTagArticles(c *gin.Context) {
 	tagService := service.GetTagService()
-	httpCode, errCode := tagService.Bind(c)
-	if errCode != e.SUCCESS {
-		gin_http.Response(c, httpCode, errCode, nil)
+	params := service.TagArticleGetParams{}
+	// httpCode, errCode := tagService.Bind(c)
+	if err := c.ShouldBind(&params); err != nil {
+		fmt.Println("绑定错误", err)
+		gin_http.Response(c, http.StatusBadRequest, e.INVALID_PARAMS, nil)
 		return
 	}
+	if params.PageSize == 0 {
+		params.PageSize = setting.AppSetting.PageSize
+	}
+	page := params.PageNum
+	params.PageNum = params.PageNum * params.PageSize
+	fmt.Println("绑定数据", params)
 
-	articles, err := tagService.GetArticles()
+	articles, err := tagService.GetArticles(&params)
 	if err != nil {
 		gin_http.Response(c, http.StatusInternalServerError, e.ERROR_GET_ARTICLE_FAIL, nil)
 		return
 	}
+	data := make(map[string]interface{})
+	data["datalist"] = articles
+	// data["total"] = total
+	data["pageNum"] = page
+	data["pageSize"] = params.PageSize
 	gin_http.Response(c, http.StatusOK, e.SUCCESS, articles)
 }
 

@@ -187,11 +187,18 @@ func setArticlesCache(articleIds []int) {
 }
 
 //(article_id1, article_id2, ...) => []ArticleInfo
-func getArticlesCache(stringIds []string, cachekey string) ([]*model.ArticleInfo, error) {
+func getArticlesCache(ids interface{}, cachekey string) ([]*model.ArticleInfo, error) {
 	var articles []*model.ArticleInfo
-	articleIds, err := util.StringsToInts(stringIds)
-	if err != nil {
-		return nil, err
+	var articleIds []int
+	var err error
+	switch ids.(type) {
+	case []string:
+		articleIds, err = util.StringsToInts(ids.([]string))
+		if err != nil {
+			return nil, err
+		}
+	case []int:
+		articleIds = ids.([]int)
 	}
 
 	for _, articleId := range articleIds {

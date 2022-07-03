@@ -153,6 +153,10 @@ type FollowId struct {
 	Id int `json:"follow_id"`
 }
 
+type ArticleIdTagId struct {
+	ArticleId uint `json:"article_id"`
+	TagId     uint `json:"tag_id"`
+}
 type ArticleIdUserId struct {
 	ArticleId uint `json:"article_id"`
 	UserId    uint `json:"user_id"`
@@ -166,8 +170,8 @@ type Tag struct {
 	Model
 	Name string `json:"name" form:"name" binding:"required,lte=20" gorm:"unique;not null"`
 	//Type       string `json:"type" form:"type" `
-	CreatedBy  string    `json:"-" form:"created_by" binding:"-" `
-	ModifiedBy string    `json:"-" form:"modified_by" binding:"-" `
-	State      int       `json:"-" form:"state" binding:"-" `
-	Articles   []Article `gorm:"many2many:article_tags;" binding:"-" json:"-"`
+	// CreatedBy  string    `json:"-" form:"created_by" binding:"-" `
+	// ModifiedBy string    `json:"-" form:"modified_by" binding:"-" `
+	State    int       `json:"-" form:"state" binding:"-" `
+	Articles []Article `gorm:"many2many:article_tags;" binding:"-" json:"-"`
 }

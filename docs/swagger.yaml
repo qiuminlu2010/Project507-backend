@@ -301,9 +301,22 @@ paths:
   /api/v1/tag:
     get:
       parameters:
-      - description: Page
+      - description: tag_name
         in: query
-        name: page
+        name: tag_name
+        required: true
+        type: string
+      - description: tag_name
+        in: query
+        name: uid
+        type: integer
+      - description: page_num
+        in: query
+        name: page_num
+        type: integer
+      - description: page_size
+        in: query
+        name: page_size
         type: integer
       produces:
       - application/json
@@ -312,7 +325,7 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/gin_http.ResponseJSON'
-      summary: 获取标签列表
+      summary: 获取该标签的所有文章
     post:
       parameters:
       - description: Name
@@ -379,21 +392,6 @@ paths:
           schema:
             $ref: '#/definitions/gin_http.ResponseJSON'
       summary: 删除标签
-    get:
-      parameters:
-      - description: ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/gin_http.ResponseJSON'
-      summary: 获取该标签的所有文章
     put:
       parameters:
       - description: ID
@@ -465,6 +463,21 @@ paths:
       - application/json
       responses: {}
       summary: 恢复标签
+  /api/v1/tags:
+    get:
+      parameters:
+      - description: Page
+        in: query
+        name: page
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/gin_http.ResponseJSON'
+      summary: 获取标签列表
   /api/v1/user/{id}:
     get:
       parameters:
