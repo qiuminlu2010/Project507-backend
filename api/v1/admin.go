@@ -7,7 +7,9 @@ import (
 
 	"qiu/blog/pkg/e"
 	gin_http "qiu/blog/pkg/http"
-	"qiu/blog/pkg/logging"
+
+	// "qiu/blog/pkg/logging"
+
 	"qiu/blog/pkg/util"
 	service "qiu/blog/service"
 
@@ -110,7 +112,7 @@ func Login(c *gin.Context) {
 	data["token"] = token
 	data["uuid"] = userService.GetUUID(userInfo.ID)
 	data["expire_time"] = expire_time
-	logging.Info("用户登录成功,", "用户名:", userService.Username)
+	// logging.Info("用户登录成功,", "用户名:", userService.Username)
 	gin_http.Response(c, http.StatusOK, e.SUCCESS, data)
 
 }
@@ -144,7 +146,7 @@ func Register(c *gin.Context) {
 		return
 	}
 
-	logging.Info("用户注销成功,", "用户名:", userService.Username)
+	// logging.Info("用户注销成功,", "用户名:", userService.Username)
 	gin_http.Response(c, http.StatusOK, e.SUCCESS, nil)
 }
 
@@ -176,7 +178,7 @@ func DeleteUser(c *gin.Context) {
 		gin_http.Response(c, http.StatusInternalServerError, e.ERROR_DELETE_USER_FAIL, nil)
 		return
 	}
-	logging.Info("用户注销成功,", "用户名:", userService.GetUsernameByID())
+	// logging.Info("用户注销成功,", "用户名:", userService.GetUsernameByID())
 	gin_http.Response(c, http.StatusOK, e.SUCCESS, nil)
 }
 
@@ -208,7 +210,7 @@ func UpdatePassword(c *gin.Context) {
 		gin_http.Response(c, http.StatusInternalServerError, e.ERROR_UPDATE_USER_FAIL, nil)
 		return
 	}
-	logging.Info("用户修改密码成功,", "用户名:", userService.GetUsernameByID())
+	// logging.Info("用户修改密码成功,", "用户名:", userService.GetUsernameByID())
 	gin_http.Response(c, http.StatusOK, e.SUCCESS, nil)
 }
 

@@ -7,7 +7,6 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"qiu/blog/pkg/e"
-	"qiu/blog/pkg/logging"
 	"qiu/blog/pkg/util"
 )
 
@@ -36,7 +35,7 @@ func JWT() gin.HandlerFunc {
 		}
 
 		if code != e.SUCCESS {
-			logging.Info(e.GetMsg(code))
+			// logging.Info(e.GetMsg(code))
 			c.JSON(http.StatusUnauthorized, gin.H{
 				"code": code,
 				"msg":  e.GetMsg(code),
