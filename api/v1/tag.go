@@ -54,7 +54,7 @@ func GetTagArticles(c *gin.Context) {
 	params.PageNum = params.PageNum * params.PageSize
 	fmt.Println("绑定数据", params)
 
-	articles, err := tagService.GetArticles(&params)
+	articles, err := tagService.GetArticlesByMultiTags(&params)
 	if err != nil {
 		gin_http.Response(c, http.StatusInternalServerError, e.ERROR_GET_ARTICLE_FAIL, nil)
 		return

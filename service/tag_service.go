@@ -4,6 +4,8 @@ import (
 	"qiu/blog/model"
 	"qiu/blog/pkg/e"
 	"qiu/blog/pkg/redis"
+	"qiu/blog/pkg/util"
+	"strings"
 )
 
 type TagParams struct {
@@ -70,6 +72,7 @@ func (s *TagService) Get() []*model.TagInfo {
 	}
 	return tags
 }
+
 func (s *TagService) GetArticles(params *TagArticleGetParams) ([]*model.ArticleInfo, error) {
 	articleIds, err := model.GetTagArticleIds(params.TagName)
 	if err != nil {
@@ -89,6 +92,34 @@ func (s *TagService) GetArticles(params *TagArticleGetParams) ([]*model.ArticleI
 	// }
 	// return articles, nil
 }
+
+func (s *TagService) GetArticlesByMultiTags(params *TagArticleGetParams) ([]*model.ArticleInfo, error) {
+	tagNames := strings.Split(params.TagName, " ")
+	var articleIds [][]int
+	for _, tagName := range tagNames {
+		articleId, err := model.GetTagArticleIds(tagName)
+		if err != nil {
+			return nil, err
+		}
+		articleIds = append(articleIds, articleId)
+	}
+
+	ans := util.Intersection(articleIds)
+	articles, err := getArticlesCache(ans, e.CACHE_ARTICLES)
+	if err != nil {
+		return nil, err
+	}
+	if err = getArticleLikeInfo(articles, params.Uid); err != nil {
+		return nil, err
+	}
+	return articles, nil
+	// articles, err := model.GetArticlesById(params.PageNum, params.PageSize, articleIds)
+	// if err != nil {
+	// 	return nil, err
+	// }
+	// return articles, nil
+}
+
 func (s *TagService) Recovery() error {
 	return model.RecoverTag(s.Id)
 }
