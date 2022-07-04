@@ -47,6 +47,12 @@ func InitRouter() *gin.Engine {
 	//评论
 	apiv1.GET("/comments/:article_id", v1.GetComments)
 
+	//搜索
+	apiv1.GET("/search/tag", v1.GetTagsByPrefix)
+	apiv1.GET("/search/user", v1.GetUsers)
+	// apiv1.GET("/search/user")
+	// apiv1.GET("/search/article")
+
 	apiv1.Use(middleware.JWT())
 	{
 		//标签类

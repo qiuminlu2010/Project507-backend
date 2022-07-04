@@ -13,9 +13,20 @@ import (
 
 // 	return
 // }
-func GetTags(pageNum int, pageSize int) (tags []Tag) {
-	db.Offset(pageNum).Limit(pageSize).Find(&tags)
-	return
+func GetTags() ([]*TagInfo, error) {
+	var tags []*TagInfo
+	if err := db.Model(&Tag{}).Find(&tags).Error; err != nil {
+		return nil, err
+	}
+	return tags, nil
+}
+
+func GetTagsByPrefix(prefix string, count int) ([]*TagInfo, error) {
+	var tags []*TagInfo
+	if err := db.Model(&Tag{}).Where("name like ?", prefix+"%").Limit(count).Order("name").Find(&tags).Error; err != nil {
+		return nil, err
+	}
+	return tags, nil
 }
 
 // func GetTagArticles(pageNum int, pageSize int, tagName string) ([]int, error) {

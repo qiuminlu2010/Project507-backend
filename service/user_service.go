@@ -86,8 +86,12 @@ func (s *UserService) CheckUUID(uid uint, uuid string) bool {
 	return uuid == v
 }
 
+func (s *UserService) GetUsersByName(params *UsersGetParams) ([]*model.UserBase, error) {
+	return model.GetUsers(params.Name+"%", params.PageNum, params.PageSize)
+}
+
 //关注列表： 1.设置缓存 user:id:follows 2.设置缓存 user:id
-func (s *UserService) GetFollows(params *UserGetParams) ([]*model.UserBase, error) {
+func (s *UserService) GetFollows(params *FollowsGetParams) ([]*model.UserBase, error) {
 	//TODO: 分页
 	key := GetModelFieldKey(e.CACHE_USER, uint(params.UserId), e.CACHE_FOLLOWS)
 	var followIds []int

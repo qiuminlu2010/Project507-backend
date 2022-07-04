@@ -188,12 +188,32 @@ func ZAdd(key string, score float64, value interface{}) {
 	}
 }
 
+func ZRandMember(key string, cnt int) []string {
+	ret, err := rdb.ZRandMember(ctx, key, cnt).Result()
+	if err != nil {
+		panic(err)
+	}
+	return ret
+}
+
+func ZRange(key string, start int64, stop int64) []string {
+	ret, err := rdb.ZRange(ctx, key, start, stop).Result()
+	if err != nil {
+		panic(err)
+	}
+	return ret
+}
+
 func ZRevRange(key string, start int64, stop int64) []string {
 	ret, err := rdb.ZRevRange(ctx, key, start, stop).Result()
 	if err != nil {
 		panic(err)
 	}
 	return ret
+}
+
+func ZRank(key string, member string) int64 {
+	return rdb.ZRank(ctx, key, member).Val()
 }
 
 func ZRem(key string, member interface{}) {

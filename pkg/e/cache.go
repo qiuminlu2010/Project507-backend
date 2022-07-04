@@ -6,6 +6,7 @@ const (
 	CACHE_ARTICLE         = "article"
 	CACHE_ARTICLES        = "articles"
 	CACHE_TAG             = "tag"
+	CACHE_TAGS            = "tags"
 	CACHE_LIKEUSERS       = "like_users"
 	CACHE_USER            = "user"
 	CACHE_LIKEARTICLES    = "like_articles"

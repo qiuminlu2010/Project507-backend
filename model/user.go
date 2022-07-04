@@ -6,6 +6,14 @@ import (
 	"gorm.io/gorm/clause"
 )
 
+func GetUsers(name string, pageNum int, pageSize int) ([]*UserBase, error) {
+	var users []*UserBase
+	if err := db.Model(&User{}).Where("`username` like ?", name).Offset(pageNum).Limit(pageSize).Find(&users).Error; err != nil {
+		return nil, err
+	}
+	return users, nil
+}
+
 func GetUser(userId uint) (*UserBase, error) {
 	var user UserBase
 	if err := db.Model(&User{}).Where("id = ?", userId).First(&user).Error; err != nil {

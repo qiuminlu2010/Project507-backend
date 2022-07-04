@@ -6,7 +6,13 @@ type UserInfoParams struct {
 	Avator   string `json:"avator" form:"avator"`
 }
 
-type UserGetParams struct {
+type UsersGetParams struct {
+	Name     string `json:"name" form:"name" binding:"gt=0"`
+	PageNum  int    `json:"page_num" form:"page_num" binding:"gte=0"`
+	PageSize int    `json:"page_size" form:"page_size" binding:"gte=0"`
+}
+
+type FollowsGetParams struct {
 	UserId   int `json:"user_id" form:"user_id"`
 	PageNum  int `json:"page_num" form:"page_num"`
 	PageSize int `json:"page_size" form:"page_size"`
@@ -53,6 +59,7 @@ type ArticleGetParams struct {
 	Uid      int `json:"uid" form:"uid" binding:"gte=0"`
 	PageNum  int `json:"page_num" form:"page_num" binding:"gte=0"`
 	PageSize int `json:"page_size" form:"page_size" binding:"gte=0"`
+	Type     int `json:"type" form:"type"`
 }
 
 type ArticleAddParams struct {
@@ -61,6 +68,12 @@ type ArticleAddParams struct {
 	Content string   `json:"content" form:"content" binding:"gt=0"`
 	TagName []string `json:"tag_name" form:"tag_name" `
 	ImgName []string `json:"-" form:"-" binding:"-"`
+}
+
+type TagsGetParams struct {
+	TagName  string `json:"tag_name" form:"tag_name" binding:"gt=0"`
+	PageNum  int    `json:"page_num" form:"page_num" binding:"gte=0"`
+	PageSize int    `json:"page_size" form:"page_size" binding:"gte=0"`
 }
 
 type TagArticleGetParams struct {

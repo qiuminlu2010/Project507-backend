@@ -191,14 +191,14 @@ func getArticlesCache(ids interface{}, cachekey string) ([]*model.ArticleInfo, e
 	var articles []*model.ArticleInfo
 	var articleIds []int
 	var err error
-	switch ids.(type) {
+	switch ids := ids.(type) {
 	case []string:
-		articleIds, err = util.StringsToInts(ids.([]string))
+		articleIds, err = util.StringsToInts(ids)
 		if err != nil {
 			return nil, err
 		}
 	case []int:
-		articleIds = ids.([]int)
+		articleIds = ids
 	}
 
 	for _, articleId := range articleIds {
@@ -250,7 +250,13 @@ func (s *ArticleService) GetArticles(params ArticleGetParams) ([]*model.ArticleI
 			return nil, err
 		}
 	}
-	articleIds := redis.ZRevRange(e.CACHE_ARTICLES, int64(params.PageNum), int64(params.PageSize-1))
+	var articleIds []string
+	if params.Type == 1 {
+		articleIds = redis.ZRandMember(e.CACHE_ARTICLES, params.PageSize-1)
+	} else {
+		articleIds = redis.ZRevRange(e.CACHE_ARTICLES, int64(params.PageNum), int64(params.PageSize-1))
+	}
+
 	articles, err = getArticlesCache(articleIds, e.CACHE_ARTICLES)
 	if err != nil {
 		return nil, err

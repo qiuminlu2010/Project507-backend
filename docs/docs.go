@@ -438,6 +438,61 @@ const docTemplate = `{
                 "responses": {}
             }
         },
+        "/api/v1/search/tag": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "标签补全",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "tag_name",
+                        "name": "tag_name",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "page_size",
+                        "name": "page_size",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/gin_http.ResponseJSON"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/search/user": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "搜索用户",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "用户名",
+                        "name": "name",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "page_size",
+                        "name": "page_size",
+                        "in": "query"
+                    }
+                ],
+                "responses": {}
+            }
+        },
         "/api/v1/tag": {
             "get": {
                 "produces": [
@@ -834,6 +889,18 @@ const docTemplate = `{
                         "name": "id",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "page_num",
+                        "name": "page_num",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "page_size",
+                        "name": "page_size",
+                        "in": "query"
                     },
                     {
                         "type": "string",

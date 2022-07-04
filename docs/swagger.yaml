@@ -298,6 +298,42 @@ paths:
       - application/json
       responses: {}
       summary: 获取评论
+  /api/v1/search/tag:
+    get:
+      parameters:
+      - description: tag_name
+        in: query
+        name: tag_name
+        required: true
+        type: string
+      - description: page_size
+        in: query
+        name: page_size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/gin_http.ResponseJSON'
+      summary: 标签补全
+  /api/v1/search/user:
+    get:
+      parameters:
+      - description: 用户名
+        in: query
+        name: name
+        required: true
+        type: string
+      - description: page_size
+        in: query
+        name: page_size
+        type: integer
+      produces:
+      - application/json
+      responses: {}
+      summary: 搜索用户
   /api/v1/tag:
     get:
       parameters:
@@ -561,6 +597,14 @@ paths:
         in: path
         name: id
         required: true
+        type: integer
+      - description: page_num
+        in: query
+        name: page_num
+        type: integer
+      - description: page_size
+        in: query
+        name: page_size
         type: integer
       - description: token
         in: header

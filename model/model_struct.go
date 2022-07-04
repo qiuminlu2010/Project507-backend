@@ -12,10 +12,12 @@ type Model struct {
 }
 
 type Image struct {
-	Model
-	ArticleID uint   `json:"-" form:"-" binding:"-"`
-	Filename  string `json:"filename" form:"filename" binding:"-"`
-	Thumbnail int    `json:"-" form:"-"`
+	ID         uint   `gorm:"primary_key" uri:"id" `
+	CreatedOn  int    `gorm:"index" binding:"-" json:"created_on,omitempty"`
+	ModifiedOn int    `binding:"-" json:"modified_on,omitempty"`
+	ArticleID  uint   `json:"-" form:"-" binding:"-"`
+	Filename   string `json:"filename" form:"filename" binding:"-"`
+	// Thumbnail int    `json:"-" form:"-"`
 }
 type Article struct {
 	Model
@@ -105,7 +107,7 @@ type CommentIdUserId struct {
 // }
 type User struct {
 	Model
-	Username  string `json:"username" form:"username" binding:"omitempty,printascii,gte=6,lte=20" gorm:"unique"`
+	Username  string `json:"username" form:"username" binding:"omitempty,printascii,gte=6,lte=20" gorm:"index;unique"`
 	Password  string `json:"password" form:"password" binding:"omitempty,printascii,gte=6,lte=100"`
 	StudentId string `json:"student_id" form:"student_id" binding:"omitempty,numeric"`
 	// Articles     []Article `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;" json:"articles,omitempty" binding:"-"`
@@ -167,11 +169,17 @@ type UserIdFollowId struct {
 	FollowId uint `json:"follow_id"`
 }
 type Tag struct {
-	Model
-	Name string `json:"name" form:"name" binding:"required,lte=20" gorm:"unique;not null"`
+	ID        uint   `gorm:"primary_key" uri:"id" `
+	CreatedOn int    `gorm:"index" binding:"-" json:"created_on,omitempty"`
+	Name      string `json:"name" form:"name" binding:"required,lte=20" gorm:"index;unique;not null"`
 	//Type       string `json:"type" form:"type" `
 	// CreatedBy  string    `json:"-" form:"created_by" binding:"-" `
 	// ModifiedBy string    `json:"-" form:"modified_by" binding:"-" `
 	State    int       `json:"-" form:"state" binding:"-" `
 	Articles []Article `gorm:"many2many:article_tags;" binding:"-" json:"-"`
+}
+
+type TagInfo struct {
+	ID   uint   `json:"id" form:"id"`
+	Name string `json:"name" form:"name"`
 }
