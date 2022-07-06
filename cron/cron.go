@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"sync"
 
-	service "qiu/blog/service"
+	service "qiu/blog/service/cache"
 
 	"github.com/robfig/cron/v3"
 )

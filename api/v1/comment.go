@@ -6,7 +6,8 @@ import (
 	"qiu/blog/pkg/e"
 	gin_http "qiu/blog/pkg/http"
 	"qiu/blog/pkg/setting"
-	"qiu/blog/service"
+	service "qiu/blog/service/comment"
+	param "qiu/blog/service/param"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -23,7 +24,7 @@ import (
 func AddComment(c *gin.Context) {
 
 	commentService := service.GetCommentSerivice()
-	params := service.CommentAddParams{}
+	params := param.CommentAddParams{}
 
 	if err := c.ShouldBind(&params); err != nil {
 		fmt.Println("绑定错误", err)
@@ -53,7 +54,7 @@ func AddComment(c *gin.Context) {
 func LikeComment(c *gin.Context) {
 
 	commentService := service.GetCommentSerivice()
-	params := service.LikeCommentParams{}
+	params := param.LikeCommentParams{}
 
 	commentId, err := strconv.Atoi(c.Param("id"))
 	if err != nil || commentId <= 0 {
@@ -91,7 +92,7 @@ func LikeComment(c *gin.Context) {
 // @Router /api/v1/comments/{article_id} [get]
 func GetComments(c *gin.Context) {
 	commentService := service.GetCommentSerivice()
-	params := service.CommentGetParams{}
+	params := param.CommentGetParams{}
 
 	articleId, err := strconv.Atoi(c.Param("article_id"))
 	if err != nil || articleId <= 0 {

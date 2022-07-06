@@ -26,11 +26,18 @@ func GetArticleTotal(maps interface{}) (int64, error) {
 
 func GetArticlesByIds(articleIds []int) ([]*Article, error) {
 	var articles []*Article
-	err := db.Order("created_on desc").Where("id in ?", articleIds).Preload("Tags", func(db *gorm.DB) *gorm.DB {
-		return db.Select("name", "id")
-	}).Preload("Images", func(db *gorm.DB) *gorm.DB {
-		return db.Select("id", "article_id", "filename")
-	}).Find(&articles).Error
+
+	err := db.
+		Order("created_on desc").
+		Where("id in ?", articleIds).
+		Preload("Tags", func(db *gorm.DB) *gorm.DB {
+			return db.Select("name", "id")
+		}).
+		Preload("Images", func(db *gorm.DB) *gorm.DB {
+			return db.Select("id", "article_id", "filename")
+		}).
+		Find(&articles).Error
+
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return nil, nil
@@ -44,11 +51,16 @@ func GetArticle(articleId int) (*Article, error) {
 
 	var article Article
 	// article.ID = uint(articleId)
-	err := db.Where("id = ?", articleId).Preload("Tags", func(db *gorm.DB) *gorm.DB {
-		return db.Select("name", "id")
-	}).Preload("Images", func(db *gorm.DB) *gorm.DB {
-		return db.Select("id", "article_id", "filename")
-	}).Find(&article).Error
+	err := db.
+		Where("id = ?", articleId).
+		Preload("Tags", func(db *gorm.DB) *gorm.DB {
+			return db.Select("name", "id")
+		}).
+		Preload("Images", func(db *gorm.DB) *gorm.DB {
+			return db.Select("id", "article_id", "filename")
+		}).
+		Find(&article).Error
+
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return nil, nil
@@ -59,28 +71,14 @@ func GetArticle(articleId int) (*Article, error) {
 		return nil, nil
 	}
 	return &article, nil
-
-	// tx := db.Begin()
-	// defer func() {
-	// 	if r := recover(); r != nil {
-	// 		tx.Rollback()
-	// 	}
-	// }()
-	// var article ArticleInfo
-	// if err := tx.Model(Article{}).Where("id = ? ", articleId).First(&article).Error; err != nil {
-	// 	tx.Rollback()
-	// 	return article, err
-	// }
-	// if err := tx.Select("name", "id").Where("id in (?)", db.Table(e.TABLE_ARTICLE_TAGS).Where("`article_id` = ?", articleId).Select("`tag_id`")).Find(&article.Tags).Error; err != nil {
-	// 	tx.Rollback()
-	// 	return article, err
-	// }
-	// return article, tx.Commit().Error
 }
 
 func GetArticlesCache() ([]*ArticleCache, error) {
 	var articles []*ArticleCache
-	if err := db.Model(Article{}).Select("id", "created_on").Find(&articles).Error; err != nil {
+	if err := db.
+		Model(Article{}).
+		Select("id", "created_on").
+		Find(&articles).Error; err != nil {
 		return articles, err
 	}
 	return articles, nil
@@ -89,11 +87,17 @@ func GetArticlesCache() ([]*ArticleCache, error) {
 //获取文章列表
 func GetArticles(pageNum int, pageSize int, maps interface{}) ([]*Article, error) {
 	var articles []*Article
-	err := db.Order("created_on desc").Offset(pageNum).Limit(pageSize).Preload("Tags", func(db *gorm.DB) *gorm.DB {
-		return db.Select("name", "id")
-	}).Preload("Images", func(db *gorm.DB) *gorm.DB {
-		return db.Select("id", "article_id", "filename")
-	}).Find(&articles).Error
+	err := db.
+		Order("created_on desc").
+		Offset(pageNum).
+		Limit(pageSize).
+		Preload("Tags", func(db *gorm.DB) *gorm.DB {
+			return db.Select("name", "id")
+		}).
+		Preload("Images", func(db *gorm.DB) *gorm.DB {
+			return db.Select("id", "article_id", "filename")
+		}).
+		Find(&articles).Error
 	if err != nil && err != gorm.ErrRecordNotFound {
 		return nil, err
 	}
@@ -103,11 +107,18 @@ func GetArticles(pageNum int, pageSize int, maps interface{}) ([]*Article, error
 
 func GetArticlesById(pageNum int, pageSize int, articleIds []int) ([]*Article, error) {
 	var articles []*Article
-	err := db.Order("created_on desc").Offset(pageNum).Limit(pageSize).Where("id in (?)", articleIds).Preload("Tags", func(db *gorm.DB) *gorm.DB {
-		return db.Select("name", "id")
-	}).Preload("Images", func(db *gorm.DB) *gorm.DB {
-		return db.Select("id", "article_id", "filename")
-	}).Find(&articles).Error
+	err := db.
+		Order("created_on desc").
+		Offset(pageNum).
+		Limit(pageSize).
+		Where("id in (?)", articleIds).
+		Preload("Tags", func(db *gorm.DB) *gorm.DB {
+			return db.Select("name", "id")
+		}).
+		Preload("Images", func(db *gorm.DB) *gorm.DB {
+			return db.Select("id", "article_id", "filename")
+		}).
+		Find(&articles).Error
 	if err != nil && err != gorm.ErrRecordNotFound {
 		return nil, err
 	}
@@ -126,12 +137,12 @@ func GetArticleById(id uint) (*Article, error) {
 }
 
 //更新文章信息(标签除外)
-func UpdateArticle(id uint, data interface{}) error {
+func UpdateArticle(id int, data interface{}) error {
 	return db.Model(&Article{}).Where("id = ?", id).Updates(data).Error
 }
 
 //给文章添加标签
-func AddArticleTags(id uint, tags []Tag) error {
+func AddArticleTags(id int, tags []Tag) error {
 	var article Article
 	if err := db.Where("id = ? ", id).First(&article).Error; err != nil {
 		return err
@@ -143,7 +154,7 @@ func AddArticleTags(id uint, tags []Tag) error {
 }
 
 //给文章删除标签
-func DeleteArticleTag(id uint, tags []Tag) error {
+func DeleteArticleTag(id int, tags []Tag) error {
 	var article Article
 	if err := db.Where("id = ? ", id).First(&article).Error; err != nil {
 		return err
@@ -278,9 +289,9 @@ func DeleteArticle(id uint) error {
 	return db.Where("id = ?", id).Delete(&article).Error
 }
 
-func RecoverArticle(id uint) error {
+func RecoverArticle(id int) error {
 	var article Article
-	article.ID = id
+	article.ID = uint(id)
 	return db.Unscoped().Model(&article).Update("deleted_at", nil).Error
 }
 
@@ -293,8 +304,16 @@ func RecoverArticle(id uint) error {
 
 func GetArticleUserID(id uint) (uint, error) {
 	var article Article
-	if err := db.Select("owner_id").Where("id = ?", id).First(&article).Error; err != nil {
+	if err := db.Unscoped().Select("owner_id").Where("id = ?", id).First(&article).Error; err != nil {
 		return 0, err
 	}
 	return article.OwnerID, nil
 }
+
+// func GetArticleUserIDUnscoped(id uint) (uint, error) {
+// 	var article Article
+// 	if err := db.Unscoped().Select("owner_id").Where("id = ?", id).First(&article).Error; err != nil {
+// 		return 0, err
+// 	}
+// 	return article.OwnerID, nil
+// }

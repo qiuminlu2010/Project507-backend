@@ -86,9 +86,9 @@ func GetTagIdByName(name string) (uint, error) {
 	}
 	return tag.ID, nil
 }
-func DeleteTag(id uint) error {
+func DeleteTag(id int) error {
 	var tag Tag
-	tag.ID = id
+	tag.ID = uint(id)
 	return db.Where("id = ?", id).Delete(&Tag{}).Error
 }
 

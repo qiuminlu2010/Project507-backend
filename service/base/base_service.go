@@ -1,4 +1,4 @@
-package service
+package base_service
 
 import (
 	"fmt"
@@ -6,6 +6,8 @@ import (
 
 	"qiu/blog/pkg/e"
 	"qiu/blog/pkg/redis"
+
+	cache "qiu/blog/service/cache"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
@@ -61,8 +63,8 @@ func (s *BaseService) CheckTokenUid(c *gin.Context, uid uint) bool {
 	if token == "" {
 		return false
 	}
-	key := GetModelFieldKey("user", uid, "token")
-	adminKey := GetModelFieldKey("user", 2, "token")
+	key := cache.GetModelFieldKey("user", uid, "token")
+	adminKey := cache.GetModelFieldKey("user", 2, "token")
 	admin_token := redis.Get(adminKey)
 
 	if admin_token == token {

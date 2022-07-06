@@ -13,38 +13,9 @@ import (
 
 	gin_http "qiu/blog/pkg/http"
 
-	service "qiu/blog/service"
+	service "qiu/blog/service/article"
+	param "qiu/blog/service/param"
 )
-
-//获取单个文章
-func GetArticle(c *gin.Context) {
-
-	// articleService := service.ArticleService{}
-	// httpCode, errCode := gin_http.Bind(c, &articleService)
-
-	// if errCode != e.SUCCESS {
-	// 	gin_http.Response(c, httpCode, errCode, nil)
-	// 	return
-	// }
-
-	// exists, err := articleService.ExistByID()
-
-	// if err != nil {
-	// 	gin_http.Response(c, http.StatusInternalServerError, e.ERROR_CHECK_EXIST_ARTICLE_FAIL, nil)
-	// 	return
-	// }
-	// if !exists {
-	// 	gin_http.Response(c, http.StatusOK, e.ERROR_NOT_EXIST_ARTICLE, nil)
-	// 	return
-	// }
-	// getArticle, err := articleService.Get()
-	// if err != nil {
-	// 	gin_http.Response(c, http.StatusInternalServerError, e.ERROR_GET_ARTICLE_FAIL, nil)
-	// 	return
-	// }
-
-	// gin_http.Response(c, http.StatusOK, e.SUCCESS, getArticle)
-}
 
 // @Summary 获取文章列表
 // @Produce  json
@@ -55,7 +26,7 @@ func GetArticle(c *gin.Context) {
 func GetArticles(c *gin.Context) {
 
 	articleService := service.GetArticleService()
-	params := service.ArticleGetParams{}
+	params := param.ArticleGetParams{}
 	// articleService.PageNum, page = util.GetPage(c)
 	// articleService.PageSize = setting.AppSetting.PageSize
 	if err := c.ShouldBind(&params); err != nil {
@@ -70,7 +41,7 @@ func GetArticles(c *gin.Context) {
 	params.PageNum = params.PageNum * params.PageSize
 	fmt.Println("绑定数据", params)
 
-	articles, err := articleService.GetArticles(params)
+	articles, err := articleService.GetArticles(&params)
 	if err != nil {
 		gin_http.Response(c, http.StatusInternalServerError, e.ERROR_GET_ARTICLES_FAIL, nil)
 		return
@@ -100,7 +71,7 @@ func GetArticles(c *gin.Context) {
 // @Router /api/v1/article [post]
 func AddArticle(c *gin.Context) {
 	articleService := service.GetArticleService()
-	params := service.ArticleAddParams{}
+	params := param.ArticleAddParams{}
 	if err := c.ShouldBind(&params); err != nil {
 		fmt.Println("绑定错误", err)
 		gin_http.Response(c, http.StatusBadRequest, e.INVALID_PARAMS, nil)
@@ -139,7 +110,7 @@ func AddArticle(c *gin.Context) {
 		params.ImgName = append(params.ImgName, imageName)
 	}
 
-	err = articleService.AddArticleWithImg(&params)
+	err = articleService.Add(&params)
 	if err != nil {
 		gin_http.Response(c, http.StatusInternalServerError, e.ERROR_ADD_ARTICLE_FAIL, nil)
 		return
@@ -162,18 +133,27 @@ func AddArticle(c *gin.Context) {
 // @Summary 添加文章标签
 // @Produce  json
 // @Param id path int true "文章ID"
-// @Param tag_id formData []uint false "标签ID"
+// @Param tag_name formData []string false "标签"
 // @Param token header string true "token"
 // @Router /api/v1/article/{id}/addTags [post]
 func AddArticleTags(c *gin.Context) {
 
 	articleService := service.GetArticleService()
-	httpCode, errCode := articleService.Bind(c)
-	if errCode != e.SUCCESS {
-		gin_http.Response(c, httpCode, errCode, nil)
+	// httpCode, errCode := articleService.Bind(c)
+	// if errCode != e.SUCCESS {
+	// 	gin_http.Response(c, httpCode, errCode, nil)
+	// 	return
+	// }
+	articleId, err1 := strconv.Atoi(c.Param("id"))
+	params := param.ArticleAddTagsParams{}
+	params.ArticleId = articleId
+
+	if err := c.ShouldBind(&params); err != nil || err1 != nil {
+		fmt.Println("绑定错误", err)
+		gin_http.Response(c, http.StatusBadRequest, e.INVALID_PARAMS, nil)
 		return
 	}
-	articleId, _ := strconv.Atoi(c.Param("id"))
+
 	userID, err := articleService.GetUserID(articleId)
 	if err != nil {
 		gin_http.Response(c, http.StatusBadRequest, e.ERROR_GET_USERID_FAIL, nil)
@@ -184,8 +164,8 @@ func AddArticleTags(c *gin.Context) {
 		return
 	}
 
-	if httpCode, errCode = articleService.AddArticleTags(); errCode != e.SUCCESS {
-		gin_http.Response(c, httpCode, errCode, nil)
+	if err := articleService.AddTags(&params); err != nil {
+		gin_http.Response(c, http.StatusInternalServerError, e.ERROR_ADD_ARTICLE_TAG_FAIL, nil)
 		return
 	}
 	gin_http.Response(c, http.StatusOK, e.SUCCESS, nil)
@@ -201,12 +181,15 @@ func AddArticleTags(c *gin.Context) {
 func DeleteArticleTags(c *gin.Context) {
 
 	articleService := service.GetArticleService()
-	httpCode, errCode := articleService.Bind(c)
-	if errCode != e.SUCCESS {
-		gin_http.Response(c, httpCode, errCode, nil)
+	params := param.ArticleAddTagsParams{}
+	articleId, err1 := strconv.Atoi(c.Param("id"))
+	params.ArticleId = articleId
+
+	if err := c.ShouldBind(&params); err != nil || err1 != nil {
+		fmt.Println("绑定错误", err)
+		gin_http.Response(c, http.StatusBadRequest, e.INVALID_PARAMS, nil)
 		return
 	}
-	articleId, _ := strconv.Atoi(c.Param("id"))
 	userID, err := articleService.GetUserID(articleId)
 	if err != nil {
 		gin_http.Response(c, http.StatusBadRequest, e.ERROR_GET_USERID_FAIL, nil)
@@ -216,8 +199,8 @@ func DeleteArticleTags(c *gin.Context) {
 		gin_http.Response(c, http.StatusBadRequest, e.ERROR_AUTH_CHECK_TOKEN_FAIL, nil)
 		return
 	}
-	if httpCode, errCode = articleService.DeleteArticleTags(); errCode != e.SUCCESS {
-		gin_http.Response(c, httpCode, errCode, nil)
+	if err = articleService.DeleteTags(&params); err != nil {
+		gin_http.Response(c, http.StatusInternalServerError, e.ERROR_DELETE_ARTICLE_TAG_FAIL, nil)
 		return
 	}
 	gin_http.Response(c, http.StatusOK, e.SUCCESS, nil)
@@ -266,16 +249,27 @@ func DeleteArticle(c *gin.Context) {
 // @Produce  json
 // @Param id path int true "文章ID"
 // @Param token header string true "token"
+// @Param title formData string false "title"
+// @Param content formData string false "content"
 // @Router /api/v1/article/{id} [put]
 func UpdateArticle(c *gin.Context) {
 
 	articleService := service.GetArticleService()
-	httpCode, errCode := articleService.Bind(c)
-	if errCode != e.SUCCESS {
-		gin_http.Response(c, httpCode, errCode, nil)
+	params := param.ArticleUpdateParams{}
+	if err := c.ShouldBind(&params); err != nil {
+		fmt.Println("绑定错误", err)
+		gin_http.Response(c, http.StatusBadRequest, e.INVALID_PARAMS, nil)
 		return
 	}
-	articleId, _ := strconv.Atoi(c.Param("id"))
+
+	articleId, err := strconv.Atoi(c.Param("id"))
+	if err != nil || articleId <= 0 {
+		fmt.Println("绑定错误", err)
+		gin_http.Response(c, http.StatusBadRequest, e.INVALID_PARAMS, nil)
+		return
+	}
+	params.ArticleId = articleId
+
 	userID, err := articleService.GetUserID(articleId)
 	if err != nil {
 		gin_http.Response(c, http.StatusBadRequest, e.ERROR_GET_USERID_FAIL, nil)
@@ -286,7 +280,7 @@ func UpdateArticle(c *gin.Context) {
 		return
 	}
 
-	if err := articleService.Update(); err != nil {
+	if err := articleService.Update(&params); err != nil {
 		gin_http.Response(c, http.StatusInternalServerError, e.ERROR_EDIT_ARTICLE_FAIL, nil)
 		return
 	}
@@ -297,15 +291,17 @@ func UpdateArticle(c *gin.Context) {
 // @Produce  json
 // @Param id path int true "文章ID"
 // @Param token header string true "token"
-// @Router /api/v1/article/{id}/recover [post]
+// @Router /api/v1/article/{id}/recover [put]
 func RecoverArticle(c *gin.Context) {
 	articleService := service.GetArticleService()
-	httpCode, errCode := articleService.Bind(c)
-	if errCode != e.SUCCESS {
-		gin_http.Response(c, httpCode, errCode, nil)
+
+	articleId, err := strconv.Atoi(c.Param("id"))
+	if err != nil || articleId <= 0 {
+		fmt.Println("绑定错误", err)
+		gin_http.Response(c, http.StatusBadRequest, e.INVALID_PARAMS, nil)
 		return
 	}
-	articleId, _ := strconv.Atoi(c.Param("id"))
+
 	userID, err := articleService.GetUserID(articleId)
 	if err != nil {
 		gin_http.Response(c, http.StatusBadRequest, e.ERROR_GET_USERID_FAIL, nil)
@@ -316,7 +312,7 @@ func RecoverArticle(c *gin.Context) {
 		return
 	}
 
-	if err := articleService.Recovery(); err != nil {
+	if err := articleService.Recovery(articleId); err != nil {
 		gin_http.Response(c, http.StatusInternalServerError, e.ERROR_REC_ARTICLE_FAIL, nil)
 	}
 	gin_http.Response(c, http.StatusOK, e.SUCCESS, nil)
@@ -332,7 +328,7 @@ func RecoverArticle(c *gin.Context) {
 func LikeArticle(c *gin.Context) {
 
 	articleService := service.GetArticleService()
-	param := service.ArticleLikeParams{}
+	param := param.ArticleLikeParams{}
 	if err := c.ShouldBind(&param); err != nil {
 		fmt.Println("绑定错误", err)
 		gin_http.Response(c, http.StatusBadRequest, e.INVALID_PARAMS, nil)
@@ -350,7 +346,7 @@ func LikeArticle(c *gin.Context) {
 		gin_http.Response(c, http.StatusBadRequest, e.ERROR_AUTH_CHECK_TOKEN_FAIL, nil)
 		return
 	}
-	if err := articleService.UpdateArticleLike(param); err != nil {
+	if err := articleService.UpdateArticleLike(&param); err != nil {
 		gin_http.Response(c, http.StatusInternalServerError, e.ERROR_LIKE_ARTICLE_FAIL, nil)
 		return
 	}

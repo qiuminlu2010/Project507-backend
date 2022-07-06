@@ -2,8 +2,10 @@ package v1
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"os"
+	"strconv"
 
 	"qiu/blog/pkg/e"
 	gin_http "qiu/blog/pkg/http"
@@ -11,7 +13,8 @@ import (
 	// "qiu/blog/pkg/logging"
 
 	"qiu/blog/pkg/util"
-	service "qiu/blog/service"
+	param "qiu/blog/service/param"
+	service "qiu/blog/service/user"
 
 	"qiu/blog/pkg/setting"
 
@@ -58,16 +61,17 @@ func GetAdminMenu(c *gin.Context) {
 func GetUserList(c *gin.Context) {
 
 	userService := service.GetUserService()
+	params := param.UserListGetParams{}
 	page := 0
-	userService.PageNum, page = util.GetPage(c)
-	userService.PageSize = setting.AppSetting.PageSize
+	params.PageNum, page = util.GetPage(c)
+	params.PageSize = setting.AppSetting.PageSize
 
 	total, err := userService.CountUser(nil)
 	if err != nil {
 		gin_http.Response(c, http.StatusInternalServerError, e.ERROR_USER_LIST_FAIL, nil)
 		return
 	}
-	userList, err := userService.GetUserList(nil)
+	userList, err := userService.GetUserList(&params)
 	if err != nil {
 		gin_http.Response(c, http.StatusInternalServerError, e.ERROR_USER_LIST_FAIL, nil)
 		return
@@ -76,7 +80,7 @@ func GetUserList(c *gin.Context) {
 	data["datalist"] = userList
 	data["total"] = total
 	data["pageNum"] = page
-	data["pageSize"] = userService.PageSize
+	data["pageSize"] = params.PageSize
 	gin_http.Response(c, http.StatusOK, e.SUCCESS, data)
 }
 
@@ -89,12 +93,13 @@ func GetUserList(c *gin.Context) {
 // @Router /user/login [post]
 func Login(c *gin.Context) {
 	userService := service.GetUserService()
-	httpCode, errCode := userService.Bind(c)
-	if errCode != e.SUCCESS {
-		gin_http.Response(c, httpCode, errCode, nil)
+	params := param.UserLoginParams{}
+	if err := c.ShouldBind(&params); err != nil {
+		fmt.Println("绑定错误", err)
+		gin_http.Response(c, http.StatusBadRequest, e.INVALID_PARAMS, nil)
 		return
 	}
-	userInfo, err := userService.Login()
+	userInfo, err := userService.Login(&params)
 	if err != nil {
 		gin_http.Response(c, http.StatusBadRequest, e.ERROR_LOGIN, nil)
 		return
@@ -107,12 +112,10 @@ func Login(c *gin.Context) {
 	}
 
 	data := make(map[string]interface{})
-	data["uid"] = userInfo.ID
-	data["username"] = userInfo.Username
+	data["user_info"] = userInfo
 	data["token"] = token
 	data["uuid"] = userService.GetUUID(userInfo.ID)
 	data["expire_time"] = expire_time
-	// logging.Info("用户登录成功,", "用户名:", userService.Username)
 	gin_http.Response(c, http.StatusOK, e.SUCCESS, data)
 
 }
@@ -123,62 +126,56 @@ func Login(c *gin.Context) {
 // @Param username formData string true "username"
 // @Param password formData string true "password"
 // @Success 200 {object} gin_http.ResponseJSON
-// @Failure  20006 {object} gin_http.ResponseJSON
-// @Failure  20007 {object} gin_http.ResponseJSON
 // @Router /user/register [post]
 func Register(c *gin.Context) {
 
 	userService := service.GetUserService()
-	httpCode, errCode := userService.Bind(c)
-
-	if errCode != e.SUCCESS {
-		gin_http.Response(c, httpCode, errCode, nil)
+	params := param.UserAddParams{}
+	if err := c.ShouldBind(&params); err != nil {
+		fmt.Println("绑定错误", err)
+		gin_http.Response(c, http.StatusBadRequest, e.INVALID_PARAMS, nil)
 		return
 	}
 
-	if err := userService.ExistUsername(); err == nil {
+	if userService.ExistUsername(params.Username) {
 		gin_http.Response(c, http.StatusBadRequest, e.ERROR_EXIST_USER, nil)
 		return
 	}
+
 	//TODO:密码加密
-	if err := userService.Add(); err != nil {
+	if err := userService.Add(&params); err != nil {
 		gin_http.Response(c, http.StatusInternalServerError, e.ERROR_REGISTER, nil)
 		return
 	}
 
-	// logging.Info("用户注销成功,", "用户名:", userService.Username)
 	gin_http.Response(c, http.StatusOK, e.SUCCESS, nil)
 }
 
 // @Summary 注销用户
 // @Produce  json
 // @Param id path int true "id"
-// @Param username formData string true "username"
 // @Param token header string true "token"
 // @Success 200 {object} gin_http.ResponseJSON
-// @Failure  400 {object} gin_http.ResponseJSON
-// @Failure  20008 {object} gin_http.ResponseJSON
 // @Router /user/{id} [delete]
 func DeleteUser(c *gin.Context) {
 
 	userService := service.GetUserService()
-	httpCode, errCode := userService.Bind(c)
-
-	if errCode != e.SUCCESS {
-		gin_http.Response(c, httpCode, errCode, nil)
+	userId, err := strconv.Atoi(c.Param("id"))
+	if err != nil || userId <= 0 {
+		fmt.Println("绑定错误", err)
+		gin_http.Response(c, http.StatusBadRequest, e.INVALID_PARAMS, nil)
 		return
 	}
 
-	if !userService.CheckTokenUid(c, userService.Id) {
+	if !userService.CheckTokenUid(c, uint(userId)) {
 		gin_http.Response(c, http.StatusBadRequest, e.ERROR_AUTH_CHECK_TOKEN_FAIL, nil)
 		return
 	}
 
-	if err := userService.Delete(); err != nil {
+	if err := userService.Delete(userId); err != nil {
 		gin_http.Response(c, http.StatusInternalServerError, e.ERROR_DELETE_USER_FAIL, nil)
 		return
 	}
-	// logging.Info("用户注销成功,", "用户名:", userService.GetUsernameByID())
 	gin_http.Response(c, http.StatusOK, e.SUCCESS, nil)
 }
 
@@ -188,29 +185,35 @@ func DeleteUser(c *gin.Context) {
 // @Param password formData string true "password"
 // @Param token header string true "token"
 // @Success 200 {object} gin_http.ResponseJSON
-// @Failure  400 {object} gin_http.ResponseJSON
-// @Failure  20009 {object} gin_http.ResponseJSON
 // @Router /user/{id}/password [put]
 func UpdatePassword(c *gin.Context) {
 
 	userService := service.GetUserService()
-	httpCode, errCode := userService.Bind(c)
 
-	if errCode != e.SUCCESS {
-		gin_http.Response(c, httpCode, errCode, nil)
+	params := param.UserUpdateParams{}
+	if err := c.ShouldBind(&params); err != nil {
+		fmt.Println("绑定错误", err)
+		gin_http.Response(c, http.StatusBadRequest, e.INVALID_PARAMS, nil)
 		return
 	}
 
-	if !userService.CheckTokenUid(c, userService.Id) {
+	userId, err := strconv.Atoi(c.Param("id"))
+	if err != nil || userId <= 0 {
+		fmt.Println("绑定错误", err)
+		gin_http.Response(c, http.StatusBadRequest, e.INVALID_PARAMS, nil)
+		return
+	}
+
+	if !userService.CheckTokenUid(c, uint(userId)) {
 		gin_http.Response(c, http.StatusBadRequest, e.ERROR_AUTH_CHECK_TOKEN_FAIL, nil)
 		return
 	}
 
-	if err := userService.UpdatePassword(); err != nil {
+	if err := userService.Update(&params); err != nil {
 		gin_http.Response(c, http.StatusInternalServerError, e.ERROR_UPDATE_USER_FAIL, nil)
 		return
 	}
-	// logging.Info("用户修改密码成功,", "用户名:", userService.GetUsernameByID())
+
 	gin_http.Response(c, http.StatusOK, e.SUCCESS, nil)
 }
 
@@ -222,25 +225,26 @@ func UpdatePassword(c *gin.Context) {
 // @Router /user/{id}/refreshToken [post]
 func RefreshToken(c *gin.Context) {
 	userService := service.GetUserService()
-	httpCode, errCode := userService.Bind(c)
-	if errCode != e.SUCCESS {
-		gin_http.Response(c, httpCode, errCode, nil)
+
+	userId, err := strconv.Atoi(c.Param("id"))
+	if err != nil || userId <= 0 {
+		fmt.Println("绑定错误", err)
+		gin_http.Response(c, http.StatusBadRequest, e.INVALID_PARAMS, nil)
 		return
 	}
 
 	uuid := c.Param("uuid")
-	state := userService.CheckUUID(userService.Id, uuid)
+	state := userService.CheckUUID(uint(userId), uuid)
 	if !state {
 		gin_http.Response(c, http.StatusMovedPermanently, e.ERROR_UUID_EXPIRE, nil)
 		return
 	}
-	token, expire_time, err := util.GenerateToken(userService.Id)
+	token, expire_time, err := util.GenerateToken(uint(userId))
 	if err != nil {
 		gin_http.Response(c, http.StatusInternalServerError, e.ERROR_AUTH_TOKEN, nil)
 		return
 	}
 	data := make(map[string]interface{})
-	// data["uid"] = userService.Id
 	data["token"] = token
 	data["expire_time"] = expire_time
 	gin_http.Response(c, http.StatusOK, e.SUCCESS, data)
@@ -250,28 +254,35 @@ func RefreshToken(c *gin.Context) {
 // @Summary 更新用户
 // @Produce  json
 // @Param id path int true "id"
+// @Param state query int true "state"
 // @Param token header string true "token"
 // @Success 200 {object} gin_http.ResponseJSON
 // @Router /user/{id}/state [put]
 func UpdateUserState(c *gin.Context) {
 
 	userService := service.GetUserService()
-	httpCode, errCode := userService.Bind(c)
-
-	if errCode != e.SUCCESS {
-		gin_http.Response(c, httpCode, errCode, nil)
+	params := param.UserUpdateParams{}
+	if err := c.ShouldBind(&params); err != nil {
+		fmt.Println("绑定错误", err)
+		gin_http.Response(c, http.StatusBadRequest, e.INVALID_PARAMS, nil)
 		return
 	}
 
-	if !userService.CheckTokenUid(c, userService.Id) {
+	userId, err := strconv.Atoi(c.Param("id"))
+	if err != nil || userId <= 0 {
+		fmt.Println("绑定错误", err)
+		gin_http.Response(c, http.StatusBadRequest, e.INVALID_PARAMS, nil)
+		return
+	}
+
+	if !userService.CheckTokenUid(c, uint(userId)) {
 		gin_http.Response(c, http.StatusBadRequest, e.ERROR_AUTH_CHECK_TOKEN_FAIL, nil)
 		return
 	}
 
-	if err := userService.UpdateState(); err != nil {
+	if err := userService.UpdateState(&params); err != nil {
 		gin_http.Response(c, http.StatusInternalServerError, e.ERROR_UPDATE_USER_FAIL, nil)
 		return
 	}
-	// logging.Info("用户修改密码成功,", "用户名:", userService.GetUsernameByID())
 	gin_http.Response(c, http.StatusOK, e.SUCCESS, nil)
 }

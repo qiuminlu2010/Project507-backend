@@ -1,6 +1,8 @@
 package model
 
 import (
+	"qiu/blog/pkg/e"
+
 	"gorm.io/gorm"
 )
 
@@ -12,9 +14,9 @@ func GetUserTotal(maps interface{}) (int64, error) {
 	return count, nil
 }
 
-func GetUserList(pageNum int, pageSize int, maps interface{}) ([]*User, error) {
+func GetUserList(pageNum int, pageSize int) ([]*User, error) {
 	var users []*User
-	err := db.Offset(pageNum).Where(maps).Limit(pageSize).Find(&users).Error
+	err := db.Offset(pageNum).Limit(pageSize).Find(&users).Error
 	if err != nil && err != gorm.ErrRecordNotFound {
 		return nil, err
 	}
@@ -23,20 +25,27 @@ func GetUserList(pageNum int, pageSize int, maps interface{}) ([]*User, error) {
 }
 
 //TODO: GetUserArticle
-func ExistUsername(username string) error {
-	var user User
-	return db.Where("username = ?", username).First(&user).Error
+func ExistUsername(username string) (res int64) {
+	db.Where("username = ?", username).Count(&res)
+	return
 }
 
-func ValidLogin(username string, password string) (User, error) {
-	var user User
-	if err := db.Where("username = ? AND password = ?", username, password).First(&user).Error; err != nil {
-		return user, err
+func ValidLogin(username string, password string) (*UserInfo, error) {
+
+	var user UserInfo
+	if err := db.Model(&User{}).Select("id", "username", "name", "avator").Where("username = ? AND password = ?", username, password).First(&user).Error; err != nil {
+		return nil, err
 	}
-	return user, nil
+	if err := db.Table(e.TABLE_USER_FOLLOWS).Where("follow_id = ?", user.ID).Count(&user.FanNum).Error; err != nil {
+		return nil, err
+	}
+	if err := db.Table(e.TABLE_USER_FOLLOWS).Where("user_id = ?", user.ID).Count(&user.FollowNum).Error; err != nil {
+		return nil, err
+	}
+	return &user, nil
 }
 
-func AddUser(user User) error {
+func AddUser(user *User) error {
 	return db.Create(&user).Error
 }
 

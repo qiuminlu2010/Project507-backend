@@ -6,7 +6,9 @@ import (
 	"qiu/blog/pkg/e"
 	gin_http "qiu/blog/pkg/http"
 	"qiu/blog/pkg/setting"
-	service "qiu/blog/service"
+	articleService "qiu/blog/service/article"
+	param "qiu/blog/service/param"
+	service "qiu/blog/service/user"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -21,7 +23,7 @@ import (
 func GetUsers(c *gin.Context) {
 
 	userService := service.GetUserService()
-	params := service.UsersGetParams{}
+	params := param.UsersGetParams{}
 
 	if err := c.ShouldBind(&params); err != nil {
 		fmt.Println("绑定错误", err)
@@ -81,7 +83,7 @@ func GetUserInfo(c *gin.Context) {
 // @Router /api/v1/user/{id}/follow [post]
 func FollowUser(c *gin.Context) {
 	userService := service.GetUserService()
-	params := service.UpsertUserFollowParams{}
+	params := param.UpsertUserFollowParams{}
 
 	var err error
 	if err = c.ShouldBind(&params); err != nil {
@@ -99,7 +101,7 @@ func FollowUser(c *gin.Context) {
 		gin_http.Response(c, http.StatusBadRequest, e.ERROR_AUTH_CHECK_TOKEN_FAIL, nil)
 		return
 	}
-	if err := userService.UpsertFollowUser(params); err != nil {
+	if err := userService.UpsertFollowUser(&params); err != nil {
 		gin_http.Response(c, http.StatusInternalServerError, e.ERROR_USER_UPSERT_FOLLOW_FAIL, nil)
 		return
 	}
@@ -115,7 +117,7 @@ func FollowUser(c *gin.Context) {
 // @Router /api/v1/user/{id}/follows [get]
 func GetFollows(c *gin.Context) {
 	userService := service.GetUserService()
-	params := service.FollowsGetParams{}
+	params := param.FollowsGetParams{}
 
 	var err error
 	params.UserId, err = strconv.Atoi(c.Param("id"))
@@ -194,8 +196,8 @@ func GetFans(c *gin.Context) {
 // @Router /api/v1/user/{id}/articles [get]
 func GetUserArticles(c *gin.Context) {
 
-	userService := service.GetUserService()
-	params := service.ArticleGetParams{}
+	articleService := articleService.GetArticleService()
+	params := param.ArticleGetParams{}
 
 	var err error
 	params.Uid, err = strconv.Atoi(c.Param("id"))
@@ -214,7 +216,7 @@ func GetUserArticles(c *gin.Context) {
 
 	fmt.Println("绑定数据", params)
 
-	articles, err := userService.GetUserArticles(&params)
+	articles, err := articleService.GetUserArticles(&params)
 	if err != nil {
 		fmt.Println("GetUserLikeArticles", err)
 		gin_http.Response(c, http.StatusInternalServerError, e.ERROR_GET_USER_ARTICLES_FAIL, nil)
@@ -236,8 +238,8 @@ func GetUserArticles(c *gin.Context) {
 // @Param page_size query int false "page_size"
 // @Router /api/v1/user/{id}/likeArticles [get]
 func GetUserLikeArticles(c *gin.Context) {
-	userService := service.GetUserService()
-	params := service.ArticleGetParams{}
+	articleService := articleService.GetArticleService()
+	params := param.ArticleGetParams{}
 	params.Uid, _ = strconv.Atoi(c.Param("id"))
 
 	if params.PageSize == 0 {
@@ -246,11 +248,11 @@ func GetUserLikeArticles(c *gin.Context) {
 	page := params.PageNum
 	params.PageNum = params.PageNum * params.PageSize
 	fmt.Println("绑定数据", params)
-	if !userService.CheckTokenUid(c, uint(params.Uid)) {
+	if !articleService.CheckTokenUid(c, uint(params.Uid)) {
 		gin_http.Response(c, http.StatusBadRequest, e.ERROR_AUTH_CHECK_TOKEN_FAIL, nil)
 		return
 	}
-	articles, err := userService.GetLikeArticles(&params)
+	articles, err := articleService.GetUserLikeArticles(&params)
 	if err != nil {
 		fmt.Println("GetUserLikeArticles", err)
 		gin_http.Response(c, http.StatusInternalServerError, e.ERROR_GET_LIKE_ARTICLES_FAIL, nil)

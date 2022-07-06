@@ -28,31 +28,26 @@ func GetMessageKey(modelName string, modelId uint, fieldName string) string {
 //uid:2:like_articles
 func GetArticleListParamsKey(pageNum int, pageSize int) string {
 	return fmt.Sprintf("%s:page_num:%d:page_size:%d", "article_list", pageNum, pageSize)
-	// if a.ID > 0 {
-	// 	keys = append(keys, strconv.Itoa(a.ID))
-	// }
-	// if a.TagID > 0 {
-	// 	keys = append(keys, strconv.Itoa(a.TagID))
-	// }
-	// if a.State >= 0 {
-	// 	keys = append(keys, strconv.Itoa(a.State))
-	// }
 }
 
 //getModelsFromCache (modelName, modelIds)
 //SetUserInfoCache
 func FlushArticleLikeUsers() error {
+
 	fmt.Println("FlushArticleLikeUsers")
+
 	pattern := fmt.Sprintf("%s*%s", e.CACHE_MESSAGE, e.CACHE_LIKEUSERS)
 	data := redis.ScanHashByPattern(pattern)
+
 	for key, value := range data {
+
 		// fmt.Println("ScanSetByPattern", key, value)
 		var likeUsers []*model.ArticleLikeUsers
 		var unlikeUsers []uint
+
 		//message:article:2:like_users  1600000
 		articleId, _ := strconv.Atoi(strings.Split(key, ":")[2])
-		// article := model.Article{}
-		// article.ID = uint(articleId)
+
 		for k, v := range value.(map[string]string) {
 			userId, _ := strconv.Atoi(k)
 			v, err := strconv.Atoi(v)
@@ -64,13 +59,6 @@ func FlushArticleLikeUsers() error {
 			} else if v < 0 {
 				unlikeUsers = append(unlikeUsers, uint(userId))
 			}
-			// userId, _ := strconv.Atoi(v)
-			// cache_key := GetModelFieldKey(e.CACHE_ARTICLE, uint(articleId), e.CACHE_LIKEUSERS)
-			// if redis.GetBit(cache_key, int64(userId)) == 1 {
-			// 	likeUsers = append(likeUsers, uint(userId))
-			// } else {
-			// 	unlikeUsers = append(unlikeUsers, uint(userId))
-			// }
 		}
 
 		if len(likeUsers) > 0 {
@@ -78,17 +66,12 @@ func FlushArticleLikeUsers() error {
 			if err := model.AddArticleLikeUsers(likeUsers); err != nil {
 				panic(err)
 			}
-			// if err := model.GetArticleLikeCount(article); err != nil {
-			// 	panic(err)
-			// }
-			// addlikeArticleUsers(article, likeUsers)
 		}
 		if len(unlikeUsers) > 0 {
 			// fmt.Println("unlikeUserId", articleId, unlikeUsers)
 			if err := model.DeleteArticleLikeUsers(uint(articleId), unlikeUsers); err != nil {
 				panic(err)
 			}
-
 		}
 		redis.Del(key)
 	}
@@ -127,13 +110,3 @@ func FlushUserFollows() error {
 	fmt.Println("FlushUserFollows", "OK")
 	return nil
 }
-
-// func addlikeArticleUsers(article *Article, users []*User) {
-
-// }
-
-// func deletelikeArticleUsers(data []model.ArticleIdUserId) {
-// 	if err := model.DeleteArticleLikeUsers(data); err != nil {
-// 		panic(err)
-// 	}
-// }

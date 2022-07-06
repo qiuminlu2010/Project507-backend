@@ -6,27 +6,27 @@ import (
 	"qiu/blog/pkg/e"
 	"qiu/blog/pkg/redis"
 	"qiu/blog/pkg/util"
+	base "qiu/blog/service/base"
+	cache "qiu/blog/service/cache"
+	param "qiu/blog/service/param"
 )
 
 type UserService struct {
-	BaseService
-	UserLoginParams
-	PageNum  int
-	PageSize int
+	base.BaseService
 }
 
+var userService UserService
+
 func GetUserService() *UserService {
-	s := UserService{}
-	s.model = &s
-	return &s
+	return &userService
 }
 
 func (s *UserService) CountUser(data map[string]interface{}) (int64, error) {
 	return model.GetUserTotal(data)
 }
 
-func (s *UserService) GetUserList(data map[string]interface{}) ([]*model.User, error) {
-	return model.GetUserList(s.PageNum, s.PageSize, data)
+func (s *UserService) GetUserList(param *param.UserListGetParams) ([]*model.User, error) {
+	return model.GetUserList(param.PageNum, param.PageSize)
 }
 
 func (s *UserService) GetUserInfo(userId int) (*model.UserInfo, error) {
@@ -36,49 +36,64 @@ func (s *UserService) GetUserInfo(userId int) (*model.UserInfo, error) {
 	}
 	return userInfo, nil
 }
-func (s *UserService) Add() error {
-	return model.AddUser(model.User{
-		Username: s.Username,
-		Password: s.Password,
-	})
+func (s *UserService) Add(params *param.UserAddParams) error {
+	var user model.User
+	user.Username = params.Username
+	user.Password = params.Password
+	if params.Name == "" {
+		user.Name = params.Username
+	} else {
+		user.Name = params.Name
+	}
+	return model.AddUser(&user)
 }
 
-func (s *UserService) Delete() error {
-	return model.DeleteUser(s.Id)
+func (s *UserService) Delete(id int) error {
+	return model.DeleteUser(uint(id))
 }
 
-func (s *UserService) Login() (model.User, error) {
-	return model.ValidLogin(s.Username, s.Password)
-}
-
-func (s *UserService) ExistUsername() error {
-	return model.ExistUsername(s.Username)
-}
-
-func (s *UserService) UpdatePassword() error {
+func (s *UserService) Update(params *param.UserUpdateParams) error {
 	data := make(map[string]interface{})
-	data["password"] = s.Password
-	return model.UpdateUser(s.Id, data)
+	if params.Name != "" {
+		data["name"] = params.Name
+	}
+	if params.Password != "" {
+		data["password"] = params.Password
+	}
+	return model.UpdateUser(uint(params.UserId), data)
+}
+func (s *UserService) Login(params *param.UserLoginParams) (*model.UserInfo, error) {
+	return model.ValidLogin(params.Username, params.Password)
 }
 
-func (s *UserService) UpdateState() error {
-	data := make(map[string]interface{})
-	data["state"] = s.State
-	return model.UpdateUser(s.Id, data)
+func (s *UserService) ExistUsername(name string) bool {
+	return model.ExistUsername(name) == 1
 }
-func (s *UserService) GetUsernameByID() string {
-	return model.GetUsernameByID(s.Id)
+
+// func (s *UserService) UpdatePassword() error {
+// 	data := make(map[string]interface{})
+// 	data["password"] = s.Password
+// 	return model.UpdateUser(s.Id, data)
+// }
+
+func (s *UserService) UpdateState(params *param.UserUpdateParams) error {
+	data := make(map[string]interface{})
+	data["state"] = params.State
+	return model.UpdateUser(uint(params.UserId), data)
+}
+func (s *UserService) GetUsernameByID(id int) string {
+	return model.GetUsernameByID(uint(id))
 }
 
 func (s *UserService) GetUUID(uid uint) string {
-	key := GetModelFieldKey("user", uid, "uuid")
+	key := cache.GetModelFieldKey("user", uid, "uuid")
 	uuid := util.GenerateUUID()
 	redis.Set(key, uuid, 60*60*24)
 	return uuid
 }
 
 func (s *UserService) CheckUUID(uid uint, uuid string) bool {
-	key := GetModelFieldKey("user", uid, "uuid")
+	key := cache.GetModelFieldKey("user", uid, "uuid")
 	if redis.Exists(key) == 0 {
 		return false
 	}
@@ -86,14 +101,14 @@ func (s *UserService) CheckUUID(uid uint, uuid string) bool {
 	return uuid == v
 }
 
-func (s *UserService) GetUsersByName(params *UsersGetParams) ([]*model.UserBase, error) {
-	return model.GetUsers(params.Name+"%", params.PageNum, params.PageSize)
+func (s *UserService) GetUsersByName(params *param.UsersGetParams) ([]*model.UserBase, error) {
+	return model.GetUsersByName(params.Name+"%", params.PageNum, params.PageSize)
 }
 
 //关注列表： 1.设置缓存 user:id:follows 2.设置缓存 user:id
-func (s *UserService) GetFollows(params *FollowsGetParams) ([]*model.UserBase, error) {
+func (s *UserService) GetFollows(params *param.FollowsGetParams) ([]*model.UserBase, error) {
 	//TODO: 分页
-	key := GetModelFieldKey(e.CACHE_USER, uint(params.UserId), e.CACHE_FOLLOWS)
+	key := cache.GetModelFieldKey(e.CACHE_USER, uint(params.UserId), e.CACHE_FOLLOWS)
 	var followIds []int
 	var err error
 
@@ -117,7 +132,7 @@ func (s *UserService) GetFollows(params *FollowsGetParams) ([]*model.UserBase, e
 func getUserCache(userIds []int) []*model.UserBase {
 	var userInfos []*model.UserBase
 	for _, userId := range userIds {
-		userKey := GetModelIdKey(e.CACHE_USER, userId)
+		userKey := cache.GetModelIdKey(e.CACHE_USER, userId)
 		if redis.Exists(userKey) == 0 {
 			err := setUserCache(userId)
 			if err != nil {
@@ -135,7 +150,7 @@ func getUserCache(userIds []int) []*model.UserBase {
 
 func setUserCache(userId int) error {
 	userInfo, err := model.GetUser(uint(userId))
-	key := GetModelIdKey(e.CACHE_USER, userId)
+	key := cache.GetModelIdKey(e.CACHE_USER, userId)
 	if err != nil {
 		return err
 	}
@@ -146,7 +161,7 @@ func setUserCache(userId int) error {
 
 func setUserFollowCache(userId int) error {
 	//user:id:follows
-	key := GetModelFieldKey(e.CACHE_USER, uint(userId), e.CACHE_FOLLOWS)
+	key := cache.GetModelFieldKey(e.CACHE_USER, uint(userId), e.CACHE_FOLLOWS)
 	followIds, err := model.GetFollowIds(uint(userId))
 	if err != nil {
 		return err
@@ -159,9 +174,9 @@ func setUserFollowCache(userId int) error {
 }
 
 //关注操作： 1.设置缓存 user:id:follows 2.修改缓存 3 添加消息缓存 message:user:id:follows
-func (s *UserService) UpsertFollowUser(params UpsertUserFollowParams) error {
+func (s *UserService) UpsertFollowUser(params *param.UpsertUserFollowParams) error {
 
-	key := GetModelFieldKey(e.CACHE_USER, uint(params.UserId), e.CACHE_FOLLOWS)
+	key := cache.GetModelFieldKey(e.CACHE_USER, uint(params.UserId), e.CACHE_FOLLOWS)
 	// messageKey := GetMessageKey(e.CACHE_USER, uint(params.UserId), e.CACHE_FOLLOWS)
 
 	// if redis.Exists(key) == 0 {
@@ -197,41 +212,4 @@ func (s *UserService) GetFans(userId int) ([]*model.UserBase, error) {
 		return nil, err
 	}
 	return getUserCache(fanIds), nil
-}
-
-//(userId, pageNum, pageSize) => []ArticleInfo
-func (s *UserService) GetUserArticles(params *ArticleGetParams) ([]*model.ArticleInfo, error) {
-	//user:id:articles
-	key := GetModelFieldKey(e.CACHE_USER, uint(params.Uid), e.CACHE_ARTICLES)
-	var articles []*model.ArticleInfo
-	var err error
-	if redis.Exists(key) == 0 {
-		if err = setUserArticleCache(params.Uid); err != nil {
-			return nil, err
-		}
-	}
-	//有序集合，根据时间戳降排
-	articleIds := redis.ZRevRange(key, int64(params.PageNum), int64(params.PageSize-1))
-	articles, err = getArticlesCache(articleIds, key)
-	if err != nil {
-		return nil, err
-	}
-	if err = getArticleLikeInfo(articles, params.Uid); err != nil {
-		return nil, err
-	}
-	return articles, nil
-}
-
-//设置缓存： user:id:articles (score:time member:articleId)
-func setUserArticleCache(userId int) error {
-	key := GetModelFieldKey(e.CACHE_USER, uint(userId), e.CACHE_ARTICLES)
-	articles, err := model.GetUserArticles(uint(userId))
-	if err != nil {
-		return err
-	}
-	for _, article := range articles {
-		redis.ZAdd(key, float64(article.CreatedOn), article.ID)
-	}
-	redis.Expire(key, e.DURATION_USERARTICLES)
-	return nil
 }

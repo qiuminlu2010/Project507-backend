@@ -42,7 +42,7 @@ func InitRouter() *gin.Engine {
 
 	//文章类
 	apiv1.GET("/article", v1.GetArticles)
-	apiv1.GET("/article/:id", v1.GetArticle)
+	// apiv1.GET("/article/:id", v1.GetArticle)
 
 	//评论
 	apiv1.GET("/comments/:article_id", v1.GetComments)
@@ -56,10 +56,10 @@ func InitRouter() *gin.Engine {
 	apiv1.Use(middleware.JWT())
 	{
 		//标签类
-		apiv1.POST("/tag", v1.AddTag)
+		// apiv1.POST("/tag", v1.AddTag)
 		apiv1.DELETE("/tag/:id", v1.DeleteTag)
-		apiv1.PUT("/tag/:id", v1.EditTag)
-		apiv1.POST("/tag/:id/recover", v1.RecoverTag)
+		// apiv1.PUT("/tag/:id", v1.EditTag)
+		apiv1.PUT("/tag/:id/recover", v1.RecoverTag)
 		apiv1.DELETE("/tag/:id/clear", v1.ClearTag)
 
 		//文章类
@@ -67,16 +67,14 @@ func InitRouter() *gin.Engine {
 		apiv1.POST("/article/:id/addTags", v1.AddArticleTags)
 		apiv1.DELETE("/article/:id", v1.DeleteArticle)
 		apiv1.DELETE("/article/:id/deleteTags", v1.DeleteArticleTags)
-		apiv1.POST("/article/:id/recover", v1.RecoverArticle)
-		apiv1.PUT("/article/:id/state", v1.UpdateArticle)
+		apiv1.PUT("/article/:id/recover", v1.RecoverArticle)
+		apiv1.PUT("/article/:id", v1.UpdateArticle)
 		apiv1.POST("/article/:id/like", v1.LikeArticle)
 
 		//评论
 		apiv1.POST("/comment", v1.AddComment)
-		// apiv1.POST("/comment/:id/reply", v1.AddReply)
 		apiv1.DELETE("/comment/:id", v1.DeleteComment)
 		apiv1.POST("/comment/:id/like", v1.LikeComment)
-		// apiv1.DELETE("/reply/:id", v1.DeleteReply)
 
 		//用户类
 		apiv1.POST("/user/:id/follow", v1.FollowUser)

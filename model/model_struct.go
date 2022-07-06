@@ -11,14 +11,19 @@ type Model struct {
 	DeletedAt  gorm.DeletedAt `gorm:"index"  binding:"-" json:"-"`
 }
 
-type Image struct {
-	ID         uint   `gorm:"primary_key" uri:"id" `
-	CreatedOn  int    `gorm:"index" binding:"-" json:"created_on,omitempty"`
-	ModifiedOn int    `binding:"-" json:"modified_on,omitempty"`
-	ArticleID  uint   `json:"-" form:"-" binding:"-"`
-	Filename   string `json:"filename" form:"filename" binding:"-"`
-	// Thumbnail int    `json:"-" form:"-"`
+type User struct {
+	Model
+	Username     string     `json:"username" form:"username" binding:"omitempty,printascii,gte=6,lte=20" gorm:"index;unique"`
+	Password     string     `json:"password" form:"password" binding:"omitempty,printascii,gte=6,lte=100"`
+	StudentId    string     `json:"student_id" form:"student_id" binding:"omitempty,numeric"`
+	Name         string     `json:"name" form:"name" gorm:"index;unique"`
+	Avator       string     `json:"avator" form:"avator"`
+	State        int        `json:"state" form:"state" binding:"gte=0,lte=1"`
+	LikeArticles []*Article `gorm:"many2many:article_like_users" binding:"-" json:"like_articles"`
+	Follows      []*User    `gorm:"many2many:user_follows"`
+	LikeComments []*Comment `gorm:"many2many:user_like_comments" binding:"-" json:"-"`
 }
+
 type Article struct {
 	Model
 	OwnerID   uint   `gorm:"index" json:"owner_id"`
@@ -84,42 +89,6 @@ type CommentIdUserId struct {
 	UserId    uint `json:"user_id"`
 }
 
-// type CommentInfo struct {
-// 	ID        uint    `json:"id" form:"id"`
-// 	CreatedOn int     `gorm:"index" binding:"-" json:"created_on,omitempty"`
-// 	UserID    uint    `json:"user_id"`
-// 	ArticleID uint    `json:"article_id"`
-// 	Username  string  `json:"username"`
-// 	Avator    string  `json:"avator"`
-// 	Content   string  `json:"content" form:"content" binding:"gte=1,lte=200"`
-// 	Replies   []Reply `json:"replies"`
-// 	LikeCount int     `json:"like_count" `
-// }
-// type ReplyInfo struct {
-// 	ID        uint   `json:"id" form:"id"`
-// 	CreatedOn int    `gorm:"index" binding:"-" json:"created_on,omitempty"`
-// 	UserID    uint   `json:"user_id"`
-// 	CommentID uint   `json:"comment_id"`
-// 	Username  string `json:"username"`
-// 	Avator    string `json:"avator"`
-// 	Content   string `json:"content" form:"content" binding:"gte=1,lte=200"`
-// 	LikeCount int    `json:"like_count" `
-// }
-type User struct {
-	Model
-	Username  string `json:"username" form:"username" binding:"omitempty,printascii,gte=6,lte=20" gorm:"index;unique"`
-	Password  string `json:"password" form:"password" binding:"omitempty,printascii,gte=6,lte=100"`
-	StudentId string `json:"student_id" form:"student_id" binding:"omitempty,numeric"`
-	// Articles     []Article `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;" json:"articles,omitempty" binding:"-"`
-	// FollowNum    int        `json:"follow_num" form:"follow_num" binding:"-"`
-	// FanNum       int        `json:"fan_num" form:"fan_num" binding:"-"`
-	Avator       string     `json:"avator" form:"avator"`
-	State        int        `json:"state" form:"state" binding:"gte=0,lte=1"`
-	LikeArticles []*Article `gorm:"many2many:article_like_users" binding:"-" json:"like_articles"`
-	Follows      []*User    `gorm:"many2many:user_follows"`
-	LikeComments []*Comment `gorm:"many2many:user_like_comments" binding:"-" json:"-"`
-}
-
 type ArticleLikeUsers struct {
 	ArticleID int
 	UserID    int
@@ -135,6 +104,7 @@ type UserArticlesCache struct {
 type UserBase struct {
 	ID       uint   `json:"id" form:"id"`
 	Username string `json:"username" form:"username"`
+	Name     string `json:"name" form:"name"`
 	Avator   string `json:"avator" form:"avator"`
 	// FollowNum int    `json:"follow_num" form:"follow_num" binding:"-"`
 	// FanNum    int    `json:"fan_num" form:"fan_num" binding:"-"`
@@ -182,4 +152,13 @@ type Tag struct {
 type TagInfo struct {
 	ID   uint   `json:"id" form:"id"`
 	Name string `json:"name" form:"name"`
+}
+
+type Image struct {
+	ID         uint   `gorm:"primary_key" uri:"id" `
+	CreatedOn  int    `gorm:"index" binding:"-" json:"created_on,omitempty"`
+	ModifiedOn int    `binding:"-" json:"modified_on,omitempty"`
+	ArticleID  uint   `json:"-" form:"-" binding:"-"`
+	Filename   string `json:"filename" form:"filename" binding:"-"`
+	// Thumbnail int    `json:"-" form:"-"`
 }

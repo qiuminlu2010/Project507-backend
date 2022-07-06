@@ -132,6 +132,18 @@ const docTemplate = `{
                         "name": "token",
                         "in": "header",
                         "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "title",
+                        "name": "title",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "content",
+                        "name": "content",
+                        "in": "formData"
                     }
                 ],
                 "responses": {}
@@ -177,10 +189,10 @@ const docTemplate = `{
                     {
                         "type": "array",
                         "items": {
-                            "type": "integer"
+                            "type": "string"
                         },
-                        "description": "标签ID",
-                        "name": "tag_id",
+                        "description": "标签",
+                        "name": "tag_name",
                         "in": "formData"
                     },
                     {
@@ -269,7 +281,7 @@ const docTemplate = `{
             }
         },
         "/api/v1/article/{id}/recover": {
-            "post": {
+            "put": {
                 "produces": [
                     "application/json"
                 ],
@@ -485,6 +497,12 @@ const docTemplate = `{
                     },
                     {
                         "type": "integer",
+                        "description": "page_num",
+                        "name": "page_num",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
                         "description": "page_size",
                         "name": "page_size",
                         "in": "query"
@@ -534,119 +552,9 @@ const docTemplate = `{
                         }
                     }
                 }
-            },
-            "post": {
-                "produces": [
-                    "application/json"
-                ],
-                "summary": "新增标签",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Name",
-                        "name": "name",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "UserId",
-                        "name": "uid",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "token",
-                        "name": "token",
-                        "in": "header",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "10001": {
-                        "description": "",
-                        "schema": {
-                            "$ref": "#/definitions/gin_http.ResponseJSON"
-                        }
-                    },
-                    "10006": {
-                        "description": "",
-                        "schema": {
-                            "$ref": "#/definitions/gin_http.ResponseJSON"
-                        }
-                    },
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/gin_http.ResponseJSON"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/gin_http.ResponseJSON"
-                        }
-                    }
-                }
             }
         },
         "/api/v1/tag/{id}": {
-            "put": {
-                "produces": [
-                    "application/json"
-                ],
-                "summary": "修改标签",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Name",
-                        "name": "name",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Modifiedby",
-                        "name": "modified_by",
-                        "in": "formData"
-                    },
-                    {
-                        "type": "string",
-                        "description": "token",
-                        "name": "token",
-                        "in": "header",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "10007": {
-                        "description": "",
-                        "schema": {
-                            "$ref": "#/definitions/gin_http.ResponseJSON"
-                        }
-                    },
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/gin_http.ResponseJSON"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/gin_http.ResponseJSON"
-                        }
-                    }
-                }
-            },
             "delete": {
                 "produces": [
                     "application/json"
@@ -716,7 +624,7 @@ const docTemplate = `{
             }
         },
         "/api/v1/tag/{id}/recover": {
-            "post": {
+            "put": {
                 "produces": [
                     "application/json"
                 ],
@@ -749,8 +657,14 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "Page",
-                        "name": "page",
+                        "description": "page_num",
+                        "name": "page_num",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "page_size",
+                        "name": "page_size",
                         "in": "query"
                     }
                 ],
@@ -1054,18 +968,6 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/gin_http.ResponseJSON"
                         }
-                    },
-                    "20006": {
-                        "description": "",
-                        "schema": {
-                            "$ref": "#/definitions/gin_http.ResponseJSON"
-                        }
-                    },
-                    "20007": {
-                        "description": "",
-                        "schema": {
-                            "$ref": "#/definitions/gin_http.ResponseJSON"
-                        }
                     }
                 }
             }
@@ -1086,13 +988,6 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
-                        "description": "username",
-                        "name": "username",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
                         "description": "token",
                         "name": "token",
                         "in": "header",
@@ -1102,18 +997,6 @@ const docTemplate = `{
                 "responses": {
                     "200": {
                         "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/gin_http.ResponseJSON"
-                        }
-                    },
-                    "20008": {
-                        "description": "",
-                        "schema": {
-                            "$ref": "#/definitions/gin_http.ResponseJSON"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
                         "schema": {
                             "$ref": "#/definitions/gin_http.ResponseJSON"
                         }
@@ -1153,18 +1036,6 @@ const docTemplate = `{
                 "responses": {
                     "200": {
                         "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/gin_http.ResponseJSON"
-                        }
-                    },
-                    "20009": {
-                        "description": "",
-                        "schema": {
-                            "$ref": "#/definitions/gin_http.ResponseJSON"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
                         "schema": {
                             "$ref": "#/definitions/gin_http.ResponseJSON"
                         }
@@ -1216,6 +1087,13 @@ const docTemplate = `{
                         "description": "id",
                         "name": "id",
                         "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "state",
+                        "name": "state",
+                        "in": "query",
                         "required": true
                     },
                     {

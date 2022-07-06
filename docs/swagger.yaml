@@ -104,6 +104,14 @@ paths:
         name: token
         required: true
         type: string
+      - description: title
+        in: formData
+        name: title
+        type: string
+      - description: content
+        in: formData
+        name: content
+        type: string
       produces:
       - application/json
       responses: {}
@@ -116,11 +124,11 @@ paths:
         name: id
         required: true
         type: integer
-      - description: 标签ID
+      - description: 标签
         in: formData
         items:
-          type: integer
-        name: tag_id
+          type: string
+        name: tag_name
         type: array
       - description: token
         in: header
@@ -183,7 +191,7 @@ paths:
       responses: {}
       summary: 添加文章点赞
   /api/v1/article/{id}/recover:
-    post:
+    put:
       parameters:
       - description: 文章ID
         in: path
@@ -326,6 +334,10 @@ paths:
         name: name
         required: true
         type: string
+      - description: page_num
+        in: query
+        name: page_num
+        type: integer
       - description: page_size
         in: query
         name: page_size
@@ -362,43 +374,6 @@ paths:
           schema:
             $ref: '#/definitions/gin_http.ResponseJSON'
       summary: 获取该标签的所有文章
-    post:
-      parameters:
-      - description: Name
-        in: formData
-        name: name
-        required: true
-        type: string
-      - description: UserId
-        in: formData
-        name: uid
-        required: true
-        type: integer
-      - description: token
-        in: header
-        name: token
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/gin_http.ResponseJSON'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/gin_http.ResponseJSON'
-        "10001":
-          description: ""
-          schema:
-            $ref: '#/definitions/gin_http.ResponseJSON'
-        "10006":
-          description: ""
-          schema:
-            $ref: '#/definitions/gin_http.ResponseJSON'
-      summary: 新增标签
   /api/v1/tag/{id}:
     delete:
       parameters:
@@ -428,43 +403,6 @@ paths:
           schema:
             $ref: '#/definitions/gin_http.ResponseJSON'
       summary: 删除标签
-    put:
-      parameters:
-      - description: ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      - description: Name
-        in: formData
-        name: name
-        required: true
-        type: string
-      - description: Modifiedby
-        in: formData
-        name: modified_by
-        type: string
-      - description: token
-        in: header
-        name: token
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/gin_http.ResponseJSON'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/gin_http.ResponseJSON'
-        "10007":
-          description: ""
-          schema:
-            $ref: '#/definitions/gin_http.ResponseJSON'
-      summary: 修改标签
   /api/v1/tag/{id}/clear:
     delete:
       parameters:
@@ -483,7 +421,7 @@ paths:
       responses: {}
       summary: 清理标签(硬删除)
   /api/v1/tag/{id}/recover:
-    post:
+    put:
       parameters:
       - description: ID
         in: path
@@ -502,9 +440,13 @@ paths:
   /api/v1/tags:
     get:
       parameters:
-      - description: Page
+      - description: page_num
         in: query
-        name: page
+        name: page_num
+        type: integer
+      - description: page_size
+        in: query
+        name: page_size
         type: integer
       produces:
       - application/json
@@ -673,11 +615,6 @@ paths:
         name: id
         required: true
         type: integer
-      - description: username
-        in: formData
-        name: username
-        required: true
-        type: string
       - description: token
         in: header
         name: token
@@ -688,14 +625,6 @@ paths:
       responses:
         "200":
           description: OK
-          schema:
-            $ref: '#/definitions/gin_http.ResponseJSON'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/gin_http.ResponseJSON'
-        "20008":
-          description: ""
           schema:
             $ref: '#/definitions/gin_http.ResponseJSON'
       summary: 注销用户
@@ -722,14 +651,6 @@ paths:
       responses:
         "200":
           description: OK
-          schema:
-            $ref: '#/definitions/gin_http.ResponseJSON'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/gin_http.ResponseJSON'
-        "20009":
-          description: ""
           schema:
             $ref: '#/definitions/gin_http.ResponseJSON'
       summary: 修改用户密码
@@ -760,6 +681,11 @@ paths:
       - description: id
         in: path
         name: id
+        required: true
+        type: integer
+      - description: state
+        in: query
+        name: state
         required: true
         type: integer
       - description: token
@@ -818,14 +744,6 @@ paths:
       responses:
         "200":
           description: OK
-          schema:
-            $ref: '#/definitions/gin_http.ResponseJSON'
-        "20006":
-          description: ""
-          schema:
-            $ref: '#/definitions/gin_http.ResponseJSON'
-        "20007":
-          description: ""
           schema:
             $ref: '#/definitions/gin_http.ResponseJSON'
       summary: 用户注册

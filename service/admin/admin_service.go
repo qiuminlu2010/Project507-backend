@@ -1,4 +1,4 @@
-package service
+package admin_service
 
 type AdminMenuItem struct {
 	Title    string          `json:"title"`
