@@ -82,6 +82,8 @@ func InitRouter() *gin.Engine {
 		apiv1.GET("/user/:id/fans", v1.GetFans)
 		apiv1.GET("/user/:id/likeArticles", v1.GetUserLikeArticles)
 
+		//聊天
+		apiv1.GET("/chat/:from_uid/:to_uid", v1.ChatHandler)
 		//上传图片
 		r.POST("/upload", v1.UploadImage)
 	}

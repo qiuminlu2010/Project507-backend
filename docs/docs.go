@@ -305,6 +305,38 @@ const docTemplate = `{
                 "responses": {}
             }
         },
+        "/api/v1/chat/{from_uid}/{to_uid}": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "获取文章列表",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "发送用户ID",
+                        "name": "from_uid",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "接收用户ID",
+                        "name": "to_uid",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "token",
+                        "name": "token",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
         "/api/v1/comment": {
             "post": {
                 "produces": [

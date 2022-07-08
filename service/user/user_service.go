@@ -1,4 +1,4 @@
-package service
+package user_service
 
 import (
 	"encoding/json"
@@ -36,6 +36,7 @@ func (s *UserService) GetUserInfo(userId int) (*model.UserInfo, error) {
 	}
 	return userInfo, nil
 }
+
 func (s *UserService) Add(params *param.UserAddParams) error {
 	var user model.User
 	user.Username = params.Username
@@ -125,11 +126,11 @@ func (s *UserService) GetFollows(params *param.FollowsGetParams) ([]*model.UserB
 		return nil, err
 	}
 
-	followUsers := getUserCache(followIds)
+	followUsers := getUsersCache(followIds)
 	return followUsers, nil
 }
 
-func getUserCache(userIds []int) []*model.UserBase {
+func getUsersCache(userIds []int) []*model.UserBase {
 	var userInfos []*model.UserBase
 	for _, userId := range userIds {
 		userKey := cache.GetModelIdKey(e.CACHE_USER, userId)
@@ -211,5 +212,22 @@ func (s *UserService) GetFans(userId int) ([]*model.UserBase, error) {
 	if err != nil {
 		return nil, err
 	}
-	return getUserCache(fanIds), nil
+	return getUsersCache(fanIds), nil
+}
+
+func GetUserCache(userId int) *model.UserBase {
+	var userInfo model.UserBase
+
+	userKey := cache.GetModelIdKey(e.CACHE_USER, userId)
+	if redis.Exists(userKey) == 0 {
+		err := setUserCache(userId)
+		if err != nil {
+			return nil
+		}
+	}
+	json.Unmarshal(redis.GetBytes(userKey), &userInfo)
+	redis.Expire(userKey, e.DURATION_USER_INFO)
+
+	return &userInfo
+
 }

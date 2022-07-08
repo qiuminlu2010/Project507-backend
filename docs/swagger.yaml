@@ -207,6 +207,28 @@ paths:
       - application/json
       responses: {}
       summary: 恢复文章
+  /api/v1/chat/{from_uid}/{to_uid}:
+    get:
+      parameters:
+      - description: 发送用户ID
+        in: path
+        name: from_uid
+        required: true
+        type: integer
+      - description: 接收用户ID
+        in: path
+        name: to_uid
+        required: true
+        type: integer
+      - description: token
+        in: header
+        name: token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: 获取文章列表
   /api/v1/comment:
     post:
       parameters:
