@@ -90,8 +90,8 @@ type CommentIdUserId struct {
 }
 
 type ArticleLikeUsers struct {
-	ArticleID int
-	UserID    int
+	ArticleID int `gorm:"primaryKey"`
+	UserID    int `gorm:"primaryKey"`
 	CreatedAt int `gorm:"index"  binding:"-" json:"created_at,omitempty"`
 }
 

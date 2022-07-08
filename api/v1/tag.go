@@ -43,7 +43,7 @@ func GetTags(c *gin.Context) {
 // @Summary 获取该标签的所有文章
 // @Produce  json
 // @Param tag_name query string true "tag_name"
-// @Param uid query int false "tag_name"
+// @Param uid query int false "user_id"
 // @Param page_num query int false "page_num"
 // @Param page_size query int false "page_size"
 // @Success 200 {object}  gin_http.ResponseJSON

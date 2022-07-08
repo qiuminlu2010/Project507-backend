@@ -112,7 +112,12 @@ func Login(c *gin.Context) {
 	}
 
 	data := make(map[string]interface{})
-	data["user_info"] = userInfo
+	data["uid"] = userInfo.ID
+	data["username"] = userInfo.Username
+	data["name"] = userInfo.Name
+	data["avator"] = userInfo.Avator
+	data["follow_num"] = userInfo.FollowNum
+	data["fan_num"] = userInfo.FanNum
 	data["token"] = token
 	data["uuid"] = userService.GetUUID(userInfo.ID)
 	data["expire_time"] = expire_time
@@ -203,7 +208,7 @@ func UpdatePassword(c *gin.Context) {
 		gin_http.Response(c, http.StatusBadRequest, e.INVALID_PARAMS, nil)
 		return
 	}
-
+	params.UserId = userId
 	if !userService.CheckTokenUid(c, uint(userId)) {
 		gin_http.Response(c, http.StatusBadRequest, e.ERROR_AUTH_CHECK_TOKEN_FAIL, nil)
 		return
@@ -274,7 +279,7 @@ func UpdateUserState(c *gin.Context) {
 		gin_http.Response(c, http.StatusBadRequest, e.INVALID_PARAMS, nil)
 		return
 	}
-
+	params.UserId = userId
 	if !userService.CheckTokenUid(c, uint(userId)) {
 		gin_http.Response(c, http.StatusBadRequest, e.ERROR_AUTH_CHECK_TOKEN_FAIL, nil)
 		return

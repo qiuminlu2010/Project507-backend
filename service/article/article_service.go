@@ -109,22 +109,33 @@ func (s *ArticleService) GetUserID(articleId int) (uint, error) {
 
 func (s *ArticleService) AddTags(params *param.ArticleAddTagsParams) error {
 	var tags []model.Tag
-	for _, tagName := range params.TagName {
+	for _, tag_name := range params.TagName {
+		tag_id, err := model.GetTagIdByName(tag_name)
 		tag := model.Tag{}
-		tag.Name = tagName
+		if err != nil {
+			tag.Name = tag_name
+		} else {
+			tag.ID = tag_id
+		}
 		tags = append(tags, tag)
 	}
+	redis.Del(cache.GetModelIdKey(e.CACHE_ARTICLE, params.ArticleId))
 	return model.AddArticleTags(params.ArticleId, tags)
 }
 
 func (s *ArticleService) DeleteTags(params *param.ArticleAddTagsParams) error {
 	var tags []model.Tag
-	for _, tagName := range params.TagName {
+	for _, tag_name := range params.TagName {
+		tag_id, err := model.GetTagIdByName(tag_name)
 		tag := model.Tag{}
-		tag.Name = tagName
+		if err != nil {
+			tag.Name = tag_name
+		} else {
+			tag.ID = tag_id
+		}
 		tags = append(tags, tag)
 	}
-
+	redis.Del(cache.GetModelIdKey(e.CACHE_ARTICLE, params.ArticleId))
 	return model.DeleteArticleTag(params.ArticleId, tags)
 }
 
@@ -218,6 +229,9 @@ func (s *ArticleService) GetUserLikeArticles(params *param.ArticleGetParams) ([]
 	articleIds := redis.ZRevRange(key, int64(params.PageNum), int64(params.PageSize-1))
 	articles, err = getArticlesCache(articleIds, key)
 	if err != nil {
+		return nil, err
+	}
+	if err = getArticleLikeInfo(articles, params.Uid); err != nil {
 		return nil, err
 	}
 	return articles, nil

@@ -40,16 +40,24 @@ func GetComments(articleId int, userId int, pageNum int, pageSize int) ([]*Comme
 	var comments []*Comment
 	likeCountSql := ",(select count(*) from `blog_user_like_comments` where `blog_comment`.`id` = comment_id) as like_count"
 	selectSql := "`id`,`user_id`,`article_id`,`created_on`,`username`,`avator`,`content`" + likeCountSql
+	selectReplySql := "`id`,`user_id`,`article_id`,`reply_id`,`created_on`,`username`,`avator`,`content`" + likeCountSql
 	isLikeSql := ""
 	if userId > 0 {
 		isLikeSql = fmt.Sprintf(",(select count(*) from `blog_user_like_comments` where `blog_comment`.`id` = comment_id and user_id = %d) as is_like", userId)
 		selectSql += isLikeSql
+		selectReplySql += isLikeSql
 	}
-	err := db.Table("blog_comment").Where("`article_id` = ?", articleId).Where("`reply_id` IS NULL").Order("created_on desc").Offset(pageNum).Limit(pageSize).
-		Select(selectSql).Preload(
-		"Replies", func(db *gorm.DB) *gorm.DB {
-			return db.Select("id", "created_on", "user_id", "article_id", "reply_id", "username", "avator", "content", "like_count")
-		}).Find(&comments).Error
+	err := db.Table("blog_comment").
+		Where("`article_id` = ?", articleId).
+		Where("`reply_id` IS NULL").
+		Order("created_on desc").
+		Offset(pageNum).
+		Limit(pageSize).
+		Select(selectSql).
+		Preload("Replies", func(db *gorm.DB) *gorm.DB {
+			return db.Select(selectReplySql)
+		}).
+		Find(&comments).Error
 	if err != nil {
 		return nil, err
 	}

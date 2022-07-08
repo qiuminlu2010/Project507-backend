@@ -58,7 +58,7 @@ paths:
       - description: 标签
         in: formData
         items:
-          type: string
+          type: integer
         name: tag_name
         type: array
       - description: image
@@ -147,11 +147,11 @@ paths:
         name: id
         required: true
         type: integer
-      - description: 标签ID
+      - description: 标签
         in: formData
         items:
-          type: integer
-        name: tag_id
+          type: string
+        name: tag_name
         required: true
         type: array
       - description: token
@@ -354,7 +354,7 @@ paths:
         name: tag_name
         required: true
         type: string
-      - description: tag_name
+      - description: user_id
         in: query
         name: uid
         type: integer

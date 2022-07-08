@@ -65,7 +65,7 @@ func GetArticles(c *gin.Context) {
 // @Accept multipart/form-data
 // @Param user_id formData int true "用户id"
 // @Param content formData string true "内容"
-// @Param tag_name formData []string false "标签"
+// @Param tag_name formData []int false "标签"
 // @Param images formData file true "image"
 // @Param token header string true "token"
 // @Router /api/v1/article [post]
@@ -73,7 +73,7 @@ func AddArticle(c *gin.Context) {
 	articleService := service.GetArticleService()
 	params := param.ArticleAddParams{}
 	if err := c.ShouldBind(&params); err != nil {
-		fmt.Println("绑定错误", err)
+		fmt.Println("绑定错误", err, params)
 		gin_http.Response(c, http.StatusBadRequest, e.INVALID_PARAMS, nil)
 		return
 	}
@@ -175,7 +175,7 @@ func AddArticleTags(c *gin.Context) {
 // @Summary 删除文章标签
 // @Produce  json
 // @Param id path int true "文章ID"
-// @Param tag_id formData []int true "标签ID"
+// @Param tag_name formData []string true "标签"
 // @Param token header string true "token"
 // @Router /api/v1/article/{id}/deleteTags [delete]
 func DeleteArticleTags(c *gin.Context) {
@@ -190,6 +190,8 @@ func DeleteArticleTags(c *gin.Context) {
 		gin_http.Response(c, http.StatusBadRequest, e.INVALID_PARAMS, nil)
 		return
 	}
+	//swagger存在bug delete绑定不了数据
+	fmt.Println("绑定数据", params)
 	userID, err := articleService.GetUserID(articleId)
 	if err != nil {
 		gin_http.Response(c, http.StatusBadRequest, e.ERROR_GET_USERID_FAIL, nil)

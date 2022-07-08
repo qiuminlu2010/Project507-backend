@@ -88,7 +88,7 @@ const docTemplate = `{
                     {
                         "type": "array",
                         "items": {
-                            "type": "string"
+                            "type": "integer"
                         },
                         "description": "标签",
                         "name": "tag_name",
@@ -223,10 +223,10 @@ const docTemplate = `{
                     {
                         "type": "array",
                         "items": {
-                            "type": "integer"
+                            "type": "string"
                         },
-                        "description": "标签ID",
-                        "name": "tag_id",
+                        "description": "标签",
+                        "name": "tag_name",
                         "in": "formData",
                         "required": true
                     },
@@ -527,7 +527,7 @@ const docTemplate = `{
                     },
                     {
                         "type": "integer",
-                        "description": "tag_name",
+                        "description": "user_id",
                         "name": "uid",
                         "in": "query"
                     },
