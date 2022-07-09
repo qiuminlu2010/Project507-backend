@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"qiu/blog/model"
 	"qiu/blog/pkg/e"
 	user "qiu/blog/service/user"
 	"time"
@@ -17,6 +18,7 @@ type Message struct {
 	Username string `json:"username" form:"username"`
 	Avator   string `json:"avator" form:"avator"`
 	Content  string `json:"content" form:"content"`
+	ImageUrl string `json:"image_url" form:"image_url"`
 	Type     int    `json:"type"`
 	Ctime    int64  `json:"ctime"`
 }
@@ -77,6 +79,15 @@ func (c *Client) Read() {
 		msg.Avator = userInfo.Avator
 		fmt.Println(c.FromUid, "发送消息", msg)
 		//TODO: 保存数据库
+		msgModel := model.Message{
+			FromUid:  c.FromUid,
+			ToUid:    c.ToUid,
+			Content:  msg.Content,
+			ImageUrl: msg.ImageUrl,
+		}
+		if err := model.SaveMessage(&msgModel); err != nil {
+			panic(err)
+		}
 		Manager.Broadcast <- &Broadcast{
 			Client: c,
 			Msg:    msg,

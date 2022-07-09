@@ -4,8 +4,10 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"qiu/blog/model"
 	"qiu/blog/pkg/e"
 	gin_http "qiu/blog/pkg/http"
+	"qiu/blog/pkg/setting"
 	chat "qiu/blog/service/chat"
 	param "qiu/blog/service/param"
 
@@ -58,4 +60,37 @@ func ChatHandler(c *gin.Context) {
 	chat.Manager.Register <- client
 	go client.Read()
 	go client.Write()
+}
+
+// @Summary 获取文章列表
+// @Produce  json
+// @Param from_uid query int true "发送用户ID"
+// @Param to_uid query int true "接收用户ID"
+// @Param page_num query int false "page_num"
+// @Param page_size query int false "page_size"
+// @Param token header string true "token"
+// @Router /api/v1/chat/history [get]
+func GetChatMessage(c *gin.Context) {
+	params := param.ChatMessageGetParams{}
+	if err := c.ShouldBind(&params); err != nil {
+		fmt.Println("绑定错误", err)
+		gin_http.Response(c, http.StatusBadRequest, e.INVALID_PARAMS, nil)
+		return
+	}
+	if params.PageSize == 0 {
+		params.PageSize = setting.AppSetting.PageSize
+	}
+	page := params.PageNum
+	params.PageNum = params.PageNum * params.PageSize
+	fmt.Println("绑定参数", params)
+	messages, err := model.GetMessages(params.FromUid, params.ToUid, params.PageNum, params.PageSize)
+	if err != nil {
+		gin_http.Response(c, http.StatusBadRequest, e.INVALID_PARAMS, nil)
+	}
+	data := make(map[string]interface{})
+	data["datalist"] = messages
+	// data["total"] = total
+	data["pageNum"] = page
+	data["pageSize"] = params.PageSize
+	gin_http.Response(c, http.StatusOK, e.SUCCESS, data)
 }

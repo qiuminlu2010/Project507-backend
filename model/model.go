@@ -110,6 +110,7 @@ func Setup() {
 		&Article{},
 		&Image{},
 		&Comment{},
+		&Message{},
 		// &Reply{},
 	)
 	if err != nil {

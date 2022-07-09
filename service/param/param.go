@@ -141,3 +141,10 @@ type ChatClientParams struct {
 	FromUid int `json:"from_uid" form:"from_uid" uri:"from_uid"`
 	ToUid   int `json:"to_uid" form:"to_uid" uri:"to_uid"`
 }
+
+type ChatMessageGetParams struct {
+	PageNum  int `json:"page_num" form:"page_num"`
+	PageSize int `json:"page_size" form:"page_size"`
+	FromUid  int `json:"from_uid" form:"from_uid" uri:"from_uid"`
+	ToUid    int `json:"to_uid" form:"to_uid" uri:"to_uid"`
+}
