@@ -2,7 +2,6 @@ package v1
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"os"
 	"strconv"
@@ -12,11 +11,11 @@ import (
 
 	// "qiu/blog/pkg/logging"
 
+	log "qiu/blog/pkg/logging"
+	"qiu/blog/pkg/setting"
 	"qiu/blog/pkg/util"
 	param "qiu/blog/service/param"
 	service "qiu/blog/service/user"
-
-	"qiu/blog/pkg/setting"
 
 	"github.com/gin-gonic/gin"
 )
@@ -95,7 +94,7 @@ func Login(c *gin.Context) {
 	userService := service.GetUserService()
 	params := param.UserLoginParams{}
 	if err := c.ShouldBind(&params); err != nil {
-		fmt.Println("绑定错误", err)
+		log.Error("绑定错误", err)
 		gin_http.Response(c, http.StatusBadRequest, e.INVALID_PARAMS, nil)
 		return
 	}
@@ -137,7 +136,7 @@ func Register(c *gin.Context) {
 	userService := service.GetUserService()
 	params := param.UserAddParams{}
 	if err := c.ShouldBind(&params); err != nil {
-		fmt.Println("绑定错误", err)
+		log.Error("绑定错误", err)
 		gin_http.Response(c, http.StatusBadRequest, e.INVALID_PARAMS, nil)
 		return
 	}
@@ -167,7 +166,7 @@ func DeleteUser(c *gin.Context) {
 	userService := service.GetUserService()
 	userId, err := strconv.Atoi(c.Param("id"))
 	if err != nil || userId <= 0 {
-		fmt.Println("绑定错误", err)
+		log.Error("绑定错误", err)
 		gin_http.Response(c, http.StatusBadRequest, e.INVALID_PARAMS, nil)
 		return
 	}
@@ -197,14 +196,14 @@ func UpdatePassword(c *gin.Context) {
 
 	params := param.UserUpdateParams{}
 	if err := c.ShouldBind(&params); err != nil {
-		fmt.Println("绑定错误", err)
+		log.Error("绑定错误", err)
 		gin_http.Response(c, http.StatusBadRequest, e.INVALID_PARAMS, nil)
 		return
 	}
 
 	userId, err := strconv.Atoi(c.Param("id"))
 	if err != nil || userId <= 0 {
-		fmt.Println("绑定错误", err)
+		log.Error("绑定错误", err)
 		gin_http.Response(c, http.StatusBadRequest, e.INVALID_PARAMS, nil)
 		return
 	}
@@ -233,7 +232,7 @@ func RefreshToken(c *gin.Context) {
 
 	userId, err := strconv.Atoi(c.Param("id"))
 	if err != nil || userId <= 0 {
-		fmt.Println("绑定错误", err)
+		log.Error("绑定错误", err)
 		gin_http.Response(c, http.StatusBadRequest, e.INVALID_PARAMS, nil)
 		return
 	}
@@ -268,14 +267,14 @@ func UpdateUserState(c *gin.Context) {
 	userService := service.GetUserService()
 	params := param.UserUpdateParams{}
 	if err := c.ShouldBind(&params); err != nil {
-		fmt.Println("绑定错误", err)
+		log.Error("绑定错误", err)
 		gin_http.Response(c, http.StatusBadRequest, e.INVALID_PARAMS, nil)
 		return
 	}
 
 	userId, err := strconv.Atoi(c.Param("id"))
 	if err != nil || userId <= 0 {
-		fmt.Println("绑定错误", err)
+		log.Error("绑定错误", err)
 		gin_http.Response(c, http.StatusBadRequest, e.INVALID_PARAMS, nil)
 		return
 	}

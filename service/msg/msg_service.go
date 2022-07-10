@@ -1,11 +1,10 @@
-package chat_service
+package msg_service
 
 import (
 	"encoding/json"
-	"fmt"
-	"log"
 	"qiu/blog/model"
 	"qiu/blog/pkg/e"
+	log "qiu/blog/pkg/logging"
 	user "qiu/blog/service/user"
 	"time"
 
@@ -66,7 +65,7 @@ func (c *Client) Read() {
 		msg := new(Message)
 		err := c.Socket.ReadJSON(&msg) // 读取json格式，如果不是json格式，会报错
 		if err != nil {
-			log.Println("数据格式不正确", err)
+			log.Error("数据格式不正确", err)
 			c.close()
 			break
 		}
@@ -77,7 +76,7 @@ func (c *Client) Read() {
 		msg.Ctime = time.Now().Unix()
 		msg.Username = userInfo.Name
 		msg.Avator = userInfo.Avator
-		fmt.Println(c.FromUid, "发送消息", msg)
+		log.Info(c.FromUid, "发送消息", msg)
 		//TODO: 保存数据库
 		msgModel := model.Message{
 			FromUid:  c.FromUid,
@@ -117,7 +116,7 @@ func (c *Client) Write() {
 	}
 }
 func (manager *ClientManager) Close() {
-	log.Println("<---关闭管道通信--->")
+	log.Info("<---关闭管道通信--->")
 	close(manager.Broadcast)
 	close(manager.Register)
 	close(manager.Unregister)
@@ -127,7 +126,7 @@ func (manager *ClientManager) Close() {
 func (manager *ClientManager) Listen() {
 	// defer manager.Close()
 	for {
-		log.Println("<---监听WebSocket通信--->")
+		log.Info("<---监听WebSocket通信--->")
 		select {
 		case conn := <-manager.Register: // 建立连接
 			manager.Clients[conn.FromUid] = conn
@@ -135,11 +134,11 @@ func (manager *ClientManager) Listen() {
 				Code:    e.WebsocketSuccess,
 				Content: "已连接至服务器",
 			}
-			log.Printf("[Chat] 建立新连接: Uid%v", conn.FromUid)
+			log.Info("[Chat] 建立新连接: Uid%v", conn.FromUid)
 			replyMsgBytes, _ := json.Marshal(replyMsg)
 			_ = conn.Socket.WriteMessage(websocket.TextMessage, replyMsgBytes)
 		case conn := <-manager.Unregister: // 断开连接
-			log.Printf("[Chat] 断开连接: Uid%v", conn.FromUid)
+			log.Info("[Chat] 断开连接: Uid%v", conn.FromUid)
 			if _, ok := manager.Clients[conn.FromUid]; ok {
 				replyMsg := &ReplyMessage{
 					Code:    e.WebsocketEnd,

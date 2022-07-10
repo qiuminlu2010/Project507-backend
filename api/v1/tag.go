@@ -1,11 +1,11 @@
 package v1
 
 import (
-	"fmt"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
 
+	log "qiu/blog/pkg/logging"
 	articleService "qiu/blog/service/article"
 	param "qiu/blog/service/param"
 	service "qiu/blog/service/tag"
@@ -30,7 +30,7 @@ func GetTags(c *gin.Context) {
 	tagService := service.GetTagService()
 	params := param.PageGetParams{}
 	if err := c.ShouldBind(&params); err != nil {
-		fmt.Println("绑定错误", err)
+		log.Error("绑定错误", err)
 		gin_http.Response(c, http.StatusBadRequest, e.INVALID_PARAMS, nil)
 		return
 	}
@@ -53,7 +53,7 @@ func GetTagArticles(c *gin.Context) {
 	params := param.TagArticleGetParams{}
 	// httpCode, errCode := tagService.Bind(c)
 	if err := c.ShouldBind(&params); err != nil {
-		fmt.Println("绑定错误", err)
+		log.Error("绑定错误", err)
 		gin_http.Response(c, http.StatusBadRequest, e.INVALID_PARAMS, nil)
 		return
 	}
@@ -62,7 +62,7 @@ func GetTagArticles(c *gin.Context) {
 	}
 	page := params.PageNum
 	params.PageNum = params.PageNum * params.PageSize
-	fmt.Println("绑定数据", params)
+	log.Debug("绑定数据", params)
 
 	articles, err := tagService.GetArticlesByMultiTags(&params)
 	if err != nil {
@@ -96,7 +96,7 @@ func DeleteTag(c *gin.Context) {
 
 	tagId, err := strconv.Atoi(c.Param("id"))
 	if err != nil || tagId <= 0 {
-		fmt.Println("绑定错误", err)
+		log.Error("绑定错误", err)
 		gin_http.Response(c, http.StatusBadRequest, e.INVALID_PARAMS, nil)
 		return
 	}
@@ -117,7 +117,7 @@ func RecoverTag(c *gin.Context) {
 	tagService := service.GetTagService()
 	tagId, err := strconv.Atoi(c.Param("id"))
 	if err != nil || tagId <= 0 {
-		fmt.Println("绑定错误", err)
+		log.Error("绑定错误", err)
 		gin_http.Response(c, http.StatusBadRequest, e.INVALID_PARAMS, nil)
 		return
 	}
@@ -137,7 +137,7 @@ func ClearTag(c *gin.Context) {
 	tagService := service.GetTagService()
 	tagId, err := strconv.Atoi(c.Param("id"))
 	if err != nil || tagId <= 0 {
-		fmt.Println("绑定错误", err)
+		log.Error("绑定错误", err)
 		gin_http.Response(c, http.StatusBadRequest, e.INVALID_PARAMS, nil)
 		return
 	}
@@ -159,7 +159,7 @@ func GetTagsByPrefix(c *gin.Context) {
 	params := param.TagsGetParams{}
 	// httpCode, errCode := tagService.Bind(c)
 	if err := c.ShouldBind(&params); err != nil {
-		fmt.Println("绑定错误", err)
+		log.Error("绑定错误", err)
 		gin_http.Response(c, http.StatusBadRequest, e.INVALID_PARAMS, nil)
 		return
 	}
@@ -168,7 +168,7 @@ func GetTagsByPrefix(c *gin.Context) {
 	}
 	// page := params.PageNum
 	// params.PageNum = params.PageNum * params.PageSize
-	fmt.Println("绑定数据", params)
+	log.Debug("绑定数据", params)
 
 	tags, _ := tagService.Hint(&params)
 	// tags := tagService.HintByCache(&params)

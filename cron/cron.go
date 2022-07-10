@@ -1,9 +1,9 @@
 package cron
 
 import (
-	"fmt"
 	"sync"
 
+	log "qiu/blog/pkg/logging"
 	service "qiu/blog/service/cache"
 
 	"github.com/robfig/cron/v3"
@@ -24,7 +24,7 @@ func Setup() {
 }
 
 func Exit() {
-	fmt.Println("清理定时任务")
+	log.Info("清理定时任务")
 	_timer.Close()
 }
 

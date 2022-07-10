@@ -1,14 +1,13 @@
 package v1
 
 import (
-	"fmt"
-	"log"
 	"net/http"
 	"qiu/blog/model"
 	"qiu/blog/pkg/e"
 	gin_http "qiu/blog/pkg/http"
+	log "qiu/blog/pkg/logging"
 	"qiu/blog/pkg/setting"
-	chat "qiu/blog/service/chat"
+	msg "qiu/blog/service/msg"
 	param "qiu/blog/service/param"
 
 	"github.com/gin-gonic/gin"
@@ -23,15 +22,15 @@ import (
 // @Param to_uid path int true "接收用户ID"
 // @Param token header string true "token"
 // @Router /api/v1/chat/{from_uid}/{to_uid} [get]
-func ChatHandler(c *gin.Context) {
+func MsgHandler(c *gin.Context) {
 
 	params := param.ChatClientParams{}
 	if err := c.ShouldBindUri(&params); err != nil {
-		fmt.Println("绑定错误", err)
+		log.Error("绑定错误", err)
 		gin_http.Response(c, http.StatusBadRequest, e.INVALID_PARAMS, nil)
 		return
 	}
-	fmt.Println("绑定参数", params)
+	log.Debug("绑定参数", params)
 	// uid := c.Query("from_uid") // 自己的id
 	// toUid := c.Query("to_Uid") // 对方的id
 	// wsUpgrader.CheckOrigin = func(r *http.Request) bool { return true }
@@ -44,12 +43,12 @@ func ChatHandler(c *gin.Context) {
 
 	// conn, err := websocket.Upgrade(c.Writer, c.Request, nil)
 	if err != nil {
-		log.Fatal("websocket建立连接错误", err)
+		log.Error("websocket建立连接错误", err)
 		http.NotFound(c.Writer, c.Request)
 		return
 	}
 	// 创建一个用户实例
-	client := &chat.Client{
+	client := &msg.Client{
 		FromUid: params.FromUid,
 		ToUid:   params.ToUid,
 		Socket:  conn,
@@ -57,7 +56,7 @@ func ChatHandler(c *gin.Context) {
 	}
 	// fmt.Println("绑定client", client)
 	// 用户注册到用户管理上
-	chat.Manager.Register <- client
+	msg.Manager.Register <- client
 	go client.Read()
 	go client.Write()
 }
@@ -70,10 +69,10 @@ func ChatHandler(c *gin.Context) {
 // @Param page_size query int false "page_size"
 // @Param token header string true "token"
 // @Router /api/v1/chat/history [get]
-func GetChatMessage(c *gin.Context) {
+func GetMessage(c *gin.Context) {
 	params := param.ChatMessageGetParams{}
 	if err := c.ShouldBind(&params); err != nil {
-		fmt.Println("绑定错误", err)
+		log.Error("绑定错误", err)
 		gin_http.Response(c, http.StatusBadRequest, e.INVALID_PARAMS, nil)
 		return
 	}
@@ -82,7 +81,7 @@ func GetChatMessage(c *gin.Context) {
 	}
 	page := params.PageNum
 	params.PageNum = params.PageNum * params.PageSize
-	fmt.Println("绑定参数", params)
+	log.Debug("绑定参数", params)
 	messages, err := model.GetMessages(params.FromUid, params.ToUid, params.PageNum, params.PageSize)
 	if err != nil {
 		gin_http.Response(c, http.StatusBadRequest, e.INVALID_PARAMS, nil)

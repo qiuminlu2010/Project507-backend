@@ -12,9 +12,9 @@ import (
 
 	"qiu/blog/cron"
 	"qiu/blog/model"
-	"qiu/blog/pkg/logging"
+	log "qiu/blog/pkg/logging"
 	"qiu/blog/router"
-	chat "qiu/blog/service/chat"
+	msg "qiu/blog/service/msg"
 )
 
 func main() {
@@ -27,16 +27,16 @@ func main() {
 	go func() {
 		<-sigc
 		cron.Exit()
-		fmt.Println("结束程序")
+		log.Info("服务关闭")
 		os.Exit(1)
 	}()
 
-	logging.Setup()
+	log.Setup()
 	setting.Setup()
 	model.Setup()
 	redis.Setup()
 	cron.Setup()
-	chat.Setup()
+	msg.Setup()
 	// service.FlushArticleLikeUsers()
 	/*
 		router := gin.Default()
@@ -55,6 +55,6 @@ func main() {
 		WriteTimeout:   setting.ServerSetting.WriteTimeout,
 		MaxHeaderBytes: 1 << 20,
 	}
-
+	log.Info("服务启动")
 	s.ListenAndServe()
 }

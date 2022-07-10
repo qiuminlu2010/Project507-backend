@@ -1,7 +1,6 @@
 package v1
 
 import (
-	"fmt"
 	"net/http"
 	"strconv"
 
@@ -12,7 +11,7 @@ import (
 	"qiu/blog/pkg/upload"
 
 	gin_http "qiu/blog/pkg/http"
-
+	log "qiu/blog/pkg/logging"
 	service "qiu/blog/service/article"
 	param "qiu/blog/service/param"
 )
@@ -30,7 +29,7 @@ func GetArticles(c *gin.Context) {
 	// articleService.PageNum, page = util.GetPage(c)
 	// articleService.PageSize = setting.AppSetting.PageSize
 	if err := c.ShouldBind(&params); err != nil {
-		fmt.Println("绑定错误", err)
+		log.Error("绑定错误", err)
 		gin_http.Response(c, http.StatusBadRequest, e.INVALID_PARAMS, nil)
 		return
 	}
@@ -39,7 +38,7 @@ func GetArticles(c *gin.Context) {
 	}
 	page := params.PageNum
 	params.PageNum = params.PageNum * params.PageSize
-	fmt.Println("绑定数据", params)
+	log.Debug("绑定数据", params)
 
 	articles, err := articleService.GetArticles(&params)
 	if err != nil {
@@ -48,10 +47,7 @@ func GetArticles(c *gin.Context) {
 	}
 
 	total := articleService.Count(nil)
-	// if err != nil {
-	// 	gin_http.Response(c, http.StatusInternalServerError, e.ERROR_COUNT_ARTICLE_FAIL, nil)
-	// 	return
-	// }
+
 	data := make(map[string]interface{})
 	data["datalist"] = articles
 	data["total"] = total
@@ -73,7 +69,7 @@ func AddArticle(c *gin.Context) {
 	articleService := service.GetArticleService()
 	params := param.ArticleAddParams{}
 	if err := c.ShouldBind(&params); err != nil {
-		fmt.Println("绑定错误", err, params)
+		log.Error("绑定错误", err)
 		gin_http.Response(c, http.StatusBadRequest, e.INVALID_PARAMS, nil)
 		return
 	}
@@ -95,14 +91,12 @@ func AddArticle(c *gin.Context) {
 	for _, file := range files {
 		imageName := upload.GetImageName(file.Filename)
 		savePath := upload.GetImagePath() + imageName
-		fmt.Println("文件名", imageName)
-		fmt.Println("保存路径", savePath)
 		if !upload.CheckImageExt(imageName) || !upload.CheckImageSize(file) {
 			gin_http.Response(c, http.StatusBadRequest, e.ERROR_UPLOAD_CHECK_IMAGE_FORMAT, nil)
 			return
 		}
 		if err = c.SaveUploadedFile(file, savePath); err != nil {
-			fmt.Println(err)
+			log.Error("保存文件失败", err)
 			gin_http.Response(c, http.StatusInternalServerError, e.ERROR_UPLOAD_SAVE_IMAGE_FAIL, nil)
 			return
 		}
@@ -123,7 +117,7 @@ func AddArticle(c *gin.Context) {
 		go func(s string) {
 			_, err = upload.Thumbnailify(s)
 			if err != nil {
-				fmt.Println(err.Error())
+				log.Error("图片压缩失败", err)
 			}
 		}(imageName)
 	}
@@ -149,7 +143,7 @@ func AddArticleTags(c *gin.Context) {
 	params.ArticleId = articleId
 
 	if err := c.ShouldBind(&params); err != nil || err1 != nil {
-		fmt.Println("绑定错误", err)
+		log.Error("绑定错误", err)
 		gin_http.Response(c, http.StatusBadRequest, e.INVALID_PARAMS, nil)
 		return
 	}
@@ -186,12 +180,12 @@ func DeleteArticleTags(c *gin.Context) {
 	params.ArticleId = articleId
 
 	if err := c.ShouldBind(&params); err != nil || err1 != nil {
-		fmt.Println("绑定错误", err)
+		log.Error("绑定错误", err)
 		gin_http.Response(c, http.StatusBadRequest, e.INVALID_PARAMS, nil)
 		return
 	}
 	//swagger存在bug delete绑定不了数据
-	fmt.Println("绑定数据", params)
+	log.Debug("绑定数据", params)
 	userID, err := articleService.GetUserID(articleId)
 	if err != nil {
 		gin_http.Response(c, http.StatusBadRequest, e.ERROR_GET_USERID_FAIL, nil)
@@ -224,12 +218,11 @@ func DeleteArticle(c *gin.Context) {
 	// }
 	articleId, err := strconv.Atoi(c.Param("id"))
 	if err != nil || articleId <= 0 {
-		fmt.Println("绑定错误", err)
+		log.Error("绑定错误", err)
 		gin_http.Response(c, http.StatusBadRequest, e.INVALID_PARAMS, nil)
 		return
 	}
-
-	fmt.Println("绑定数据", articleId)
+	log.Debug("绑定数据", articleId)
 	userID, err := articleService.GetUserID(articleId)
 	if err != nil {
 		gin_http.Response(c, http.StatusBadRequest, e.ERROR_GET_USERID_FAIL, nil)
@@ -259,14 +252,14 @@ func UpdateArticle(c *gin.Context) {
 	articleService := service.GetArticleService()
 	params := param.ArticleUpdateParams{}
 	if err := c.ShouldBind(&params); err != nil {
-		fmt.Println("绑定错误", err)
+		log.Error("绑定错误", err)
 		gin_http.Response(c, http.StatusBadRequest, e.INVALID_PARAMS, nil)
 		return
 	}
 
 	articleId, err := strconv.Atoi(c.Param("id"))
 	if err != nil || articleId <= 0 {
-		fmt.Println("绑定错误", err)
+		log.Error("绑定错误", err)
 		gin_http.Response(c, http.StatusBadRequest, e.INVALID_PARAMS, nil)
 		return
 	}
@@ -299,7 +292,7 @@ func RecoverArticle(c *gin.Context) {
 
 	articleId, err := strconv.Atoi(c.Param("id"))
 	if err != nil || articleId <= 0 {
-		fmt.Println("绑定错误", err)
+		log.Error("绑定错误", err)
 		gin_http.Response(c, http.StatusBadRequest, e.INVALID_PARAMS, nil)
 		return
 	}
@@ -332,18 +325,18 @@ func LikeArticle(c *gin.Context) {
 	articleService := service.GetArticleService()
 	param := param.ArticleLikeParams{}
 	if err := c.ShouldBind(&param); err != nil {
-		fmt.Println("绑定错误", err)
+		log.Error("绑定错误", err)
 		gin_http.Response(c, http.StatusBadRequest, e.INVALID_PARAMS, nil)
 		return
 	}
 	var err error
 	param.ArticleId, err = strconv.Atoi(c.Param("id"))
 	if err != nil || param.ArticleId <= 0 {
-		fmt.Println("绑定错误", err)
+		log.Error("绑定错误", err)
 		gin_http.Response(c, http.StatusBadRequest, e.INVALID_PARAMS, nil)
 		return
 	}
-	fmt.Println("绑定数据", param)
+	log.Debug("绑定数据", param)
 	if !articleService.CheckTokenUid(c, uint(param.UserId)) {
 		gin_http.Response(c, http.StatusBadRequest, e.ERROR_AUTH_CHECK_TOKEN_FAIL, nil)
 		return
