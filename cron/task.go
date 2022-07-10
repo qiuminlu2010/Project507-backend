@@ -1,12 +1,11 @@
 package cron
 
 import (
-	"fmt"
+	log "qiu/blog/pkg/logging"
 	"time"
 )
 
 func ClearLoggingFile() {
 	time.Sleep(time.Second)
-	fmt.Println("clearing")
+	log.Info("clearing")
 }
-
