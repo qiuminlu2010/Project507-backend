@@ -27,7 +27,7 @@ func main() {
 	go func() {
 		<-sigc
 		cron.Exit()
-		log.Info("服务关闭")
+		log.Logger.Info("服务关闭")
 		os.Exit(1)
 	}()
 
@@ -55,6 +55,6 @@ func main() {
 		WriteTimeout:   setting.ServerSetting.WriteTimeout,
 		MaxHeaderBytes: 1 << 20,
 	}
-	log.Info("服务启动")
+	log.Logger.Info("服务启动")
 	s.ListenAndServe()
 }

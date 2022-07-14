@@ -27,7 +27,7 @@ func AddComment(c *gin.Context) {
 	params := param.CommentAddParams{}
 
 	if err := c.ShouldBind(&params); err != nil {
-		log.Error("绑定错误", err)
+		log.Logger.Error("绑定错误", err)
 		gin_http.Response(c, http.StatusBadRequest, e.INVALID_PARAMS, nil)
 		return
 	}
@@ -58,13 +58,13 @@ func LikeComment(c *gin.Context) {
 
 	commentId, err := strconv.Atoi(c.Param("id"))
 	if err != nil || commentId <= 0 {
-		log.Error("绑定错误", err)
+		log.Logger.Error("绑定错误", err)
 		gin_http.Response(c, http.StatusBadRequest, e.INVALID_PARAMS, nil)
 		return
 	}
 
 	if err := c.ShouldBind(&params); err != nil {
-		log.Error("绑定错误", err)
+		log.Logger.Error("绑定错误", err)
 		gin_http.Response(c, http.StatusBadRequest, e.INVALID_PARAMS, nil)
 		return
 	}
@@ -96,7 +96,7 @@ func GetComments(c *gin.Context) {
 
 	articleId, err := strconv.Atoi(c.Param("article_id"))
 	if err != nil || articleId <= 0 {
-		log.Error("绑定错误", err)
+		log.Logger.Error("绑定错误", err)
 		gin_http.Response(c, http.StatusBadRequest, e.INVALID_PARAMS, nil)
 		return
 	}
@@ -104,7 +104,7 @@ func GetComments(c *gin.Context) {
 	params.ArticleId = articleId
 
 	if err := c.ShouldBind(&params); err != nil {
-		log.Error("绑定错误", err)
+		log.Logger.Error("绑定错误", err)
 		gin_http.Response(c, http.StatusBadRequest, e.INVALID_PARAMS, nil)
 		return
 	}
@@ -113,7 +113,7 @@ func GetComments(c *gin.Context) {
 	}
 	page := params.PageNum
 	params.PageNum = params.PageNum * params.PageSize
-	log.Debug("绑定数据", params)
+	log.Logger.Debug("绑定数据", params)
 
 	comments, err := commentService.Get(&params)
 
@@ -145,13 +145,13 @@ func GetComments(c *gin.Context) {
 
 // 	commentId, err := strconv.Atoi(c.Param("id"))
 // 	if err != nil || commentId <= 0 {
-// 		log.Error("绑定错误", err)
+// 		log.Logger.Error("绑定错误", err)
 // 		gin_http.Response(c, http.StatusBadRequest, e.INVALID_PARAMS, nil)
 // 		return
 // 	}
 
 // 	if err := c.ShouldBind(&params); err != nil {
-// 		log.Error("绑定错误", err)
+// 		log.Logger.Error("绑定错误", err)
 // 		gin_http.Response(c, http.StatusBadRequest, e.INVALID_PARAMS, nil)
 // 		return
 // 	}
@@ -180,7 +180,7 @@ func DeleteComment(c *gin.Context) {
 	commentService := service.GetCommentSerivice()
 	commentId, err := strconv.Atoi(c.Param("id"))
 	if err != nil || commentId <= 0 {
-		log.Error("绑定错误", err)
+		log.Logger.Error("绑定错误", err)
 		gin_http.Response(c, http.StatusBadRequest, e.INVALID_PARAMS, nil)
 		return
 	}
@@ -212,7 +212,7 @@ func DeleteComment(c *gin.Context) {
 // 	commentService := service.GetCommentSerivice()
 // 	replyId, err := strconv.Atoi(c.Param("id"))
 // 	if err != nil || replyId <= 0 {
-// 		log.Error("绑定错误", err)
+// 		log.Logger.Error("绑定错误", err)
 // 		gin_http.Response(c, http.StatusBadRequest, e.INVALID_PARAMS, nil)
 // 		return
 // 	}

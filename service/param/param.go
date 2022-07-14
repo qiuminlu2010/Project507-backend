@@ -29,9 +29,9 @@ type UsersGetParams struct {
 }
 
 type UserAddParams struct {
-	Username string `json:"username" form:"username" binding:"omitempty,printascii,gte=4,lte=20"`
+	Username string `json:"username" form:"username" binding:"printascii,gte=4,lte=20"`
 	Name     string `json:"name" form:"name" binding:"gte=0"`
-	Password string `json:"password" form:"password" binding:"omitempty,printascii,gte=6,lte=100"`
+	Password string `json:"password" form:"password" binding:"printascii,gte=6,lte=100"`
 }
 
 type UserUpdateParams struct {
@@ -85,7 +85,7 @@ type ArticleAddParams struct {
 	Title   string   `json:"title" form:"title" binding:"gte=0"`
 	Content string   `json:"content" form:"content" binding:"gt=0"`
 	TagName []string `json:"tag_name" form:"tag_name" `
-	ImgName []string `json:"-" form:"-" binding:"-"`
+	ImgUrl  []string `json:"-" form:"-" binding:"-"`
 }
 
 type ArticleUpdateParams struct {

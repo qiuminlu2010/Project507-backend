@@ -27,7 +27,6 @@ type ReplyMessage struct {
 	Content string `json:"content"`
 }
 
-// 用户类
 type Client struct {
 	FromUid int
 	ToUid   int
@@ -35,7 +34,6 @@ type Client struct {
 	Send    chan []byte
 }
 
-// 广播类，包括广播内容和源用户
 type Broadcast struct {
 	Client *Client
 	// Msg    []byte
@@ -43,16 +41,20 @@ type Broadcast struct {
 	Type int
 }
 
-// 用户管理
 type ClientManager struct {
-	Clients    map[int]*Client
+	Clients map[int]*Client
+	// ChatRoomMember set[int]
+	// ChatRoomMsg    chan []byte
 	Broadcast  chan *Broadcast
 	Reply      chan *Client
 	Register   chan *Client
 	Unregister chan *Client
 }
 
-var Manager *ClientManager
+var (
+	Manager     *ClientManager
+	ChatRoomMsg chan *Message
+)
 
 func (c *Client) close() {
 	Manager.Unregister <- c
@@ -65,7 +67,7 @@ func (c *Client) Read() {
 		msg := new(Message)
 		err := c.Socket.ReadJSON(&msg) // 读取json格式，如果不是json格式，会报错
 		if err != nil {
-			log.Error("数据格式不正确", err)
+			log.Logger.Error("数据格式不正确", err)
 			c.close()
 			break
 		}
@@ -76,22 +78,30 @@ func (c *Client) Read() {
 		msg.Ctime = time.Now().Unix()
 		msg.Username = userInfo.Name
 		msg.Avator = userInfo.Avator
-		log.Info(c.FromUid, "发送消息", msg)
-		//TODO: 保存数据库
+		// log.Logger.Info(c.FromUid, "发送消息", msg)
+
 		msgModel := model.Message{
 			FromUid:  c.FromUid,
 			ToUid:    c.ToUid,
 			Content:  msg.Content,
 			ImageUrl: msg.ImageUrl,
 		}
+
+		if msg.ToUid > 0 {
+			//私信
+			Manager.Broadcast <- &Broadcast{
+				Client: c,
+				Msg:    msg,
+			}
+		} else {
+			//聊天室
+			ChatRoomMsg <- msg
+		}
+
+		//TODO: 保存数据库
 		if err := model.SaveMessage(&msgModel); err != nil {
 			panic(err)
 		}
-		Manager.Broadcast <- &Broadcast{
-			Client: c,
-			Msg:    msg,
-		}
-
 	}
 }
 
@@ -106,17 +116,12 @@ func (c *Client) Write() {
 			_ = c.Socket.WriteMessage(websocket.CloseMessage, []byte{})
 			return
 		}
-		// log.Println(c.FromUid, "接受消息:", msg)
 		_ = c.Socket.WriteMessage(websocket.TextMessage, msg)
-		// replyMsg := &ReplyMessage{Message: *msg}
-		// log.Println(c.FromUid, "接受消息:", replyMsg)
-		// msgBytes, _ := json.Marshal(replyMsg)
-		// _ = c.Socket.WriteMessage(websocket.TextMessage, msgBytes)
 
 	}
 }
 func (manager *ClientManager) Close() {
-	log.Info("<---关闭管道通信--->")
+	log.Logger.Info("<---关闭管道通信--->")
 	close(manager.Broadcast)
 	close(manager.Register)
 	close(manager.Unregister)
@@ -126,19 +131,24 @@ func (manager *ClientManager) Close() {
 func (manager *ClientManager) Listen() {
 	// defer manager.Close()
 	for {
-		log.Info("<---监听WebSocket通信--->")
+		log.Logger.Info("<---监听WebSocket通信--->")
 		select {
 		case conn := <-manager.Register: // 建立连接
+			// if conn.ToUid > 0{
 			manager.Clients[conn.FromUid] = conn
+			// } else {
+			// 	manager.ChatRoomClients[conn.FromUid] = conn
+			// }
+
 			replyMsg := &ReplyMessage{
 				Code:    e.WebsocketSuccess,
 				Content: "已连接至服务器",
 			}
-			log.Info("[Chat] 建立新连接: Uid%v", conn.FromUid)
+			log.Logger.Info("[Chat] 建立新连接: Uid%v", conn.FromUid)
 			replyMsgBytes, _ := json.Marshal(replyMsg)
 			_ = conn.Socket.WriteMessage(websocket.TextMessage, replyMsgBytes)
 		case conn := <-manager.Unregister: // 断开连接
-			log.Info("[Chat] 断开连接: Uid%v", conn.FromUid)
+			log.Logger.Info("[Chat] 断开连接: Uid%v", conn.FromUid)
 			if _, ok := manager.Clients[conn.FromUid]; ok {
 				replyMsg := &ReplyMessage{
 					Code:    e.WebsocketEnd,
@@ -178,10 +188,6 @@ func (manager *ClientManager) Listen() {
 				}
 				replyMsgBytes, _ := json.Marshal(replyMsg)
 				_ = broadcast.Client.Socket.WriteMessage(websocket.TextMessage, replyMsgBytes)
-				// err = InsertMsg(conf.MongoDBName, id, string(message), 0, int64(3*month))
-				// if err != nil {
-				// 	fmt.Println("InsertOneMsg Err", err)
-				// }
 			}
 		}
 	}

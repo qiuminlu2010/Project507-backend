@@ -310,7 +310,7 @@ const docTemplate = `{
                 "produces": [
                     "application/json"
                 ],
-                "summary": "获取文章列表",
+                "summary": "聊天室",
                 "parameters": [
                     {
                         "type": "integer",
@@ -318,25 +318,6 @@ const docTemplate = `{
                         "name": "from_uid",
                         "in": "query",
                         "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "接收用户ID",
-                        "name": "to_uid",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "page_num",
-                        "name": "page_num",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "page_size",
-                        "name": "page_size",
-                        "in": "query"
                     },
                     {
                         "type": "string",
@@ -354,7 +335,7 @@ const docTemplate = `{
                 "produces": [
                     "application/json"
                 ],
-                "summary": "获取文章列表",
+                "summary": "私信",
                 "parameters": [
                     {
                         "type": "integer",

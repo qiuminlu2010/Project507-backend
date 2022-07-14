@@ -228,7 +228,7 @@ paths:
       produces:
       - application/json
       responses: {}
-      summary: 获取文章列表
+      summary: 私信
   /api/v1/chat/history:
     get:
       parameters:
@@ -236,19 +236,6 @@ paths:
         in: query
         name: from_uid
         required: true
-        type: integer
-      - description: 接收用户ID
-        in: query
-        name: to_uid
-        required: true
-        type: integer
-      - description: page_num
-        in: query
-        name: page_num
-        type: integer
-      - description: page_size
-        in: query
-        name: page_size
         type: integer
       - description: token
         in: header
@@ -258,7 +245,7 @@ paths:
       produces:
       - application/json
       responses: {}
-      summary: 获取文章列表
+      summary: 聊天室
   /api/v1/comment:
     post:
       parameters:

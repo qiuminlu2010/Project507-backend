@@ -65,14 +65,17 @@ func (s *BaseService) CheckTokenUid(c *gin.Context, uid uint) bool {
 	}
 	key := cache.GetModelFieldKey("user", uid, "token")
 	adminKey := cache.GetModelFieldKey("user", 2, "token")
-	admin_token := redis.Get(adminKey)
+	if redis.Exists(adminKey) != 0 {
+		admin_token := redis.Get(adminKey)
 
-	if admin_token == token {
-		return true
+		if admin_token == token {
+			return true
+		}
 	}
+
 	if redis.Exists(key) != 0 {
 		cache_token := redis.Get(key)
-		fmt.Println("AdminToken", admin_token, token == admin_token)
+		// fmt.Println("AdminToken", admin_token, token == admin_token)
 		return token == cache_token
 	}
 	return false

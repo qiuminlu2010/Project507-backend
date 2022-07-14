@@ -57,7 +57,7 @@ func GetArticle(articleId int) (*Article, error) {
 			return db.Select("name", "id")
 		}).
 		Preload("Images", func(db *gorm.DB) *gorm.DB {
-			return db.Select("id", "article_id", "filename")
+			return db.Select("id", "article_id", "url", "thumb_url")
 		}).
 		Find(&article).Error
 
@@ -95,7 +95,7 @@ func GetArticles(pageNum int, pageSize int, maps interface{}) ([]*Article, error
 			return db.Select("name", "id")
 		}).
 		Preload("Images", func(db *gorm.DB) *gorm.DB {
-			return db.Select("id", "article_id", "filename")
+			return db.Select("id", "article_id", "url", "thumb_url")
 		}).
 		Find(&articles).Error
 	if err != nil && err != gorm.ErrRecordNotFound {

@@ -24,7 +24,7 @@ func Setup() {
 }
 
 func Exit() {
-	log.Info("清理定时任务")
+	log.Logger.Info("清理定时任务")
 	_timer.Close()
 }
 
