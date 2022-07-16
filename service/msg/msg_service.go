@@ -28,10 +28,10 @@ type ReplyMessage struct {
 }
 
 type Client struct {
-	FromUid int
-	ToUid   int
-	Socket  *websocket.Conn
-	Send    chan []byte
+	Uid int
+	// ToUid   int
+	Socket *websocket.Conn
+	Send   chan []byte
 }
 
 type Broadcast struct {
@@ -42,13 +42,12 @@ type Broadcast struct {
 }
 
 type ClientManager struct {
-	Clients map[int]*Client
-	// ChatRoomMember set[int]
-	// ChatRoomMsg    chan []byte
-	Broadcast  chan *Broadcast
-	Reply      chan *Client
-	Register   chan *Client
-	Unregister chan *Client
+	Clients        map[int]*Client
+	Broadcast      chan *Broadcast
+	Reply          chan *Client
+	Register       chan *Client
+	Unregister     chan *Client
+	ChatRoomMember map[int]bool
 }
 
 var (
@@ -71,37 +70,36 @@ func (c *Client) Read() {
 			c.close()
 			break
 		}
-		// if redis.Exists()
-		userInfo := user.GetUserCache(c.FromUid)
-		msg.FromUid = c.FromUid
-		msg.ToUid = c.ToUid
+
+		userInfo := user.GetUserCache(c.Uid)
+		msg.FromUid = c.Uid
 		msg.Ctime = time.Now().Unix()
 		msg.Username = userInfo.Name
 		msg.Avator = userInfo.Avator
-		// log.Logger.Info(c.FromUid, "发送消息", msg)
 
 		msgModel := model.Message{
-			FromUid:  c.FromUid,
-			ToUid:    c.ToUid,
+			FromUid:  c.Uid,
+			ToUid:    msg.ToUid,
 			Content:  msg.Content,
 			ImageUrl: msg.ImageUrl,
 		}
-
+		log.Logger.Debug("[发送消息]", " 用户id: ", msg.FromUid, " 接收用户id ", msg.ToUid)
 		if msg.ToUid > 0 {
 			//私信
 			Manager.Broadcast <- &Broadcast{
 				Client: c,
 				Msg:    msg,
 			}
+			//TODO: 保存数据库
+			if err := model.SaveMessage(&msgModel); err != nil {
+				panic(err)
+			}
+
 		} else {
 			//聊天室
 			ChatRoomMsg <- msg
 		}
 
-		//TODO: 保存数据库
-		if err := model.SaveMessage(&msgModel); err != nil {
-			panic(err)
-		}
 	}
 }
 
@@ -134,22 +132,25 @@ func (manager *ClientManager) Listen() {
 		log.Logger.Info("<---监听WebSocket通信--->")
 		select {
 		case conn := <-manager.Register: // 建立连接
-			// if conn.ToUid > 0{
-			manager.Clients[conn.FromUid] = conn
-			// } else {
-			// 	manager.ChatRoomClients[conn.FromUid] = conn
-			// }
+			// 关闭旧连接
+			oldClient, ok := manager.Clients[conn.Uid]
+			if ok {
+				close(oldClient.Send)
+				delete(manager.Clients, conn.Uid)
+			}
+
+			manager.Clients[conn.Uid] = conn
 
 			replyMsg := &ReplyMessage{
 				Code:    e.WebsocketSuccess,
 				Content: "已连接至服务器",
 			}
-			log.Logger.Info("[Chat] 建立新连接: Uid%v", conn.FromUid)
+			log.Logger.Infof("[Chat] 建立新连接: Uid%v", conn.Uid)
 			replyMsgBytes, _ := json.Marshal(replyMsg)
 			_ = conn.Socket.WriteMessage(websocket.TextMessage, replyMsgBytes)
 		case conn := <-manager.Unregister: // 断开连接
-			log.Logger.Info("[Chat] 断开连接: Uid%v", conn.FromUid)
-			if _, ok := manager.Clients[conn.FromUid]; ok {
+			log.Logger.Info("[Chat] 断开连接: Uid%v", conn.Uid)
+			if _, ok := manager.Clients[conn.Uid]; ok {
 				replyMsg := &ReplyMessage{
 					Code:    e.WebsocketEnd,
 					Content: "连接已断开",
@@ -157,12 +158,12 @@ func (manager *ClientManager) Listen() {
 				replyMsgBytes, _ := json.Marshal(replyMsg)
 				_ = conn.Socket.WriteMessage(websocket.TextMessage, replyMsgBytes)
 				close(conn.Send)
-				delete(manager.Clients, conn.FromUid)
+				delete(manager.Clients, conn.Uid)
 			}
 		//广播信息
 		case broadcast := <-manager.Broadcast:
 			msg := broadcast.Msg
-			ToUid := broadcast.Client.ToUid
+			ToUid := msg.ToUid
 			// flag := false // 默认对方不在线
 			sendClient, ok := manager.Clients[ToUid]
 			msgBytes, _ := json.Marshal(msg)
@@ -179,7 +180,7 @@ func (manager *ClientManager) Listen() {
 					// flag = true
 				default:
 					close(sendClient.Send)
-					delete(Manager.Clients, sendClient.FromUid)
+					delete(Manager.Clients, sendClient.Uid)
 				}
 			} else {
 				replyMsg := &ReplyMessage{
@@ -188,6 +189,26 @@ func (manager *ClientManager) Listen() {
 				}
 				replyMsgBytes, _ := json.Marshal(replyMsg)
 				_ = broadcast.Client.Socket.WriteMessage(websocket.TextMessage, replyMsgBytes)
+			}
+			// 保存会话
+			model.SaveSession(&model.MessageSession{
+				Uid:       msg.FromUid,
+				SessionId: msg.ToUid,
+			})
+			model.SaveSession(&model.MessageSession{
+				Uid:       msg.ToUid,
+				SessionId: msg.FromUid,
+			})
+		case roomMsg := <-ChatRoomMsg:
+			msgBytes, _ := json.Marshal(roomMsg)
+			log.Logger.Debug("[聊天室消息] ", "用户id: ", roomMsg.FromUid, " ", roomMsg.Content)
+			for _, sendClient := range manager.Clients {
+				select {
+				case sendClient.Send <- msgBytes:
+				default:
+					close(sendClient.Send)
+					delete(Manager.Clients, sendClient.Uid)
+				}
 			}
 		}
 	}
@@ -201,5 +222,6 @@ func Setup() {
 		Reply:      make(chan *Client),
 		Unregister: make(chan *Client),
 	}
+	ChatRoomMsg = make(chan *Message)
 	go Manager.Listen()
 }

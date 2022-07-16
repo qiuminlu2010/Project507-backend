@@ -9,6 +9,7 @@ import (
 	"qiu/blog/pkg/setting"
 	msg "qiu/blog/service/msg"
 	param "qiu/blog/service/param"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
@@ -18,19 +19,18 @@ import (
 
 // @Summary 私信
 // @Produce  json
-// @Param from_uid path int true "发送用户ID"
-// @Param to_uid path int true "接收用户ID"
+// @Param id path int true "发送用户ID"
 // @Param token header string true "token"
-// @Router /api/v1/chat/{from_uid}/{to_uid} [get]
+// @Router /api/v1/msg/{id}/chat [post]
 func Chat(c *gin.Context) {
 
-	params := param.ChatClientParams{}
-	if err := c.ShouldBindUri(&params); err != nil {
+	uid, err := strconv.Atoi(c.Param("id"))
+	if err != nil || uid <= 0 {
 		log.Logger.Error("绑定错误", err)
 		gin_http.Response(c, http.StatusBadRequest, e.INVALID_PARAMS, nil)
 		return
 	}
-	log.Logger.Debug("绑定参数", params)
+	log.Logger.Debug("绑定参数", uid)
 	// uid := c.Query("from_uid") // 自己的id
 	// toUid := c.Query("to_Uid") // 对方的id
 	// wsUpgrader.CheckOrigin = func(r *http.Request) bool { return true }
@@ -49,10 +49,9 @@ func Chat(c *gin.Context) {
 	}
 	// 创建一个用户实例
 	client := &msg.Client{
-		FromUid: params.FromUid,
-		ToUid:   params.ToUid,
-		Socket:  conn,
-		Send:    make(chan []byte),
+		Uid:    uid,
+		Socket: conn,
+		Send:   make(chan []byte),
 	}
 	// fmt.Println("绑定client", client)
 	// 用户注册到用户管理上
@@ -68,9 +67,9 @@ func Chat(c *gin.Context) {
 // @Param page_num query int false "page_num"
 // @Param page_size query int false "page_size"
 // @Param token header string true "token"
-// @Router /api/v1/chat/history [get]
+// @Router /api/v1/msg/history [get]
 func GetMessage(c *gin.Context) {
-	params := param.ChatMessageGetParams{}
+	params := param.MessageGetParams{}
 	if err := c.ShouldBind(&params); err != nil {
 		log.Logger.Error("绑定错误", err)
 		gin_http.Response(c, http.StatusBadRequest, e.INVALID_PARAMS, nil)
@@ -94,46 +93,78 @@ func GetMessage(c *gin.Context) {
 	gin_http.Response(c, http.StatusOK, e.SUCCESS, data)
 }
 
+// @Summary 消息会话列表
+// @Produce  json
+// @Param uid query int true "用户ID"
+// @Param page_num query int false "page_num"
+// @Param page_size query int false "page_size"
+// @Param token header string true "token"
+// @Router /api/v1/msg/session [get]
+func GetMessageSession(c *gin.Context) {
+	params := param.SessionGetParams{}
+	if err := c.ShouldBind(&params); err != nil {
+		log.Logger.Error("绑定错误", err)
+		gin_http.Response(c, http.StatusBadRequest, e.INVALID_PARAMS, nil)
+		return
+	}
+	if params.PageSize == 0 {
+		params.PageSize = setting.AppSetting.PageSize
+	}
+	page := params.PageNum
+	params.PageNum = params.PageNum * params.PageSize
+	log.Logger.Debug("绑定参数", params)
+	sessions, err := model.GetSession(params.Uid, params.PageNum, params.PageSize)
+	if err != nil {
+		gin_http.Response(c, http.StatusBadRequest, e.INVALID_PARAMS, nil)
+	}
+	data := make(map[string]interface{})
+	data["datalist"] = sessions
+	// data["total"] = total
+	data["pageNum"] = page
+	data["pageSize"] = params.PageSize
+	gin_http.Response(c, http.StatusOK, e.SUCCESS, data)
+}
+
 // @Summary 聊天室
 // @Produce  json
-// @Param from_uid query int true "发送用户ID"
+// @Param id path int true "发送用户ID"
 // @Param token header string true "token"
-// @Router /api/v1/chat/history [get]
-func ChatRoom(c *gin.Context) {
+// @Router /api/v1/msg/{id}/chatroom [post]
+// func ChatRoom(c *gin.Context) {
+// 	uid, err := strconv.Atoi(c.Param("id"))
+// 	if err != nil || uid <= 0 {
+// 		log.Logger.Error("绑定错误", err)
+// 		gin_http.Response(c, http.StatusBadRequest, e.INVALID_PARAMS, nil)
+// 		return
+// 	}
+// 	log.Logger.Debug("绑定参数", uid)
+// 	// uid := c.Query("from_uid") // 自己的id
+// 	// toUid := c.Query("to_Uid") // 对方的id
+// 	// wsUpgrader.CheckOrigin = func(r *http.Request) bool { return true }
+// 	// conn, err := wsUpgrader.Upgrade(c.Writer, c.Request, nil) // 升级成ws协议
+// 	conn, ok :=msg.Manager.ChatRoomMember[uid]
 
-	// uid, err := strconv.Atoi(c.Query("from_uid"))
-	// if err != nil {
-	// 	log.Logger.Error("绑定错误", err)
-	// 	gin_http.Response(c, http.StatusBadRequest, e.INVALID_PARAMS, nil)
-	// 	return
-	// }
-	// log.Logger.Debug("绑定参数", params)
-	// // uid := c.Query("from_uid") // 自己的id
-	// // toUid := c.Query("to_Uid") // 对方的id
-	// // wsUpgrader.CheckOrigin = func(r *http.Request) bool { return true }
-	// // conn, err := wsUpgrader.Upgrade(c.Writer, c.Request, nil) // 升级成ws协议
+// 	conn, err := (&websocket.Upgrader{
+// 		CheckOrigin: func(r *http.Request) bool { // CheckOrigin解决跨域问题
+// 			return true
+// 		}}).Upgrade(c.Writer, c.Request, nil) // 升级成ws协议
 
-	// conn, err := (&websocket.Upgrader{
-	// 	CheckOrigin: func(r *http.Request) bool { // CheckOrigin解决跨域问题
-	// 		return true
-	// 	}}).Upgrade(c.Writer, c.Request, nil) // 升级成ws协议
+// 	// conn, err := websocket.Upgrade(c.Writer, c.Request, nil)
+// 	if err != nil {
+// 		log.Logger.Error("websocket建立连接错误", err)
+// 		http.NotFound(c.Writer, c.Request)
+// 		return
+// 	}
+// 	// 创建一个用户实例
+// 	client := &msg.Client{
+// 		Uid:    uid,
+// 		Socket: conn,
+// 		Send:   make(chan []byte),
+// 	}
+// 	// fmt.Println("绑定client", client)
+// 	// 用户注册到用户管理上
+// 	msg.Manager.Register <- client
+// 	go client.Read()
+// 	go client.Write()
 
-	// // conn, err := websocket.Upgrade(c.Writer, c.Request, nil)
-	// if err != nil {
-	// 	log.Logger.Error("websocket建立连接错误", err)
-	// 	http.NotFound(c.Writer, c.Request)
-	// 	return
-	// }
-	// // 创建一个用户实例
-	// client := &msg.Client{
-	// 	FromUid: params.FromUid,
-	// 	ToUid:   params.ToUid,
-	// 	Socket:  conn,
-	// 	Send:    make(chan []byte),
-	// }
-	// // fmt.Println("绑定client", client)
-	// // 用户注册到用户管理上
-	// msg.Manager.Register <- client
-	// go client.Read()
-	// go client.Write()
-}
+// }
