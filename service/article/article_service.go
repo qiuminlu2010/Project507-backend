@@ -6,6 +6,7 @@ import (
 	"qiu/blog/model"
 	"qiu/blog/pkg/e"
 	"qiu/blog/pkg/redis"
+	"qiu/blog/pkg/upload"
 	"qiu/blog/pkg/util"
 	base "qiu/blog/service/base"
 	cache "qiu/blog/service/cache"
@@ -39,8 +40,8 @@ func (s *ArticleService) Add(params *param.ArticleAddParams) error {
 		tags = append(tags, tag)
 	}
 	var imgs []model.Image
-	for _, img_name := range params.ImgName {
-		imgs = append(imgs, model.Image{Filename: img_name})
+	for _, img_url := range params.ImgUrl {
+		imgs = append(imgs, model.Image{Url: upload.GetImagePath() + img_url, ThumbUrl: upload.GetThumbPath() + img_url})
 	}
 
 	articleId, err := model.AddArticleWithImg(

@@ -9,7 +9,7 @@ import (
 )
 
 var (
-	logger  *zap.SugaredLogger
+	Logger  *zap.SugaredLogger
 	coreArr []zapcore.Core
 )
 
@@ -50,30 +50,30 @@ func Setup() {
 
 	coreArr = append(coreArr, infoFileCore)
 	coreArr = append(coreArr, errorFileCore)
-	logger = zap.New(zapcore.NewTee(coreArr...), zap.AddCaller()).Sugar() //zap.AddCaller()为显示文件名和行号，可省略
+	Logger = zap.New(zapcore.NewTee(coreArr...), zap.AddCaller()).Sugar() //zap.AddCaller()为显示文件名和行号，可省略
 }
 
-func Debug(v ...interface{}) {
-	logger.Debug(v)
-}
+// func Debug(v ...interface{}) {
+// 	logger.Debug(v)
+// }
 
-func Info(v ...interface{}) {
-	logger.Info(v)
-}
+// func Info(v ...interface{}) {
+// 	logger.Info(v)
+// }
 
-func Error(v ...interface{}) {
-	logger.Error(v)
-	// logger.Sugar().Errorf()
-}
+// func Error(v ...interface{}) {
+// 	logger.Error(v)
+// 	// logger.Sugar().Errorf()
+// }
 
-func Warn(v ...interface{}) {
-	logger.Warn(v)
-}
+// func Warn(v ...interface{}) {
+// 	logger.Warn(v)
+// }
 
-func Panic(v ...interface{}) {
-	logger.Panic(v)
-}
+// func Panic(v ...interface{}) {
+// 	logger.Panic(v)
+// }
 
-func Fatal(v ...interface{}) {
-	logger.Fatal(v)
-}
+// func Fatal(v ...interface{}) {
+// 	logger.Fatal(v)
+// }

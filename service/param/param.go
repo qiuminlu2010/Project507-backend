@@ -29,9 +29,9 @@ type UsersGetParams struct {
 }
 
 type UserAddParams struct {
-	Username string `json:"username" form:"username" binding:"omitempty,printascii,gte=4,lte=20"`
+	Username string `json:"username" form:"username" binding:"printascii,gte=4,lte=20"`
 	Name     string `json:"name" form:"name" binding:"gte=0"`
-	Password string `json:"password" form:"password" binding:"omitempty,printascii,gte=6,lte=100"`
+	Password string `json:"password" form:"password" binding:"printascii,gte=6,lte=100"`
 }
 
 type UserUpdateParams struct {
@@ -85,7 +85,7 @@ type ArticleAddParams struct {
 	Title   string   `json:"title" form:"title" binding:"gte=0"`
 	Content string   `json:"content" form:"content" binding:"gt=0"`
 	TagName []string `json:"tag_name" form:"tag_name" `
-	ImgName []string `json:"-" form:"-" binding:"-"`
+	ImgUrl  []string `json:"-" form:"-" binding:"-"`
 }
 
 type ArticleUpdateParams struct {
@@ -137,14 +137,20 @@ type RefreshTokenParams struct {
 	Uuid   string `json:"uuid" form:"uuid"`
 }
 
-type ChatClientParams struct {
-	FromUid int `json:"from_uid" form:"from_uid" uri:"from_uid"`
-	ToUid   int `json:"to_uid" form:"to_uid" uri:"to_uid"`
-}
+// type MsgClientParams struct {
+// 	FromUid int `json:"from_uid" form:"from_uid" uri:"from_uid"`
+// 	// ToUid   int `json:"to_uid" form:"to_uid" uri:"to_uid"`
+// }
 
-type ChatMessageGetParams struct {
+type MessageGetParams struct {
 	PageNum  int `json:"page_num" form:"page_num"`
 	PageSize int `json:"page_size" form:"page_size"`
 	FromUid  int `json:"from_uid" form:"from_uid" uri:"from_uid"`
 	ToUid    int `json:"to_uid" form:"to_uid" uri:"to_uid"`
+}
+
+type SessionGetParams struct {
+	PageNum  int `json:"page_num" form:"page_num"`
+	PageSize int `json:"page_size" form:"page_size"`
+	Uid      int `json:"uid" form:"uid" uri:"uid"`
 }

@@ -159,6 +159,7 @@ type Image struct {
 	CreatedOn  int    `gorm:"index" binding:"-" json:"created_on,omitempty"`
 	ModifiedOn int    `binding:"-" json:"modified_on,omitempty"`
 	ArticleID  uint   `json:"-" form:"-" binding:"-"`
-	Filename   string `json:"filename" form:"filename" binding:"-"`
+	Url        string `json:"url" form:"url" binding:"-"`
+	ThumbUrl   string `json:"thumb_url" form:"thumb_url"`
 	// Thumbnail int    `json:"-" form:"-"`
 }

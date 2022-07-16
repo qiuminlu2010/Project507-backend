@@ -26,7 +26,7 @@ func GetUsers(c *gin.Context) {
 	params := param.UsersGetParams{}
 
 	if err := c.ShouldBind(&params); err != nil {
-		log.Error("绑定错误", err)
+		log.Logger.Error("绑定错误", err)
 		gin_http.Response(c, http.StatusBadRequest, e.INVALID_PARAMS, nil)
 		return
 	}
@@ -36,7 +36,7 @@ func GetUsers(c *gin.Context) {
 	}
 	page := params.PageNum
 	params.PageNum = params.PageNum * params.PageSize
-	log.Debug("绑定数据", params)
+	log.Logger.Debug("绑定数据", params)
 
 	users, err := userService.GetUsersByName(&params)
 	if err != nil {
@@ -86,7 +86,7 @@ func FollowUser(c *gin.Context) {
 
 	var err error
 	if err = c.ShouldBind(&params); err != nil {
-		log.Error("绑定错误", err)
+		log.Logger.Error("绑定错误", err)
 		gin_http.Response(c, http.StatusBadRequest, e.INVALID_PARAMS, nil)
 		return
 	}
@@ -95,7 +95,7 @@ func FollowUser(c *gin.Context) {
 		gin_http.Response(c, http.StatusBadRequest, e.INVALID_PARAMS, nil)
 		return
 	}
-	log.Debug("绑定数据", params)
+	log.Logger.Debug("绑定数据", params)
 	if !userService.CheckTokenUid(c, uint(params.UserId)) {
 		gin_http.Response(c, http.StatusBadRequest, e.ERROR_AUTH_CHECK_TOKEN_FAIL, nil)
 		return
@@ -127,7 +127,7 @@ func GetFollows(c *gin.Context) {
 	}
 
 	if err := c.ShouldBind(&params); err != nil {
-		log.Error("绑定错误", err)
+		log.Logger.Error("绑定错误", err)
 		gin_http.Response(c, http.StatusBadRequest, e.INVALID_PARAMS, nil)
 		return
 	}
@@ -139,7 +139,7 @@ func GetFollows(c *gin.Context) {
 	page := params.PageNum
 	params.PageNum = params.PageNum * params.PageSize
 
-	log.Debug("绑定数据", params)
+	log.Logger.Debug("绑定数据", params)
 
 	if !userService.CheckTokenUid(c, uint(params.UserId)) {
 		gin_http.Response(c, http.StatusBadRequest, e.ERROR_AUTH_CHECK_TOKEN_FAIL, nil)
@@ -213,7 +213,7 @@ func GetUserArticles(c *gin.Context) {
 	page := params.PageNum
 	params.PageNum = params.PageNum * params.PageSize
 
-	log.Debug("绑定数据", params)
+	log.Logger.Debug("绑定数据", params)
 
 	articles, err := articleService.GetUserArticles(&params)
 	if err != nil {
@@ -245,7 +245,7 @@ func GetUserLikeArticles(c *gin.Context) {
 	}
 	page := params.PageNum
 	params.PageNum = params.PageNum * params.PageSize
-	log.Debug("绑定数据", params)
+	log.Logger.Debug("绑定数据", params)
 	if !articleService.CheckTokenUid(c, uint(params.Uid)) {
 		gin_http.Response(c, http.StatusBadRequest, e.ERROR_AUTH_CHECK_TOKEN_FAIL, nil)
 		return

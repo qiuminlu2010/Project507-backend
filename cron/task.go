@@ -7,5 +7,5 @@ import (
 
 func ClearLoggingFile() {
 	time.Sleep(time.Second)
-	log.Info("clearing")
+	log.Logger.Info("clearing")
 }

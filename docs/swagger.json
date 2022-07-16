@@ -293,82 +293,6 @@
                 "responses": {}
             }
         },
-        "/api/v1/chat/history": {
-            "get": {
-                "produces": [
-                    "application/json"
-                ],
-                "summary": "获取文章列表",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "发送用户ID",
-                        "name": "from_uid",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "接收用户ID",
-                        "name": "to_uid",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "page_num",
-                        "name": "page_num",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "page_size",
-                        "name": "page_size",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "token",
-                        "name": "token",
-                        "in": "header",
-                        "required": true
-                    }
-                ],
-                "responses": {}
-            }
-        },
-        "/api/v1/chat/{from_uid}/{to_uid}": {
-            "get": {
-                "produces": [
-                    "application/json"
-                ],
-                "summary": "获取文章列表",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "发送用户ID",
-                        "name": "from_uid",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "接收用户ID",
-                        "name": "to_uid",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "token",
-                        "name": "token",
-                        "in": "header",
-                        "required": true
-                    }
-                ],
-                "responses": {}
-            }
-        },
         "/api/v1/comment": {
             "post": {
                 "produces": [
@@ -509,6 +433,112 @@
                         "description": "page_size",
                         "name": "page_size",
                         "in": "query"
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/api/v1/msg/history": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "历史消息",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "发送用户ID",
+                        "name": "from_uid",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "接收用户ID",
+                        "name": "to_uid",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "page_num",
+                        "name": "page_num",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "page_size",
+                        "name": "page_size",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "token",
+                        "name": "token",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/api/v1/msg/session": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "消息会话列表",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "用户ID",
+                        "name": "uid",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "page_num",
+                        "name": "page_num",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "page_size",
+                        "name": "page_size",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "token",
+                        "name": "token",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/api/v1/msg/{id}/chat": {
+            "post": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "私信",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "发送用户ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "token",
+                        "name": "token",
+                        "in": "header",
+                        "required": true
                     }
                 ],
                 "responses": {}

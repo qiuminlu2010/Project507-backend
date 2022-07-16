@@ -34,7 +34,7 @@ func GetArticleListParamsKey(pageNum int, pageSize int) string {
 //getModelsFromCache (modelName, modelIds)
 //SetUserInfoCache
 func FlushArticleLikeUsers() error {
-	log.Info("FlushArticleLikeUsers")
+	log.Logger.Info("FlushArticleLikeUsers")
 
 	pattern := fmt.Sprintf("%s*%s", e.CACHE_MESSAGE, e.CACHE_LIKEUSERS)
 	data := redis.ScanHashByPattern(pattern)
@@ -75,12 +75,12 @@ func FlushArticleLikeUsers() error {
 		}
 		redis.Del(key)
 	}
-	log.Info("FlushArticleLikeUsers", "OK")
+	log.Logger.Info("FlushArticleLikeUsers", "OK")
 	return nil
 }
 
 func FlushUserFollows() error {
-	log.Info("FlushUserFollows")
+	log.Logger.Info("FlushUserFollows")
 	pattern := fmt.Sprintf("%s*%s", e.CACHE_MESSAGE, e.CACHE_FOLLOWS)
 	data := redis.ScanHashByPattern(pattern)
 	for key, value := range data {
@@ -107,6 +107,6 @@ func FlushUserFollows() error {
 		}
 		redis.Del(key)
 	}
-	log.Info("FlushUserFollows", "OK")
+	log.Logger.Info("FlushUserFollows", "OK")
 	return nil
 }

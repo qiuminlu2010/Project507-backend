@@ -111,6 +111,7 @@ func Setup() {
 		&Image{},
 		&Comment{},
 		&Message{},
+		&MessageSession{},
 		// &Reply{},
 	)
 	if err != nil {

@@ -25,7 +25,7 @@ func InitRouter() *gin.Engine {
 	apiv1 := r.Group("/api/v1")
 
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
-	r.GET("/data/:imgType/:imgName", v1.DownloadImg)
+	r.GET("/data/img/:imgType/:imgName", v1.DownloadImg)
 
 	//管理类
 	r.POST("/user/register", v1.Register)
@@ -71,7 +71,7 @@ func InitRouter() *gin.Engine {
 		apiv1.PUT("/article/:id", v1.UpdateArticle)
 		apiv1.POST("/article/:id/like", v1.LikeArticle)
 
-		//评论
+		//评论类
 		apiv1.POST("/comment", v1.AddComment)
 		apiv1.DELETE("/comment/:id", v1.DeleteComment)
 		apiv1.POST("/comment/:id/like", v1.LikeComment)
@@ -82,9 +82,11 @@ func InitRouter() *gin.Engine {
 		apiv1.GET("/user/:id/fans", v1.GetFans)
 		apiv1.GET("/user/:id/likeArticles", v1.GetUserLikeArticles)
 
-		//聊天
-		apiv1.GET("/msg/:from_uid/:to_uid", v1.MsgHandler)
+		//消息类
+		apiv1.GET("/msg/:id/chat", v1.Chat)
 		apiv1.GET("/msg/history", v1.GetMessage)
+		apiv1.GET("/msg/session", v1.GetMessageSession)
+		// apiv1.POST("/msg/:id/chatroom", v1.ChatRoom)
 		//上传图片
 		r.POST("/upload", v1.UploadImage)
 	}
