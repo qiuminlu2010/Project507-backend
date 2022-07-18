@@ -1,11 +1,15 @@
 package msg_service
 
 import (
-	"encoding/json"
 	"qiu/blog/model"
 	"qiu/blog/pkg/e"
 	log "qiu/blog/pkg/logging"
+	"qiu/blog/pkg/redis"
+	"qiu/blog/pkg/util"
+	cache "qiu/blog/service/cache"
 	user "qiu/blog/service/user"
+
+	"encoding/json"
 	"time"
 
 	"github.com/gorilla/websocket"
@@ -15,7 +19,7 @@ type Message struct {
 	FromUid  int    `json:"from_uid" form:"from_uid"`
 	ToUid    int    `json:"to_uid" form:"to_uid"`
 	Username string `json:"username" form:"username"`
-	Avator   string `json:"avator" form:"avator"`
+	Avatar   string `json:"avatar" form:"avatar"`
 	Content  string `json:"content" form:"content"`
 	ImageUrl string `json:"image_url" form:"image_url"`
 	Type     int    `json:"type"`
@@ -59,6 +63,7 @@ func (c *Client) close() {
 	Manager.Unregister <- c
 	_ = c.Socket.Close()
 }
+
 func (c *Client) Read() {
 	defer c.close()
 	for {
@@ -75,7 +80,7 @@ func (c *Client) Read() {
 		msg.FromUid = c.Uid
 		msg.Ctime = time.Now().Unix()
 		msg.Username = userInfo.Name
-		msg.Avator = userInfo.Avator
+		msg.Avatar = userInfo.Avatar
 
 		msgModel := model.Message{
 			FromUid:  c.Uid,
@@ -224,4 +229,32 @@ func Setup() {
 	}
 	ChatRoomMsg = make(chan *Message)
 	go Manager.Listen()
+}
+
+func GetSession(uid, pageNum, pageSize int) ([]*model.UserBase, error) {
+	key := cache.GetModelFieldKey(e.CACHE_USER, uint(uid), e.CACHE_SESSIONS)
+	// var sessions  []*model.MessageSession
+	if redis.Exists(key) == 0 {
+		sessions, err := model.GetSession(uid, pageNum, pageSize)
+
+		if err != nil {
+			return nil, err
+		}
+		for _, session := range sessions {
+			redis.ZAdd(key, float64(session.ModifiedOn), session.SessionId)
+		}
+		redis.Expire(key, e.DURATION_USER_SESSIONS)
+		// return sessions, nil
+	}
+	value := redis.ZRevRange(key, int64(pageNum), int64(pageSize))
+	userIds, err := util.StringsToInts(value)
+
+	if err != nil {
+		return nil, err
+	}
+
+	// followUsers := user.GetUsersCache(userIds)
+	// json.Unmarshal(redis.ZRevRange(key, int64(pageNum), int64(pageSize)),&sessions)
+
+	return user.GetUsersCache(userIds), nil
 }

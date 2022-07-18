@@ -9,6 +9,7 @@ import (
 	"qiu/blog/pkg/setting"
 	msg "qiu/blog/service/msg"
 	param "qiu/blog/service/param"
+	user "qiu/blog/service/user"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -85,8 +86,12 @@ func GetMessage(c *gin.Context) {
 	if err != nil {
 		gin_http.Response(c, http.StatusBadRequest, e.INVALID_PARAMS, nil)
 	}
+	userInfo := user.GetUserCache(params.ToUid)
 	data := make(map[string]interface{})
-	data["datalist"] = messages
+	messagesInfo := make(map[string]interface{})
+	messagesInfo["userInfo"] = userInfo
+	messagesInfo["messages"] = messages
+	data["datalist"] = messagesInfo
 	// data["total"] = total
 	data["pageNum"] = page
 	data["pageSize"] = params.PageSize
@@ -113,10 +118,16 @@ func GetMessageSession(c *gin.Context) {
 	page := params.PageNum
 	params.PageNum = params.PageNum * params.PageSize
 	log.Logger.Debug("绑定参数", params)
-	sessions, err := model.GetSession(params.Uid, params.PageNum, params.PageSize)
+	sessions, err := msg.GetSession(params.Uid, params.PageNum, params.PageSize)
 	if err != nil {
-		gin_http.Response(c, http.StatusBadRequest, e.INVALID_PARAMS, nil)
+		log.Logger.Error(e.ERROR_SESSION_GET_FAIL, err)
+		gin_http.Response(c, http.StatusBadRequest, e.ERROR_SESSION_GET_FAIL, nil)
+		return
 	}
+	// sessions, err := model.GetSession(params.Uid, params.PageNum, params.PageSize)
+	// if err != nil {
+	// 	gin_http.Response(c, http.StatusBadRequest, e.INVALID_PARAMS, nil)
+	// }
 	data := make(map[string]interface{})
 	data["datalist"] = sessions
 	// data["total"] = total

@@ -25,7 +25,7 @@ func GetUser(userId uint) (*UserBase, error) {
 
 func GetUserInfo(userId uint) (*UserInfo, error) {
 	var user UserInfo
-	if err := db.Model(&User{}).Select("id", "username", "name", "avator").Where("id = ?", userId).First(&user).Error; err != nil {
+	if err := db.Model(&User{}).Select("id", "username", "name", "avatar").Where("id = ?", userId).First(&user).Error; err != nil {
 		return nil, err
 	}
 	if err := db.Table(e.TABLE_USER_FOLLOWS).Where("follow_id = ?", userId).Count(&user.FanNum).Error; err != nil {

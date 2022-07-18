@@ -64,8 +64,9 @@ const (
 
 	ERROR_ADMIN_MENU_LIST_FAIL = 50001
 
-	WebsocketSuccess      = 60000
-	WebsocketEnd          = 60001
-	WebsocketOnlineReply  = 60002
-	WebsocketOfflineReply = 60003
+	WebsocketSuccess       = 60000
+	WebsocketEnd           = 60001
+	WebsocketOnlineReply   = 60002
+	WebsocketOfflineReply  = 60003
+	ERROR_SESSION_GET_FAIL = 60006
 )

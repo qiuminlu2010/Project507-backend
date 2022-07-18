@@ -114,7 +114,7 @@ func Login(c *gin.Context) {
 	data["uid"] = userInfo.ID
 	data["username"] = userInfo.Username
 	data["name"] = userInfo.Name
-	data["avator"] = userInfo.Avator
+	data["avatar"] = userInfo.Avatar
 	data["follow_num"] = userInfo.FollowNum
 	data["fan_num"] = userInfo.FanNum
 	data["token"] = token
