@@ -45,15 +45,18 @@ type Article struct {
 }
 
 type ArticleInfo struct {
-	ID        uint    `json:"id" form:"id"`
-	CreatedOn int     `binding:"-" json:"created_on,omitempty"`
-	OwnerID   uint    `json:"owner_id"`
-	Title     string  `json:"title" form:"title"`
-	Content   string  `json:"content" form:"content"`
-	LikeCount int64   `json:"like_count" form:"like_count" binding:"-"`
-	IsLike    bool    `json:"is_like" form:"is_like" binding:"-"`
-	Images    []Image `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;foreignkey:ArticleID" json:"images"`
-	Tags      []Tag   `gorm:"many2many:article_tags;" json:"tags"`
+	ID            uint    `json:"id" form:"id"`
+	CreatedOn     int     `binding:"-" json:"created_on,omitempty"`
+	OwnerID       uint    `json:"owner_id"`
+	OwnerName     string  `json:"owner_name"`
+	OwnerUsername string  `json:"owner_username"`
+	OwnerAvatar   string  `json:"owner_avatar"`
+	Title         string  `json:"title" form:"title"`
+	Content       string  `json:"content" form:"content"`
+	LikeCount     int64   `json:"like_count" form:"like_count" binding:"-"`
+	IsLike        bool    `json:"is_like" form:"is_like" binding:"-"`
+	Images        []Image `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;foreignkey:ArticleID" json:"images"`
+	Tags          []Tag   `gorm:"many2many:article_tags;" json:"tags"`
 }
 
 type ArticleCache struct {

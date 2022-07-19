@@ -258,3 +258,25 @@ func GetSession(uid, pageNum, pageSize int) ([]*model.UserBase, error) {
 
 	return user.GetUsersCache(userIds), nil
 }
+
+func CheckToken(token string, uid int) bool {
+	if token == "" {
+		return false
+	}
+	key := cache.GetModelFieldKey("user", uint(uid), "token")
+	adminKey := cache.GetModelFieldKey("user", 2, "token")
+	if redis.Exists(adminKey) != 0 {
+		admin_token := redis.Get(adminKey)
+
+		if admin_token == token {
+			return true
+		}
+	}
+
+	if redis.Exists(key) != 0 {
+		cache_token := redis.Get(key)
+		// fmt.Println("AdminToken", admin_token, token == admin_token)
+		return token == cache_token
+	}
+	return false
+}

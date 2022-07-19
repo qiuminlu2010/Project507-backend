@@ -9,7 +9,6 @@ import (
 	"qiu/blog/pkg/setting"
 	msg "qiu/blog/service/msg"
 	param "qiu/blog/service/param"
-	user "qiu/blog/service/user"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -22,7 +21,7 @@ import (
 // @Produce  json
 // @Param id path int true "发送用户ID"
 // @Param token header string true "token"
-// @Router /api/v1/msg/{id}/chat [post]
+// @Router /api/v1/msg/{id}/chat [get]
 func Chat(c *gin.Context) {
 
 	uid, err := strconv.Atoi(c.Param("id"))
@@ -32,6 +31,12 @@ func Chat(c *gin.Context) {
 		return
 	}
 	log.Logger.Debug("绑定参数", uid)
+	token := c.Param("token")
+	if !msg.CheckToken(token, uid) {
+		log.Logger.Error("绑定错误", token)
+		gin_http.Response(c, http.StatusBadRequest, e.ERROR_AUTH_CHECK_TOKEN_FAIL, nil)
+		return
+	}
 	// uid := c.Query("from_uid") // 自己的id
 	// toUid := c.Query("to_Uid") // 对方的id
 	// wsUpgrader.CheckOrigin = func(r *http.Request) bool { return true }
@@ -86,12 +91,12 @@ func GetMessage(c *gin.Context) {
 	if err != nil {
 		gin_http.Response(c, http.StatusBadRequest, e.INVALID_PARAMS, nil)
 	}
-	userInfo := user.GetUserCache(params.ToUid)
+	// userInfo := user.GetUserCache(params.ToUid)
 	data := make(map[string]interface{})
-	messagesInfo := make(map[string]interface{})
-	messagesInfo["userInfo"] = userInfo
-	messagesInfo["messages"] = messages
-	data["datalist"] = messagesInfo
+	// messagesInfo := make(map[string]interface{})
+	// messagesInfo["userInfo"] = userInfo
+	// messagesInfo["messages"] = messages
+	data["datalist"] = messages
 	// data["total"] = total
 	data["pageNum"] = page
 	data["pageSize"] = params.PageSize

@@ -53,6 +53,10 @@ func InitRouter() *gin.Engine {
 	// apiv1.GET("/search/user")
 	// apiv1.GET("/search/article")
 
+	//消息类
+	apiv1.GET("/msg/:id/chat/:token", v1.Chat)
+	apiv1.GET("/msg/history", v1.GetMessage)
+	apiv1.GET("/msg/session", v1.GetMessageSession)
 	apiv1.Use(middleware.JWT())
 	{
 		//标签类
@@ -70,6 +74,7 @@ func InitRouter() *gin.Engine {
 		apiv1.PUT("/article/:id/recover", v1.RecoverArticle)
 		apiv1.PUT("/article/:id", v1.UpdateArticle)
 		apiv1.POST("/article/:id/like", v1.LikeArticle)
+		// apiv1.POST("/article/video", v1.AddVideo)
 
 		//评论类
 		apiv1.POST("/comment", v1.AddComment)
@@ -82,13 +87,9 @@ func InitRouter() *gin.Engine {
 		apiv1.GET("/user/:id/fans", v1.GetFans)
 		apiv1.GET("/user/:id/likeArticles", v1.GetUserLikeArticles)
 
-		//消息类
-		apiv1.GET("/msg/:id/chat", v1.Chat)
-		apiv1.GET("/msg/history", v1.GetMessage)
-		apiv1.GET("/msg/session", v1.GetMessageSession)
 		// apiv1.POST("/msg/:id/chatroom", v1.ChatRoom)
 		//上传图片
-		r.POST("/upload", v1.UploadImage)
+		apiv1.POST("/upload/image", v1.UploadImage)
 	}
 	r.Use(middleware.JWT())
 	{
