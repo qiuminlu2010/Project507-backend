@@ -154,3 +154,8 @@ type SessionGetParams struct {
 	PageSize int `json:"page_size" form:"page_size"`
 	Uid      int `json:"uid" form:"uid" uri:"uid"`
 }
+
+type UpdateUnReadMessageParams struct {
+	Uid       int `json:"uid" form:"uid" `
+	SessionId int `json:"session_uid" form:"session_uid"`
+}

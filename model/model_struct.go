@@ -169,5 +169,6 @@ type Image struct {
 
 type SessionInfo struct {
 	UserBase
-	Unread int `json:"unread"`
+	Unread   int        `json:"unread"`
+	Messages []*Message `json:"messages"`
 }

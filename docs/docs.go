@@ -494,6 +494,38 @@ const docTemplate = `{
                 "responses": {}
             }
         },
+        "/api/v1/msg/read": {
+            "post": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "已读消息",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "用户ID",
+                        "name": "uid",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "会话ID",
+                        "name": "session_id",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "token",
+                        "name": "token",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
         "/api/v1/msg/session": {
             "get": {
                 "produces": [

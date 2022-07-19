@@ -45,7 +45,7 @@ func GetSession(uid, pageNum, pageSize int) ([]*MessageSession, error) {
 	return session, nil
 }
 
-func GetMessages(fromUid, toUid, pageNum, pageSize int) ([]*Message, error) {
+func GetMessage(fromUid, toUid, pageNum, pageSize int) ([]*Message, error) {
 	var messages []*Message
 	where := fmt.Sprintf("(`from_uid` = %d and `to_uid` = %d) or (`from_uid` = %d and `to_uid` = %d)", fromUid, toUid, toUid, fromUid)
 	if err := db.Offset(pageNum).Limit(pageSize).Where(where).Order("id desc").Find(&messages).Error; err != nil {
@@ -53,3 +53,17 @@ func GetMessages(fromUid, toUid, pageNum, pageSize int) ([]*Message, error) {
 	}
 	return messages, nil
 }
+
+// func GetMessages(fromUid int, toUids []int, pageNum int, pageSize int) ([]*Message, error) {
+// 	var messages []*Message
+// 	// where := fmt.Sprintf("(`from_uid` = %d and `to_uid` in (%v)) or (`from_uid` = %d and `to_uid` = %d)", fromUid, toUid, toUid, fromUid)
+// 	if err := db.
+// 	Offset(pageNum).
+// 	Limit(pageSize).
+// 	Where(db.Where("`from_uid` = ?", fromUid).Where("`to_uid` in (?)", toUids)).
+// 	Or(db.Where("`to_uid` = ? ", fromUid).Where("`from_uid in (?)`", toUids)).
+// 	Order("id desc").Find(&messages).Error; err != nil {
+// 		return nil, err
+// 	}
+// 	return messages, nil
+// }

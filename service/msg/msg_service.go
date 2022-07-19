@@ -332,10 +332,14 @@ func GetSession(uid, pageNum, pageSize int) ([]*model.SessionInfo, error) {
 				panic(err)
 			}
 		}
-
+		messages, err := model.GetMessage(uid, int(userInfo.ID), pageNum, pageSize)
+		if err != nil {
+			panic(err)
+		}
 		sessionInfo := model.SessionInfo{
 			UserBase: *userInfo,
 			Unread:   unread,
+			Messages: messages,
 		}
 		sessionInfos = append(sessionInfos, &sessionInfo)
 	}
@@ -364,8 +368,12 @@ func CheckToken(token string, uid int) bool {
 	return false
 }
 
+func UpdateUnReadMessage(uid int, sessionId int) {
+	key := cache.GetModelFieldKey(e.CACHE_USER, uint(uid), e.CACHE_UNREAD_MSG)
+	redis.HashDel(key, strconv.Itoa(sessionId))
+
+}
 func GetMessages(params *param.MessageGetParams) ([]*model.Message, error) {
-	key := cache.GetModelFieldKey(e.CACHE_USER, uint(params.FromUid), e.CACHE_UNREAD_MSG)
-	redis.HashDel(key, strconv.Itoa(params.ToUid))
-	return model.GetMessages(params.FromUid, params.ToUid, params.PageNum, params.PageSize)
+	// UpdateUnReadMessage(params.FromUid, params.ToUid)
+	return model.GetMessage(params.FromUid, params.ToUid, params.PageNum, params.PageSize)
 }

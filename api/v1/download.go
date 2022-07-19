@@ -18,6 +18,9 @@ func DownloadImg(c *gin.Context) {
 	if imgType == "thumb" {
 		path = setting.AppSetting.ThumbSavePath
 	}
+	if imgType == "temp" {
+		path = setting.AppSetting.ImageTempSavePath
+	}
 	fmt.Println("下载文件", path+"/"+imgName)
 	c.FileAttachment(path+"/"+imgName, imgName)
 }

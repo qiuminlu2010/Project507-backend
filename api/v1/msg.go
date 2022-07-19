@@ -140,6 +140,28 @@ func GetMessageSession(c *gin.Context) {
 	gin_http.Response(c, http.StatusOK, e.SUCCESS, data)
 }
 
+// @Summary 已读消息
+// @Produce  json
+// @Param uid formData int true "用户ID"
+// @Param session_id formData int true "会话ID"
+// @Param token header string true "token"
+// @Router /api/v1/msg/read [post]
+func ReadMessage(c *gin.Context) {
+	params := param.UpdateUnReadMessageParams{}
+	if err := c.ShouldBind(&params); err != nil {
+		log.Logger.Error("绑定错误", err)
+		gin_http.Response(c, http.StatusBadRequest, e.INVALID_PARAMS, nil)
+		return
+	}
+	log.Logger.Debug("绑定参数", params)
+	// sessions, err := model.GetSession(params.Uid, params.PageNum, params.PageSize)
+	// if err != nil {
+	// 	gin_http.Response(c, http.StatusBadRequest, e.INVALID_PARAMS, nil)
+	// }
+	msg.UpdateUnReadMessage(params.Uid, params.SessionId)
+	gin_http.Response(c, http.StatusOK, e.SUCCESS, nil)
+}
+
 // @Summary 聊天室
 // @Produce  json
 // @Param id path int true "发送用户ID"

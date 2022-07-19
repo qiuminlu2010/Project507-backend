@@ -55,8 +55,7 @@ func InitRouter() *gin.Engine {
 
 	//消息类
 	apiv1.GET("/msg/:id/chat/:token", v1.Chat)
-	apiv1.GET("/msg/history", v1.GetMessage)
-	apiv1.GET("/msg/session", v1.GetMessageSession)
+
 	apiv1.Use(middleware.JWT())
 	{
 		//标签类
@@ -86,6 +85,11 @@ func InitRouter() *gin.Engine {
 		apiv1.GET("/user/:id/follows", v1.GetFollows)
 		apiv1.GET("/user/:id/fans", v1.GetFans)
 		apiv1.GET("/user/:id/likeArticles", v1.GetUserLikeArticles)
+
+		//消息类
+		apiv1.GET("/msg/history", v1.GetMessage)
+		apiv1.GET("/msg/session", v1.GetMessageSession)
+		apiv1.POST("/msg/read", v1.ReadMessage)
 
 		// apiv1.POST("/msg/:id/chatroom", v1.ChatRoom)
 		//上传图片
