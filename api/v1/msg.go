@@ -2,7 +2,6 @@ package v1
 
 import (
 	"net/http"
-	"qiu/blog/model"
 	"qiu/blog/pkg/e"
 	gin_http "qiu/blog/pkg/http"
 	log "qiu/blog/pkg/logging"
@@ -87,7 +86,7 @@ func GetMessage(c *gin.Context) {
 	page := params.PageNum
 	params.PageNum = params.PageNum * params.PageSize
 	log.Logger.Debug("绑定参数", params)
-	messages, err := model.GetMessages(params.FromUid, params.ToUid, params.PageNum, params.PageSize)
+	messages, err := msg.GetMessages(&params)
 	if err != nil {
 		gin_http.Response(c, http.StatusBadRequest, e.INVALID_PARAMS, nil)
 	}

@@ -166,3 +166,8 @@ type Image struct {
 	ThumbUrl   string `json:"thumb_url" form:"thumb_url"`
 	// Thumbnail int    `json:"-" form:"-"`
 }
+
+type SessionInfo struct {
+	UserBase
+	Unread int `json:"unread"`
+}

@@ -99,6 +99,11 @@ func HashSet(key string, data map[string]interface{}) {
 		panic(err)
 	}
 }
+func HashIncr(key string, field string, v int64) {
+	if err := rdb.HIncrBy(ctx, key, field, v).Err(); err != nil {
+		panic(err)
+	}
+}
 func HashGetAll(key string) map[string]string {
 	ret, err := rdb.HGetAll(ctx, key).Result()
 	if err != nil {
@@ -110,11 +115,16 @@ func HashGetAll(key string) map[string]string {
 func HashGet(key string, field string) string {
 	ret, err := rdb.HGet(ctx, key, field).Result()
 	if err != nil {
-		panic(err)
+		return ""
 	}
 	return ret
 }
 
+func HashDel(key string, field string) {
+	if err := rdb.HDel(ctx, key, field).Err(); err != nil {
+		panic(err)
+	}
+}
 func HashMGet(key string, fields ...string) []interface{} {
 	ret, err := rdb.HMGet(ctx, key, fields...).Result()
 	if err != nil {

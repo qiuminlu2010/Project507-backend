@@ -29,6 +29,14 @@ func SaveSession(session *MessageSession) error {
 	return db.Clauses(clause.OnConflict{Columns: []clause.Column{{Name: "id"}}, DoUpdates: clause.AssignmentColumns([]string{"modified_on"})}).Create(session).Error
 }
 
+func GetAllSessions(uid int) ([]*MessageSession, error) {
+	var session []*MessageSession
+	if err := db.Where("`uid` = ?", uid).Order("id desc").Find(&session).Error; err != nil {
+		return nil, err
+	}
+	return session, nil
+}
+
 func GetSession(uid, pageNum, pageSize int) ([]*MessageSession, error) {
 	var session []*MessageSession
 	if err := db.Offset(pageNum).Limit(pageSize).Where("`uid` = ?", uid).Order("id desc").Find(&session).Error; err != nil {
@@ -36,10 +44,11 @@ func GetSession(uid, pageNum, pageSize int) ([]*MessageSession, error) {
 	}
 	return session, nil
 }
+
 func GetMessages(fromUid, toUid, pageNum, pageSize int) ([]*Message, error) {
 	var messages []*Message
 	where := fmt.Sprintf("(`from_uid` = %d and `to_uid` = %d) or (`from_uid` = %d and `to_uid` = %d)", fromUid, toUid, toUid, fromUid)
-	if err := db.Offset(pageNum).Limit(pageSize).Where(where).Order("id").Find(&messages).Error; err != nil {
+	if err := db.Offset(pageNum).Limit(pageSize).Where(where).Order("id desc").Find(&messages).Error; err != nil {
 		return nil, err
 	}
 	return messages, nil
