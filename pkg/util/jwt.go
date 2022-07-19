@@ -40,7 +40,14 @@ func GenerateToken(uid uint) (string, int64, error) {
 
 	fmt.Println("新建token缓存信息", token, claims)
 	cacha_key := fmt.Sprintf("%s:%d:%s", "user", claims.Uid, "token")
+
+	//TODO: 事务 lua脚本
+	if redis.Exists(cacha_key) != 0 {
+		old := redis.Get(cacha_key)
+		redis.SDEL(e.CACHE_TOKEN, old)
+	}
 	redis.Set(cacha_key, token, claims.TTL)
+	redis.SAdd(e.CACHE_TOKEN, token)
 	// redis.Set(token, cache, 3600)
 	return token, expireTime, err
 }

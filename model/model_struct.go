@@ -17,7 +17,7 @@ type User struct {
 	Password     string     `json:"password" form:"password" binding:"omitempty,printascii,gte=6,lte=100"`
 	StudentId    string     `json:"student_id" form:"student_id" binding:"omitempty,numeric"`
 	Name         string     `json:"name" form:"name" gorm:"index;unique"`
-	Avator       string     `json:"avator" form:"avator"`
+	Avatar       string     `json:"avatar" form:"avatar"`
 	State        int        `json:"state" form:"state" binding:"gte=0,lte=1"`
 	LikeArticles []*Article `gorm:"many2many:article_like_users" binding:"-" json:"like_articles"`
 	Follows      []*User    `gorm:"many2many:user_follows"`
@@ -45,15 +45,18 @@ type Article struct {
 }
 
 type ArticleInfo struct {
-	ID        uint    `json:"id" form:"id"`
-	CreatedOn int     `binding:"-" json:"created_on,omitempty"`
-	OwnerID   uint    `json:"owner_id"`
-	Title     string  `json:"title" form:"title"`
-	Content   string  `json:"content" form:"content"`
-	LikeCount int64   `json:"like_count" form:"like_count" binding:"-"`
-	IsLike    bool    `json:"is_like" form:"is_like" binding:"-"`
-	Images    []Image `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;foreignkey:ArticleID" json:"images"`
-	Tags      []Tag   `gorm:"many2many:article_tags;" json:"tags"`
+	ID            uint    `json:"id" form:"id"`
+	CreatedOn     int     `binding:"-" json:"created_on,omitempty"`
+	OwnerID       uint    `json:"owner_id"`
+	OwnerName     string  `json:"owner_name"`
+	OwnerUsername string  `json:"owner_username"`
+	OwnerAvatar   string  `json:"owner_avatar"`
+	Title         string  `json:"title" form:"title"`
+	Content       string  `json:"content" form:"content"`
+	LikeCount     int64   `json:"like_count" form:"like_count" binding:"-"`
+	IsLike        bool    `json:"is_like" form:"is_like" binding:"-"`
+	Images        []Image `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;foreignkey:ArticleID" json:"images"`
+	Tags          []Tag   `gorm:"many2many:article_tags;" json:"tags"`
 }
 
 type ArticleCache struct {
@@ -67,7 +70,7 @@ type Comment struct {
 	ArticleID uint      `json:"article_id"`
 	ReplyID   *uint     `json:"reply_id"`
 	Username  string    `json:"username"`
-	Avator    string    `json:"avator"`
+	Avatar    string    `json:"avatar"`
 	Content   string    `json:"content" form:"content" binding:"gte=1,lte=200"`
 	LikeCount int       `json:"like_count" `
 	IsLike    int       `json:"is_like"`
@@ -79,7 +82,7 @@ type Reply struct {
 	UserID    uint   `json:"user_id"`
 	CommentID uint   `json:"comment_id"`
 	Username  string `json:"username"`
-	Avator    string `json:"avator"`
+	Avatar    string `json:"avatar"`
 	Content   string `json:"content" form:"content" binding:"gte=1,lte=200"`
 	LikeCount int    `json:"like_count" `
 }
@@ -105,7 +108,7 @@ type UserBase struct {
 	ID       uint   `json:"id" form:"id"`
 	Username string `json:"username" form:"username"`
 	Name     string `json:"name" form:"name"`
-	Avator   string `json:"avator" form:"avator"`
+	Avatar   string `json:"avatar" form:"avatar"`
 	// FollowNum int    `json:"follow_num" form:"follow_num" binding:"-"`
 	// FanNum    int    `json:"fan_num" form:"fan_num" binding:"-"`
 	// TODO: LikeNum int

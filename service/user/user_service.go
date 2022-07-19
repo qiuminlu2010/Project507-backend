@@ -126,11 +126,11 @@ func (s *UserService) GetFollows(params *param.FollowsGetParams) ([]*model.UserB
 		return nil, err
 	}
 
-	followUsers := getUsersCache(followIds)
+	followUsers := GetUsersCache(followIds)
 	return followUsers, nil
 }
 
-func getUsersCache(userIds []int) []*model.UserBase {
+func GetUsersCache(userIds []int) []*model.UserBase {
 	var userInfos []*model.UserBase
 	for _, userId := range userIds {
 		userKey := cache.GetModelIdKey(e.CACHE_USER, userId)
@@ -212,7 +212,7 @@ func (s *UserService) GetFans(userId int) ([]*model.UserBase, error) {
 	if err != nil {
 		return nil, err
 	}
-	return getUsersCache(fanIds), nil
+	return GetUsersCache(fanIds), nil
 }
 
 func GetUserCache(userId int) *model.UserBase {

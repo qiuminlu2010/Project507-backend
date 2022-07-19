@@ -2,12 +2,11 @@ package middleware
 
 import (
 	"net/http"
-	"time"
 
 	"github.com/gin-gonic/gin"
 
 	"qiu/blog/pkg/e"
-	"qiu/blog/pkg/util"
+	"qiu/blog/pkg/redis"
 )
 
 func JWT() gin.HandlerFunc {
@@ -17,16 +16,20 @@ func JWT() gin.HandlerFunc {
 		var token string
 		code = e.SUCCESS
 
+		//TODO: 重复TOKEN问题
 		token = c.GetHeader("token")
 		if token == "" {
 			code = e.ERROR_AUTH
 		} else {
-			claims, err := util.ParseToken(token)
-			if err != nil {
+			if !redis.SExist(e.CACHE_TOKEN, token) {
 				code = e.ERROR_AUTH_CHECK_TOKEN_FAIL
-			} else if time.Now().Unix() > claims.ExpiresAt {
-				code = e.ERROR_AUTH_CHECK_TOKEN_TIMEOUT
 			}
+			// claims, err := util.ParseToken(token)
+			// if err != nil {
+			// 	code = e.ERROR_AUTH_CHECK_TOKEN_FAIL
+			// } else if time.Now().Unix() > claims.ExpiresAt {
+			// 	code = e.ERROR_AUTH_CHECK_TOKEN_TIMEOUT
+			// }
 			// } else if redis.Exists(token) == 0 {
 			// 	fmt.Println("新建Redis缓存", token, claims)
 			// 	cacha_key := service.GetKeyName("user", claims.Uid, "token")

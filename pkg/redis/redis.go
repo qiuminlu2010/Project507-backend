@@ -170,6 +170,13 @@ func SDEL(key string, value interface{}) {
 	}
 }
 
+func SExist(key string, memeber interface{}) bool {
+	ret, err := rdb.SIsMember(ctx, key, memeber).Result()
+	if err != nil {
+		panic(err)
+	}
+	return ret
+}
 func SGET(key string) []string {
 	ret, err := rdb.SMembers(ctx, key).Result()
 	if err != nil {
@@ -188,6 +195,19 @@ func ZAdd(key string, score float64, value interface{}) {
 	}
 }
 
+func ZAddByte(key string, score float64, value interface{}) {
+	data, err := json.Marshal(value)
+	if err != nil {
+		panic(err)
+	}
+	z := redis.Z{
+		Score:  score,
+		Member: data,
+	}
+	if err := rdb.ZAdd(ctx, key, z).Err(); err != nil {
+		panic(err)
+	}
+}
 func ZRandMember(key string, cnt int) []string {
 	ret, err := rdb.ZRandMember(ctx, key, cnt).Result()
 	if err != nil {

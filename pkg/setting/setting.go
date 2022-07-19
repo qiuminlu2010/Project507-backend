@@ -12,13 +12,19 @@ type App struct {
 	PageSize        int
 	RuntimeRootPath string
 
-	ImagePrefixUrl string
-	ImageSavePath  string
-	ThumbSavePath  string
-	ThumbMaxHeight int
-	ThumbMaxWidth  int
-	ImageMaxSize   int
-	ImageAllowExts []string
+	ImagePrefixUrl        string
+	ImageSavePath         string
+	ImageTempSavePath     string
+	VideoTempSavePath     string
+	VideoSavePath         string
+	VideoPreviewSavePath  string
+	VideoCompressSavePath string
+	VideoMaxSize          int
+	ThumbSavePath         string
+	ThumbMaxHeight        int
+	ThumbMaxWidth         int
+	ImageMaxSize          int
+	ImageAllowExts        []string
 
 	LogSavePath string
 	LogSaveName string

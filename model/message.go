@@ -39,7 +39,7 @@ func GetSession(uid, pageNum, pageSize int) ([]*MessageSession, error) {
 func GetMessages(fromUid, toUid, pageNum, pageSize int) ([]*Message, error) {
 	var messages []*Message
 	where := fmt.Sprintf("(`from_uid` = %d and `to_uid` = %d) or (`from_uid` = %d and `to_uid` = %d)", fromUid, toUid, toUid, fromUid)
-	if err := db.Offset(pageNum).Limit(pageSize).Where(where).Order("id desc").Find(&messages).Error; err != nil {
+	if err := db.Offset(pageNum).Limit(pageSize).Where(where).Order("id").Find(&messages).Error; err != nil {
 		return nil, err
 	}
 	return messages, nil

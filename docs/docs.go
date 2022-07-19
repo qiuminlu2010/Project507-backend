@@ -532,7 +532,7 @@ const docTemplate = `{
             }
         },
         "/api/v1/msg/{id}/chat": {
-            "post": {
+            "get": {
                 "produces": [
                     "application/json"
                 ],
@@ -784,6 +784,37 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/upload/image": {
+            "post": {
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "file"
+                ],
+                "summary": "上传图片",
+                "parameters": [
+                    {
+                        "type": "file",
+                        "description": "image",
+                        "name": "image",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "token",
+                        "name": "token",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
         "/api/v1/user/{id}": {
             "get": {
                 "produces": [
@@ -968,44 +999,6 @@ const docTemplate = `{
                     }
                 ],
                 "responses": {}
-            }
-        },
-        "/upload": {
-            "post": {
-                "consumes": [
-                    "multipart/form-data"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "file"
-                ],
-                "summary": "上传图片",
-                "parameters": [
-                    {
-                        "type": "file",
-                        "description": "image",
-                        "name": "image",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "token",
-                        "name": "token",
-                        "in": "query",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "{\"code\":200,\"data\":{},\"msg\":\"ok\"}",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
             }
         },
         "/user/login": {

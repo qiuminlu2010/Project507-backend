@@ -36,6 +36,10 @@ func GetImagePath() string {
 	return setting.AppSetting.ImageSavePath
 }
 
+func GetImageTempPath() string {
+	return setting.AppSetting.ImageTempSavePath
+}
+
 func GetThumbPath() string {
 	return setting.AppSetting.ThumbSavePath
 }

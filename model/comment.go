@@ -10,7 +10,7 @@ import (
 
 func AddComment(userId int, articleId int, content string) error {
 	comment := Comment{UserID: uint(userId), ArticleID: uint(articleId), Content: content}
-	if err := db.Model(&User{}).Where("id = ?", userId).Select("username", "avator").First(&comment).Error; err != nil {
+	if err := db.Model(&User{}).Where("id = ?", userId).Select("username", "avatar").First(&comment).Error; err != nil {
 		return err
 	}
 	if err := db.Create(&comment).Error; err != nil {
@@ -27,7 +27,7 @@ func AddReply(userId int, articleId int, replyId int, content string) error {
 		return err
 	}
 	reply := Comment{UserID: uint(userId), ArticleID: uint(articleId), Content: content}
-	if err := db.Model(&User{}).Where("id = ?", userId).Select("username", "avator").First(&reply).Error; err != nil {
+	if err := db.Model(&User{}).Where("id = ?", userId).Select("username", "avatar").First(&reply).Error; err != nil {
 		return err
 	}
 	if err := db.Model(&comment).Association("Replies").Append(&reply); err != nil {
@@ -39,8 +39,8 @@ func AddReply(userId int, articleId int, replyId int, content string) error {
 func GetComments(articleId int, userId int, pageNum int, pageSize int) ([]*Comment, error) {
 	var comments []*Comment
 	likeCountSql := ",(select count(*) from `blog_user_like_comments` where `blog_comment`.`id` = comment_id) as like_count"
-	selectSql := "`id`,`user_id`,`article_id`,`created_on`,`username`,`avator`,`content`" + likeCountSql
-	selectReplySql := "`id`,`user_id`,`article_id`,`reply_id`,`created_on`,`username`,`avator`,`content`" + likeCountSql
+	selectSql := "`id`,`user_id`,`article_id`,`created_on`,`username`,`avatar`,`content`" + likeCountSql
+	selectReplySql := "`id`,`user_id`,`article_id`,`reply_id`,`created_on`,`username`,`avatar`,`content`" + likeCountSql
 	isLikeSql := ""
 	if userId > 0 {
 		isLikeSql = fmt.Sprintf(",(select count(*) from `blog_user_like_comments` where `blog_comment`.`id` = comment_id and user_id = %d) as is_like", userId)
@@ -88,7 +88,7 @@ func DeleteComment(commentId int) error {
 
 // func AddReply(userId int, commentId int, content string) error {
 // 	reply := Reply{UserID: uint(userId), CommentID: uint(commentId), Content: content}
-// 	if err := db.Model(&User{}).Where("id = ?", userId).Select("username", "avator").First(&reply).Error; err != nil {
+// 	if err := db.Model(&User{}).Where("id = ?", userId).Select("username", "avatar").First(&reply).Error; err != nil {
 // 		return err
 // 	}
 // 	if err := db.Create(&reply).Error; err != nil {

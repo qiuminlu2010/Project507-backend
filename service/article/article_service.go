@@ -11,6 +11,7 @@ import (
 	base "qiu/blog/service/base"
 	cache "qiu/blog/service/cache"
 	param "qiu/blog/service/param"
+	user "qiu/blog/service/user"
 	"strconv"
 	"strings"
 	"time"
@@ -163,9 +164,11 @@ func (s *ArticleService) GetArticles(params *param.ArticleGetParams) ([]*model.A
 	if err != nil {
 		return nil, err
 	}
+
 	if err = getArticleLikeInfo(articles, params.Uid); err != nil {
 		return nil, err
 	}
+
 	return articles, nil
 
 	// articles, err = model.GetArticles(params.PageNum, params.PageSize, nil)
@@ -433,6 +436,10 @@ func getArticleLikeInfo(articles []*model.ArticleInfo, uid int) error {
 		if uid != 0 {
 			article.IsLike = redis.GetBit(key, int64(uid)) == 1
 		}
+		userInfo := user.GetUserCache(int(article.OwnerID))
+		article.OwnerName = userInfo.Name
+		article.OwnerUsername = userInfo.Username
+		article.OwnerAvatar = userInfo.Avatar
 	}
 	return nil
 }

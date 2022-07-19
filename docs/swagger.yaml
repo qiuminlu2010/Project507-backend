@@ -307,7 +307,7 @@ paths:
       responses: {}
       summary: 获取评论
   /api/v1/msg/{id}/chat:
-    post:
+    get:
       parameters:
       - description: 发送用户ID
         in: path
@@ -528,6 +528,27 @@ paths:
           schema:
             $ref: '#/definitions/gin_http.ResponseJSON'
       summary: 获取标签列表
+  /api/v1/upload/image:
+    post:
+      consumes:
+      - multipart/form-data
+      parameters:
+      - description: image
+        in: formData
+        name: image
+        required: true
+        type: file
+      - description: token
+        in: header
+        name: token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: 上传图片
+      tags:
+      - file
   /api/v1/user/{id}:
     get:
       parameters:
@@ -654,31 +675,6 @@ paths:
       - application/json
       responses: {}
       summary: 用户喜欢列表
-  /upload:
-    post:
-      consumes:
-      - multipart/form-data
-      parameters:
-      - description: image
-        in: formData
-        name: image
-        required: true
-        type: file
-      - description: token
-        in: query
-        name: token
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: '{"code":200,"data":{},"msg":"ok"}'
-          schema:
-            type: string
-      summary: 上传图片
-      tags:
-      - file
   /user/{id}:
     delete:
       parameters:

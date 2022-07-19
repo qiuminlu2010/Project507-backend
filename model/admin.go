@@ -33,7 +33,7 @@ func ExistUsername(username string) (res int64) {
 func ValidLogin(username string, password string) (*UserInfo, error) {
 
 	var user UserInfo
-	if err := db.Model(&User{}).Select("id", "username", "name", "avator").Where("username = ? AND password = ?", username, password).First(&user).Error; err != nil {
+	if err := db.Model(&User{}).Select("id", "username", "name", "avatar").Where("username = ? AND password = ?", username, password).First(&user).Error; err != nil {
 		return nil, err
 	}
 	if err := db.Table(e.TABLE_USER_FOLLOWS).Where("follow_id = ?", user.ID).Count(&user.FanNum).Error; err != nil {

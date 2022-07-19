@@ -57,6 +57,7 @@ var MsgFlags = map[int]string{
 	ERROR_COMMENT_REPLY_FAIL:      "回复评论失败",
 	ERROR_COMMENT_DELETE_FAIL:     "删除评论失败",
 	ERROR_COMMENT_LIKE_FAIL:       "点赞评论失败",
+	ERROR_SESSION_GET_FAIL:        "获取用户会话列表失败",
 }
 
 func GetMsg(code int) string {
