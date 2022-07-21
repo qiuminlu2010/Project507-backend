@@ -69,8 +69,8 @@ func Chat(c *gin.Context) {
 // @Produce  json
 // @Param from_uid query int true "发送用户ID"
 // @Param to_uid query int true "接收用户ID"
-// @Param page_num query int false "page_num"
-// @Param page_size query int false "page_size"
+// @Param offset query int false "offset"
+// @Param limit query int false "limit"
 // @Param token header string true "token"
 // @Router /api/v1/msg/history [get]
 func GetMessage(c *gin.Context) {
@@ -80,11 +80,9 @@ func GetMessage(c *gin.Context) {
 		gin_http.Response(c, http.StatusBadRequest, e.INVALID_PARAMS, nil)
 		return
 	}
-	if params.PageSize == 0 {
-		params.PageSize = setting.AppSetting.PageSize
+	if params.Limit == 0 {
+		params.Limit = setting.AppSetting.PageSize
 	}
-	page := params.PageNum
-	params.PageNum = params.PageNum * params.PageSize
 	log.Logger.Debug("绑定参数", params)
 	messages, err := msg.GetMessages(&params)
 	if err != nil {
@@ -97,8 +95,8 @@ func GetMessage(c *gin.Context) {
 	// messagesInfo["messages"] = messages
 	data["datalist"] = messages
 	// data["total"] = total
-	data["pageNum"] = page
-	data["pageSize"] = params.PageSize
+	data["offset"] = params.Offset
+	data["limit"] = params.Limit
 	gin_http.Response(c, http.StatusOK, e.SUCCESS, data)
 }
 

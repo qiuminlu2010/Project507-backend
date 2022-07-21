@@ -18,14 +18,14 @@ import (
 )
 
 type Message struct {
-	FromUid  int    `json:"from_uid" form:"from_uid"`
-	ToUid    int    `json:"to_uid" form:"to_uid"`
-	Username string `json:"username" form:"username"`
-	Avatar   string `json:"avatar" form:"avatar"`
-	Content  string `json:"content" form:"content"`
-	ImageUrl string `json:"image_url" form:"image_url"`
-	Type     int    `json:"type"`
-	Ctime    int64  `json:"ctime"`
+	FromUid   int    `json:"from_uid" form:"from_uid"`
+	ToUid     int    `json:"to_uid" form:"to_uid"`
+	Username  string `json:"username" form:"username"`
+	Avatar    string `json:"avatar" form:"avatar"`
+	Content   string `json:"content" form:"content"`
+	ImageUrl  string `json:"image_url" form:"image_url"`
+	Type      int    `json:"type"`
+	CreatedOn int64  `json:"created_on"`
 }
 
 type ReplyMessage struct {
@@ -80,7 +80,7 @@ func (c *Client) Read() {
 
 		userInfo := user.GetUserCache(c.Uid)
 		msg.FromUid = c.Uid
-		msg.Ctime = time.Now().Unix()
+		msg.CreatedOn = time.Now().Unix()
 		msg.Username = userInfo.Name
 		msg.Avatar = userInfo.Avatar
 
@@ -168,7 +168,7 @@ func (manager *ClientManager) Listen() {
 				}
 				replyMsgBytes, _ := json.Marshal(replyMsg)
 				_ = conn.Socket.WriteMessage(websocket.TextMessage, replyMsgBytes)
-				close(conn.Send)
+				// close(conn.Send)
 				delete(manager.Clients, conn.Uid)
 			}
 		//广播信息
@@ -375,5 +375,5 @@ func UpdateUnReadMessage(uid int, sessionId int) {
 }
 func GetMessages(params *param.MessageGetParams) ([]*model.Message, error) {
 	// UpdateUnReadMessage(params.FromUid, params.ToUid)
-	return model.GetMessage(params.FromUid, params.ToUid, params.PageNum, params.PageSize)
+	return model.GetMessage(params.FromUid, params.ToUid, params.Offset, params.Limit)
 }

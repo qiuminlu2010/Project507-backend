@@ -10,7 +10,7 @@ type Message struct {
 	ID        uint   `gorm:"primary_key" json:"id" `
 	FromUid   int    `gorm:"index" json:"from_uid" form:"from_uid"`
 	ToUid     int    `gorm:"index" json:"to_uid" form:"to_uid"`
-	Content   string `json:"content" form:"content"`
+	Content   string `gorm:"collate:utf8mb4" json:"content" form:"content" binding:"gte=1,lte=500"`
 	ImageUrl  string `json:"image_url" form:"image_url"`
 	CreatedOn int    `gorm:"index" binding:"-" json:"created_on,omitempty"`
 }

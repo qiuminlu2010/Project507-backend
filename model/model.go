@@ -61,7 +61,7 @@ func Setup() {
 	tablePrefix = sec.TablePrefix
 	// log.Println("数据库初始化：", dbType, dbName, user, password, host, tablePrefix)
 	// dsn := "user:pass@tcp(127.0.0.1:3306)/dbname?charset=utf8mb4&parseTime=True&loc=Local"
-	dsn := fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=utf8&parseTime=True&loc=Local", user, password, host, dbName)
+	dsn := fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=utf8mb4&parseTime=True&loc=Local", user, password, host, dbName)
 	db, err = gorm.Open(mysql.Open(dsn), &gorm.Config{
 		Logger: logger.Default.LogMode(logger.Info),
 		NamingStrategy: schema.NamingStrategy{
@@ -103,8 +103,8 @@ func Setup() {
 	if err != nil {
 		panic(err)
 	}
-
-	err = db.AutoMigrate(
+	// db.Set("gorm:table_options", "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4")
+	err = db.Set("gorm:table_options", "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4").AutoMigrate(
 		&User{},
 		&Tag{},
 		&Article{},

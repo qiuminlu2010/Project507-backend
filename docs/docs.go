@@ -473,14 +473,14 @@ const docTemplate = `{
                     },
                     {
                         "type": "integer",
-                        "description": "page_num",
-                        "name": "page_num",
+                        "description": "offset",
+                        "name": "offset",
                         "in": "query"
                     },
                     {
                         "type": "integer",
-                        "description": "page_size",
-                        "name": "page_size",
+                        "description": "limit",
+                        "name": "limit",
                         "in": "query"
                     },
                     {
@@ -833,6 +833,37 @@ const docTemplate = `{
                         "type": "file",
                         "description": "image",
                         "name": "image",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "token",
+                        "name": "token",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/api/v1/upload/video": {
+            "post": {
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "file"
+                ],
+                "summary": "上传视频",
+                "parameters": [
+                    {
+                        "type": "file",
+                        "description": "video",
+                        "name": "video",
                         "in": "formData",
                         "required": true
                     },

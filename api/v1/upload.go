@@ -50,9 +50,53 @@ func UploadImage(c *gin.Context) {
 		gin_http.Response(c, http.StatusInternalServerError, e.ERROR_UPLOAD_SAVE_IMAGE_FAIL, nil)
 		return
 	}
-	log.Logger.Error("保存上传图片", src)
+	log.Logger.Info("保存上传图片", src)
 	data := make(map[string]string)
 	data["image_url"] = src
+
+	gin_http.Response(c, http.StatusOK, e.SUCCESS, data)
+}
+
+// @Summary 上传视频
+// @Description
+// @Tags file
+// @Accept multipart/form-data
+// @Param video formData file true "video"
+// @Param token header string true "token"
+// @Produce  json
+// @Router /api/v1/upload/video [post]
+func UploadVideo(c *gin.Context) {
+
+	_, video, err := c.Request.FormFile("video")
+	if err != nil {
+		log.Logger.Error("保存视频失败", err)
+		gin_http.Response(c, http.StatusInternalServerError, e.ERROR, nil)
+		return
+	}
+
+	if video == nil {
+		gin_http.Response(c, http.StatusBadRequest, e.ERROR_IMAGE_LOST, nil)
+		return
+	}
+
+	videoName := upload.GetImageName(video.Filename)
+	// fullPath := upload.GetImagePath()
+	savePath := upload.GetVideoPath()
+
+	src := savePath + videoName
+	if !upload.CheckVideoSize(video) {
+		gin_http.Response(c, http.StatusBadRequest, e.ERROR_UPLOAD_CHECK_IMAGE_FORMAT, nil)
+		return
+	}
+
+	if err = c.SaveUploadedFile(video, src); err != nil {
+		log.Logger.Error("保存视频失败", err)
+		gin_http.Response(c, http.StatusInternalServerError, e.ERROR_UPLOAD_SAVE_IMAGE_FAIL, nil)
+		return
+	}
+	log.Logger.Info("保存上传视频", src)
+	data := make(map[string]string)
+	data["video_url"] = src
 
 	gin_http.Response(c, http.StatusOK, e.SUCCESS, data)
 }
