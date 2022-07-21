@@ -40,6 +40,10 @@ func GetImageTempPath() string {
 	return setting.AppSetting.ImageTempSavePath
 }
 
+func GetVideoPath() string {
+	return setting.AppSetting.VideoCompressSavePath
+}
+
 func GetThumbPath() string {
 	return setting.AppSetting.ThumbSavePath
 }
@@ -67,6 +71,17 @@ func CheckImageSize(f *multipart.FileHeader) bool {
 	// }
 	// logging.Info("上传图片大小", size, setting.AppSetting.ImageMaxSize)
 	return int(f.Size) <= setting.AppSetting.ImageMaxSize
+}
+
+func CheckVideoSize(f *multipart.FileHeader) bool {
+	// size, err := file.GetSize(f)
+	// if err != nil {
+	// 	log.Println(err)
+	// 	logging.Warn(err)
+	// 	return false
+	// }
+	// logging.Info("上传图片大小", size, setting.AppSetting.ImageMaxSize)
+	return int(f.Size) <= setting.AppSetting.VideoMaxSize
 }
 
 func CheckImage(src string) error {

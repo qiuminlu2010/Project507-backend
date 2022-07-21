@@ -13,10 +13,10 @@ type Model struct {
 
 type User struct {
 	Model
-	Username     string     `json:"username" form:"username" binding:"omitempty,printascii,gte=6,lte=20" gorm:"index;unique"`
-	Password     string     `json:"password" form:"password" binding:"omitempty,printascii,gte=6,lte=100"`
+	Username     string     `json:"username" form:"username" binding:"printascii,gte=6,lte=20" gorm:"size:255;index;unique"`
+	Password     string     `json:"password" form:"password" binding:"printascii,gte=6,lte=100" gorm:"size:255"`
 	StudentId    string     `json:"student_id" form:"student_id" binding:"omitempty,numeric"`
-	Name         string     `json:"name" form:"name" gorm:"index;unique"`
+	Name         string     `json:"name" form:"name" binding:"printascii,gte=6,lte=20" gorm:"size:255;index;unique"`
 	Avatar       string     `json:"avatar" form:"avatar"`
 	State        int        `json:"state" form:"state" binding:"gte=0,lte=1"`
 	LikeArticles []*Article `gorm:"many2many:article_like_users" binding:"-" json:"like_articles"`
@@ -28,8 +28,8 @@ type Article struct {
 	Model
 	OwnerID   uint   `gorm:"index" json:"owner_id"`
 	User      User   `gorm:"foreignkey:OwnerID" binding:"-" json:"-"` // 使用 OwnerID  作为外键
-	Title     string `json:"title" form:"title"`
-	Content   string `json:"content" form:"content"`
+	Title     string `json:"title" form:"title" gorm:"size:255;"`
+	Content   string `gorm:"collate:utf8" json:"content" form:"content" binding:"gte=1,lte=500"`
 	LikeCount int64  `json:"like_count" form:"like_count" binding:"-"`
 	// Collect int     `json:"collect" form:"collect" binding:"-"`
 	// Watch   int     `json:"watch" form:"watch" binding:"-"`
@@ -52,7 +52,7 @@ type ArticleInfo struct {
 	OwnerUsername string  `json:"owner_username"`
 	OwnerAvatar   string  `json:"owner_avatar"`
 	Title         string  `json:"title" form:"title"`
-	Content       string  `json:"content" form:"content"`
+	Content       string  `gorm:"collate:utf8" json:"content" form:"content"`
 	LikeCount     int64   `json:"like_count" form:"like_count" binding:"-"`
 	IsLike        bool    `json:"is_like" form:"is_like" binding:"-"`
 	Images        []Image `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;foreignkey:ArticleID" json:"images"`
@@ -66,12 +66,12 @@ type ArticleCache struct {
 
 type Comment struct {
 	Model
-	UserID    uint      `json:"user_id"`
+	UserID    uint      `gorm:"index" json:"user_id"`
 	ArticleID uint      `json:"article_id"`
 	ReplyID   *uint     `json:"reply_id"`
 	Username  string    `json:"username"`
 	Avatar    string    `json:"avatar"`
-	Content   string    `json:"content" form:"content" binding:"gte=1,lte=200"`
+	Content   string    `gorm:"collate:utf8" json:"content" form:"content" binding:"gte=1,lte=500"`
 	LikeCount int       `json:"like_count" `
 	IsLike    int       `json:"is_like"`
 	Replies   []Comment `gorm:"foreignkey:ReplyID" json:"replies"`
@@ -83,7 +83,7 @@ type Reply struct {
 	CommentID uint   `json:"comment_id"`
 	Username  string `json:"username"`
 	Avatar    string `json:"avatar"`
-	Content   string `json:"content" form:"content" binding:"gte=1,lte=200"`
+	Content   string `json:"content" form:"content" binding:"gte=1,lte=500"`
 	LikeCount int    `json:"like_count" `
 }
 
@@ -144,7 +144,7 @@ type UserIdFollowId struct {
 type Tag struct {
 	ID        uint   `gorm:"primary_key" uri:"id" `
 	CreatedOn int    `gorm:"index" binding:"-" json:"created_on,omitempty"`
-	Name      string `json:"name" form:"name" binding:"required,lte=20" gorm:"index;unique;not null"`
+	Name      string `json:"name" form:"name" binding:"required,lte=20" gorm:"size:255;index;unique;not null"`
 	//Type       string `json:"type" form:"type" `
 	// CreatedBy  string    `json:"-" form:"created_by" binding:"-" `
 	// ModifiedBy string    `json:"-" form:"modified_by" binding:"-" `
@@ -165,4 +165,10 @@ type Image struct {
 	Url        string `json:"url" form:"url" binding:"-"`
 	ThumbUrl   string `json:"thumb_url" form:"thumb_url"`
 	// Thumbnail int    `json:"-" form:"-"`
+}
+
+type SessionInfo struct {
+	UserBase
+	Unread   int        `json:"unread"`
+	Messages []*Message `json:"messages"`
 }

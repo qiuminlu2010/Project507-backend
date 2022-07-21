@@ -7,7 +7,9 @@ import (
 	"qiu/blog/pkg/redis"
 	"qiu/blog/pkg/util"
 	cache "qiu/blog/service/cache"
+	param "qiu/blog/service/param"
 	user "qiu/blog/service/user"
+	"strconv"
 
 	"encoding/json"
 	"time"
@@ -16,14 +18,14 @@ import (
 )
 
 type Message struct {
-	FromUid  int    `json:"from_uid" form:"from_uid"`
-	ToUid    int    `json:"to_uid" form:"to_uid"`
-	Username string `json:"username" form:"username"`
-	Avatar   string `json:"avatar" form:"avatar"`
-	Content  string `json:"content" form:"content"`
-	ImageUrl string `json:"image_url" form:"image_url"`
-	Type     int    `json:"type"`
-	Ctime    int64  `json:"ctime"`
+	FromUid   int    `json:"from_uid" form:"from_uid"`
+	ToUid     int    `json:"to_uid" form:"to_uid"`
+	Username  string `json:"username" form:"username"`
+	Avatar    string `json:"avatar" form:"avatar"`
+	Content   string `json:"content" form:"content"`
+	ImageUrl  string `json:"image_url" form:"image_url"`
+	Type      int    `json:"type"`
+	CreatedOn int64  `json:"created_on"`
 }
 
 type ReplyMessage struct {
@@ -40,9 +42,8 @@ type Client struct {
 
 type Broadcast struct {
 	Client *Client
-	// Msg    []byte
-	Msg  *Message
-	Type int
+	Msg    *Message
+	Type   int
 }
 
 type ClientManager struct {
@@ -57,8 +58,48 @@ type ClientManager struct {
 var (
 	Manager     *ClientManager
 	ChatRoomMsg chan *Message
+	SystemMsg   chan *Message
+	// LikeArticleChannel chan *param.ArticleLikeParams
+	// LikeCommentChannel chan *param.LikeCommentParams
+
 )
 
+func Setup() {
+	Manager = &ClientManager{
+		Clients:    make(map[int]*Client), // 参与连接的用户，出于性能的考虑，需要设置最大连接数
+		Broadcast:  make(chan *Broadcast),
+		Register:   make(chan *Client),
+		Reply:      make(chan *Client),
+		Unregister: make(chan *Client),
+	}
+	ChatRoomMsg = make(chan *Message)
+	SystemMsg = make(chan *Message)
+	// LikeArticleChannel = make(chan *param.ArticleLikeParams)
+	// LikeCommentChannel = make(chan *param.LikeCommentParams)
+	// initChannelManager()
+	go Manager.Listen()
+}
+
+func initChannelManager() {
+
+	// pubLikeArticle := redis.Subscribe(e.CHANNEL_LIKEARTICLE)
+	// defer pubLikeArticle.Close()
+	// go func() {
+	// 	for {
+	// 		msg, err := pubLikeArticle.ReceiveMessage(ctx)
+	// 		if err != nil {
+	// 			panic(err)
+	// 		}
+
+	// 		log.Logger.Info(msg.Channel, msg.Payload)
+	// 	}
+	// }()
+	// LikeArticleChannel = pubLikeArticle.Channel()
+
+	// pubLikeComment := redis.Subscribe(e.CHANNEL_LIKECOMMENT)
+	// defer pubLikeComment.Close()
+	// LikeCommentChannel = pubLikeComment.Channel()
+}
 func (c *Client) close() {
 	Manager.Unregister <- c
 	_ = c.Socket.Close()
@@ -78,7 +119,7 @@ func (c *Client) Read() {
 
 		userInfo := user.GetUserCache(c.Uid)
 		msg.FromUid = c.Uid
-		msg.Ctime = time.Now().Unix()
+		msg.CreatedOn = time.Now().Unix()
 		msg.Username = userInfo.Name
 		msg.Avatar = userInfo.Avatar
 
@@ -100,6 +141,10 @@ func (c *Client) Read() {
 				panic(err)
 			}
 
+			//未读消息
+			key := cache.GetModelFieldKey(e.CACHE_USER, uint(msg.ToUid), e.CACHE_UNREAD_MSG)
+			redis.HashIncr(key, strconv.Itoa(msg.FromUid), 1)
+			redis.Expire(key, e.DURATION_USER_SESSIONS)
 		} else {
 			//聊天室
 			ChatRoomMsg <- msg
@@ -162,17 +207,16 @@ func (manager *ClientManager) Listen() {
 				}
 				replyMsgBytes, _ := json.Marshal(replyMsg)
 				_ = conn.Socket.WriteMessage(websocket.TextMessage, replyMsgBytes)
-				close(conn.Send)
+				// close(conn.Send)
 				delete(manager.Clients, conn.Uid)
 			}
 		//广播信息
 		case broadcast := <-manager.Broadcast:
 			msg := broadcast.Msg
 			ToUid := msg.ToUid
-			// flag := false // 默认对方不在线
 			sendClient, ok := manager.Clients[ToUid]
 			msgBytes, _ := json.Marshal(msg)
-			// fromUid := broadcast.Client.FromUid
+
 			if ok {
 				select {
 				case sendClient.Send <- msgBytes:
@@ -182,7 +226,6 @@ func (manager *ClientManager) Listen() {
 					}
 					replyMsgBytes, _ := json.Marshal(replyMsg)
 					_ = broadcast.Client.Socket.WriteMessage(websocket.TextMessage, replyMsgBytes)
-					// flag = true
 				default:
 					close(sendClient.Send)
 					delete(Manager.Clients, sendClient.Uid)
@@ -195,15 +238,25 @@ func (manager *ClientManager) Listen() {
 				replyMsgBytes, _ := json.Marshal(replyMsg)
 				_ = broadcast.Client.Socket.WriteMessage(websocket.TextMessage, replyMsgBytes)
 			}
-			// 保存会话
+			// 保存发送方最近会话
 			model.SaveSession(&model.MessageSession{
 				Uid:       msg.FromUid,
 				SessionId: msg.ToUid,
 			})
+			key1 := cache.GetModelFieldKey(e.CACHE_USER, uint(msg.FromUid), e.CACHE_SESSIONS)
+			if redis.Exists(key1) != 0 {
+				redis.ZAdd(key1, float64(time.Now().Unix()), msg.ToUid)
+			}
+			// 保存接收方最近会话
 			model.SaveSession(&model.MessageSession{
 				Uid:       msg.ToUid,
 				SessionId: msg.FromUid,
 			})
+			key2 := cache.GetModelFieldKey(e.CACHE_USER, uint(msg.ToUid), e.CACHE_SESSIONS)
+			if redis.Exists(key2) != 0 {
+				redis.ZAdd(key2, float64(time.Now().Unix()), msg.FromUid)
+			}
+
 		case roomMsg := <-ChatRoomMsg:
 			msgBytes, _ := json.Marshal(roomMsg)
 			log.Logger.Debug("[聊天室消息] ", "用户id: ", roomMsg.FromUid, " ", roomMsg.Content)
@@ -215,36 +268,114 @@ func (manager *ClientManager) Listen() {
 					delete(Manager.Clients, sendClient.Uid)
 				}
 			}
+		case msg := <-SystemMsg:
+			ToUid := msg.ToUid
+			sendClient, ok := manager.Clients[ToUid]
+			msgBytes, _ := json.Marshal(msg)
+			if ok {
+				select {
+				case sendClient.Send <- msgBytes:
+				default:
+					close(sendClient.Send)
+					delete(Manager.Clients, sendClient.Uid)
+				}
+			}
+			log.Logger.Info("[推送消息]：", ToUid, msg.Content)
+
+			msgModel := model.Message{
+				FromUid:   msg.FromUid,
+				ToUid:     msg.ToUid,
+				Content:   msg.Content,
+				CreatedOn: int(msg.CreatedOn),
+			}
+			//保存数据库
+			if err := model.SaveMessage(&msgModel); err != nil {
+				panic(err)
+			}
+
+			//记录未读消息
+			key := cache.GetModelFieldKey(e.CACHE_USER, uint(msg.ToUid), e.CACHE_UNREAD_MSG)
+			redis.HashIncr(key, strconv.Itoa(msg.FromUid), 1)
+			redis.Expire(key, e.DURATION_USER_SESSIONS)
+
+			// 保存接收方最近会话
+			model.SaveSession(&model.MessageSession{
+				Uid:       msg.ToUid,
+				SessionId: msg.FromUid,
+			})
+			key2 := cache.GetModelFieldKey(e.CACHE_USER, uint(msg.ToUid), e.CACHE_SESSIONS)
+			if redis.Exists(key2) != 0 {
+				redis.ZAdd(key2, float64(time.Now().Unix()), msg.FromUid)
+			}
+
 		}
 	}
 }
 
-func Setup() {
-	Manager = &ClientManager{
-		Clients:    make(map[int]*Client), // 参与连接的用户，出于性能的考虑，需要设置最大连接数
-		Broadcast:  make(chan *Broadcast),
-		Register:   make(chan *Client),
-		Reply:      make(chan *Client),
-		Unregister: make(chan *Client),
-	}
-	ChatRoomMsg = make(chan *Message)
-	go Manager.Listen()
-}
-
-func GetSession(uid, pageNum, pageSize int) ([]*model.UserBase, error) {
+func setSession(uid, pageNum, pageSize int) error {
 	key := cache.GetModelFieldKey(e.CACHE_USER, uint(uid), e.CACHE_SESSIONS)
 	// var sessions  []*model.MessageSession
-	if redis.Exists(key) == 0 {
-		sessions, err := model.GetSession(uid, pageNum, pageSize)
 
-		if err != nil {
+	sessions, err := model.GetSession(uid, pageNum, pageSize)
+
+	if err != nil {
+		return nil
+	}
+
+	for _, session := range sessions {
+		redis.ZAdd(key, float64(session.ModifiedOn), session.SessionId)
+	}
+	redis.Expire(key, e.DURATION_USER_SESSIONS)
+
+	return nil
+
+}
+
+func setAllSessions(uid int) error {
+	key := cache.GetModelFieldKey(e.CACHE_USER, uint(uid), e.CACHE_SESSIONS)
+	// var sessions  []*model.MessageSession
+
+	sessions, err := model.GetAllSessions(uid)
+
+	if err != nil {
+		return nil
+	}
+
+	for _, session := range sessions {
+		redis.ZAdd(key, float64(session.ModifiedOn), session.SessionId)
+	}
+	redis.Expire(key, e.DURATION_USER_SESSIONS)
+
+	return nil
+
+}
+
+func GetSession(uid, pageNum, pageSize int) ([]*model.SessionInfo, error) {
+
+	key := cache.GetModelFieldKey(e.CACHE_USER, uint(uid), e.CACHE_SESSIONS)
+
+	// 分页缓存
+
+	// if redis.Exists(key) == 0 {
+	// 	if err := setSession(uid, 0, pageSize*(pageNum+1)); err != nil {
+	// 		return nil, err
+	// 	}
+	// } else {
+	// 	cnt := redis.ZCard(key)
+	// 	if (int64)(pageNum*pageSize) >= cnt {
+	// 		offset := int(cnt)/pageSize + int(cnt)%(pageSize)
+	// 		err := setSession(uid, offset, pageSize*(pageNum+1)-int(cnt))
+	// 		if err != nil {
+	// 			return nil, err
+	// 		}
+	// 	}
+	// }
+
+	// 一次性缓存所有
+	if redis.Exists(key) == 0 {
+		if err := setAllSessions(uid); err != nil {
 			return nil, err
 		}
-		for _, session := range sessions {
-			redis.ZAdd(key, float64(session.ModifiedOn), session.SessionId)
-		}
-		redis.Expire(key, e.DURATION_USER_SESSIONS)
-		// return sessions, nil
 	}
 	value := redis.ZRevRange(key, int64(pageNum), int64(pageSize))
 	userIds, err := util.StringsToInts(value)
@@ -252,11 +383,32 @@ func GetSession(uid, pageNum, pageSize int) ([]*model.UserBase, error) {
 	if err != nil {
 		return nil, err
 	}
-
-	// followUsers := user.GetUsersCache(userIds)
-	// json.Unmarshal(redis.ZRevRange(key, int64(pageNum), int64(pageSize)),&sessions)
-
-	return user.GetUsersCache(userIds), nil
+	key = cache.GetModelFieldKey(e.CACHE_USER, uint(uid), e.CACHE_UNREAD_MSG)
+	var sessionInfos []*model.SessionInfo
+	userInfos := user.GetUsersCache(userIds)
+	for _, userInfo := range userInfos {
+		sx := redis.HashGet(key, strconv.Itoa(int(userInfo.ID)))
+		var unread int
+		if len(sx) == 0 {
+			unread = 0
+		} else {
+			unread, err = strconv.Atoi(sx)
+			if err != nil {
+				panic(err)
+			}
+		}
+		messages, err := model.GetMessage(uid, int(userInfo.ID), pageNum, pageSize)
+		if err != nil {
+			panic(err)
+		}
+		sessionInfo := model.SessionInfo{
+			UserBase: *userInfo,
+			Unread:   unread,
+			Messages: messages,
+		}
+		sessionInfos = append(sessionInfos, &sessionInfo)
+	}
+	return sessionInfos, nil
 }
 
 func CheckToken(token string, uid int) bool {
@@ -279,4 +431,14 @@ func CheckToken(token string, uid int) bool {
 		return token == cache_token
 	}
 	return false
+}
+
+func UpdateUnReadMessage(uid int, sessionId int) {
+	key := cache.GetModelFieldKey(e.CACHE_USER, uint(uid), e.CACHE_UNREAD_MSG)
+	redis.HashDel(key, strconv.Itoa(sessionId))
+
+}
+func GetMessages(params *param.MessageGetParams) ([]*model.Message, error) {
+	// UpdateUnReadMessage(params.FromUid, params.ToUid)
+	return model.GetMessage(params.FromUid, params.ToUid, params.Offset, params.Limit)
 }

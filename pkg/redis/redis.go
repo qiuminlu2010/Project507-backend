@@ -25,29 +25,6 @@ func Setup() error {
 	if rdb == nil {
 		panic("Redis Setup Fail!")
 	}
-	// RedisConn = &redis.Pool{
-	// 	MaxIdle:     setting.RedisSetting.MaxIdle,
-	// 	MaxActive:   setting.RedisSetting.MaxActive,
-	// 	IdleTimeout: setting.RedisSetting.IdleTimeout,
-	// 	Dial: func() (redis.Conn, error) {
-	// 		c, err := redis.Dial("tcp", setting.RedisSetting.Host)
-	// 		if err != nil {
-	// 			return nil, err
-	// 		}
-	// 		if setting.RedisSetting.Password != "" {
-	// 			if _, err := c.Do("AUTH", setting.RedisSetting.Password); err != nil {
-	// 				c.Close()
-	// 				return nil, err
-	// 			}
-	// 		}
-	// 		return c, err
-	// 	},
-	// 	TestOnBorrow: func(c redis.Conn, t time.Time) error {
-	// 		_, err := c.Do("PING")
-	// 		return err
-	// 	},
-	// }
-
 	return nil
 }
 
@@ -99,6 +76,11 @@ func HashSet(key string, data map[string]interface{}) {
 		panic(err)
 	}
 }
+func HashIncr(key string, field string, v int64) {
+	if err := rdb.HIncrBy(ctx, key, field, v).Err(); err != nil {
+		panic(err)
+	}
+}
 func HashGetAll(key string) map[string]string {
 	ret, err := rdb.HGetAll(ctx, key).Result()
 	if err != nil {
@@ -110,11 +92,16 @@ func HashGetAll(key string) map[string]string {
 func HashGet(key string, field string) string {
 	ret, err := rdb.HGet(ctx, key, field).Result()
 	if err != nil {
-		panic(err)
+		return ""
 	}
 	return ret
 }
 
+func HashDel(key string, field string) {
+	if err := rdb.HDel(ctx, key, field).Err(); err != nil {
+		panic(err)
+	}
+}
 func HashMGet(key string, fields ...string) []interface{} {
 	ret, err := rdb.HMGet(ctx, key, fields...).Result()
 	if err != nil {
@@ -146,11 +133,6 @@ func GetBit(key string, offset int64) int64 {
 }
 
 func BitCount(key string) int64 {
-	// l,err := rdb.StrLen(ctx, key).Result()
-	// if err != nil {
-	//     panic(err)
-	// }
-	// sit := redis.BitCount{}
 	ret, err := rdb.BitCount(ctx, key, &redis.BitCount{}).Result()
 	if err != nil {
 		panic(err)
@@ -288,91 +270,13 @@ func ScanHashByPattern(pattern string) map[string]interface{} {
 	return ret
 }
 
-// func SetString(key string, value string, time int) error {
-// 	conn := RedisConn.Get()
-// 	defer conn.Close()
+func Publish(channel string, message interface{}) {
+	err := rdb.Publish(ctx, channel, message).Err()
+	if err != nil {
+		panic(err)
+	}
+}
 
-// 	_, err := conn.Do("SET", key, value)
-// 	if err != nil {
-// 		return err
-// 	}
-
-// 	_, err = conn.Do("EXPIRE", key, time)
-// 	if err != nil {
-// 		return err
-// 	}
-
-// 	return nil
-// }
-
-// func Set(key string, data interface{}, time int) error {
-// 	conn := RedisConn.Get()
-// 	defer conn.Close()
-
-// 	value, err := json.Marshal(data)
-// 	if err != nil {
-// 		return err
-// 	}
-
-// 	_, err = conn.Do("SET", key, value)
-// 	if err != nil {
-// 		return err
-// 	}
-
-// 	_, err = conn.Do("EXPIRE", key, time)
-// 	if err != nil {
-// 		return err
-// 	}
-
-// 	return nil
-// }
-
-// func Exists(key string) bool {
-// 	conn := RedisConn.Get()
-// 	defer conn.Close()
-
-// 	exists, err := redis.Bool(conn.Do("EXISTS", key))
-// 	if err != nil {
-// 		return false
-// 	}
-
-// 	return exists
-// }
-
-// func Get(key string) ([]byte, error) {
-// 	conn := RedisConn.Get()
-// 	defer conn.Close()
-
-// 	reply, err := redis.Bytes(conn.Do("GET", key))
-// 	if err != nil {
-// 		return nil, err
-// 	}
-
-// 	return reply, nil
-// }
-
-// func Delete(key string) (bool, error) {
-// 	conn := RedisConn.Get()
-// 	defer conn.Close()
-
-// 	return redis.Bool(conn.Do("DEL", key))
-// }
-
-// func LikeDeletes(key string) error {
-// 	conn := RedisConn.Get()
-// 	defer conn.Close()
-
-// 	keys, err := redis.Strings(conn.Do("KEYS", "*"+key+"*"))
-// 	if err != nil {
-// 		return err
-// 	}
-
-// 	for _, key := range keys {
-// 		_, err = Delete(key)
-// 		if err != nil {
-// 			return err
-// 		}
-// 	}
-
-// 	return nil
-// }
+func Subscribe(channel string) *redis.PubSub {
+	return rdb.Subscribe(ctx, channel)
+}

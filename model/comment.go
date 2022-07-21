@@ -86,21 +86,6 @@ func DeleteComment(commentId int) error {
 	return db.Delete(&Comment{}, commentId).Error
 }
 
-// func AddReply(userId int, commentId int, content string) error {
-// 	reply := Reply{UserID: uint(userId), CommentID: uint(commentId), Content: content}
-// 	if err := db.Model(&User{}).Where("id = ?", userId).Select("username", "avatar").First(&reply).Error; err != nil {
-// 		return err
-// 	}
-// 	if err := db.Create(&reply).Error; err != nil {
-// 		return err
-// 	}
-// 	return nil
-// }
-
-// func DeleteReply(replyId int) error {
-// 	return db.Delete(&Reply{}, replyId).Error
-// }
-
 func GetArticleOwnerIdByCommentId(commentId int) (uint, error) {
 	var article Article
 	if err := db.Select("owner_id").Where("id = (?)", db.Model(&Comment{}).Select("article_id").Where("id = ?", commentId)).First(&article).Error; err != nil {
@@ -117,4 +102,12 @@ func GetArticleOwnerIdByReplyId(replyId int) (uint, error) {
 		return 0, err
 	}
 	return article.OwnerID, nil
+}
+
+func GetCommentById(commentId int) (*Comment, error) {
+	var comment Comment
+	if err := db.Select("user_id", "content").Where("id = ?", commentId).First(&comment).Error; err != nil {
+		return nil, err
+	}
+	return &comment, nil
 }

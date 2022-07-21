@@ -2,7 +2,6 @@ package v1
 
 import (
 	"net/http"
-	"qiu/blog/model"
 	"qiu/blog/pkg/e"
 	gin_http "qiu/blog/pkg/http"
 	log "qiu/blog/pkg/logging"
@@ -37,10 +36,6 @@ func Chat(c *gin.Context) {
 		gin_http.Response(c, http.StatusBadRequest, e.ERROR_AUTH_CHECK_TOKEN_FAIL, nil)
 		return
 	}
-	// uid := c.Query("from_uid") // 自己的id
-	// toUid := c.Query("to_Uid") // 对方的id
-	// wsUpgrader.CheckOrigin = func(r *http.Request) bool { return true }
-	// conn, err := wsUpgrader.Upgrade(c.Writer, c.Request, nil) // 升级成ws协议
 
 	conn, err := (&websocket.Upgrader{
 		CheckOrigin: func(r *http.Request) bool { // CheckOrigin解决跨域问题
@@ -70,8 +65,8 @@ func Chat(c *gin.Context) {
 // @Produce  json
 // @Param from_uid query int true "发送用户ID"
 // @Param to_uid query int true "接收用户ID"
-// @Param page_num query int false "page_num"
-// @Param page_size query int false "page_size"
+// @Param offset query int false "offset"
+// @Param limit query int false "limit"
 // @Param token header string true "token"
 // @Router /api/v1/msg/history [get]
 func GetMessage(c *gin.Context) {
@@ -81,13 +76,11 @@ func GetMessage(c *gin.Context) {
 		gin_http.Response(c, http.StatusBadRequest, e.INVALID_PARAMS, nil)
 		return
 	}
-	if params.PageSize == 0 {
-		params.PageSize = setting.AppSetting.PageSize
+	if params.Limit == 0 {
+		params.Limit = setting.AppSetting.PageSize
 	}
-	page := params.PageNum
-	params.PageNum = params.PageNum * params.PageSize
 	log.Logger.Debug("绑定参数", params)
-	messages, err := model.GetMessages(params.FromUid, params.ToUid, params.PageNum, params.PageSize)
+	messages, err := msg.GetMessages(&params)
 	if err != nil {
 		gin_http.Response(c, http.StatusBadRequest, e.INVALID_PARAMS, nil)
 	}
@@ -98,8 +91,8 @@ func GetMessage(c *gin.Context) {
 	// messagesInfo["messages"] = messages
 	data["datalist"] = messages
 	// data["total"] = total
-	data["pageNum"] = page
-	data["pageSize"] = params.PageSize
+	data["offset"] = params.Offset
+	data["limit"] = params.Limit
 	gin_http.Response(c, http.StatusOK, e.SUCCESS, data)
 }
 
@@ -139,6 +132,28 @@ func GetMessageSession(c *gin.Context) {
 	data["pageNum"] = page
 	data["pageSize"] = params.PageSize
 	gin_http.Response(c, http.StatusOK, e.SUCCESS, data)
+}
+
+// @Summary 已读消息
+// @Produce  json
+// @Param uid formData int true "用户ID"
+// @Param session_id formData int true "会话ID"
+// @Param token header string true "token"
+// @Router /api/v1/msg/read [post]
+func ReadMessage(c *gin.Context) {
+	params := param.UpdateUnReadMessageParams{}
+	if err := c.ShouldBind(&params); err != nil {
+		log.Logger.Error("绑定错误", err)
+		gin_http.Response(c, http.StatusBadRequest, e.INVALID_PARAMS, nil)
+		return
+	}
+	log.Logger.Debug("绑定参数", params)
+	// sessions, err := model.GetSession(params.Uid, params.PageNum, params.PageSize)
+	// if err != nil {
+	// 	gin_http.Response(c, http.StatusBadRequest, e.INVALID_PARAMS, nil)
+	// }
+	msg.UpdateUnReadMessage(params.Uid, params.SessionId)
+	gin_http.Response(c, http.StatusOK, e.SUCCESS, nil)
 }
 
 // @Summary 聊天室
