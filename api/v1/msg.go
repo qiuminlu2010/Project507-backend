@@ -36,10 +36,6 @@ func Chat(c *gin.Context) {
 		gin_http.Response(c, http.StatusBadRequest, e.ERROR_AUTH_CHECK_TOKEN_FAIL, nil)
 		return
 	}
-	// uid := c.Query("from_uid") // 自己的id
-	// toUid := c.Query("to_Uid") // 对方的id
-	// wsUpgrader.CheckOrigin = func(r *http.Request) bool { return true }
-	// conn, err := wsUpgrader.Upgrade(c.Writer, c.Request, nil) // 升级成ws协议
 
 	conn, err := (&websocket.Upgrader{
 		CheckOrigin: func(r *http.Request) bool { // CheckOrigin解决跨域问题

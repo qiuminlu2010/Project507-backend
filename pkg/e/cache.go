@@ -15,6 +15,8 @@ const (
 	CACHE_FOLLOWS            = "follows"
 	CACHE_SESSIONS           = "sessions"
 	CACHE_UNREAD_MSG         = "unread_msg"
+	CHANNEL_LIKEARTICLE      = "likeArticle"
+	CHANNEL_LIKECOMMENT      = "likeComment"
 	DURATION_USER_INFO       = time.Hour * 3
 	DURATION_ARTICLE_INFO    = time.Hour * 3
 	DURATION_LIKEUSERS       = time.Hour * 3

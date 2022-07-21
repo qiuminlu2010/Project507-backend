@@ -66,7 +66,7 @@ type ArticleCache struct {
 
 type Comment struct {
 	Model
-	UserID    uint      `json:"user_id"`
+	UserID    uint      `gorm:"index" json:"user_id"`
 	ArticleID uint      `json:"article_id"`
 	ReplyID   *uint     `json:"reply_id"`
 	Username  string    `json:"username"`

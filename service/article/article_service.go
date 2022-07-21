@@ -10,6 +10,8 @@ import (
 	"qiu/blog/pkg/util"
 	base "qiu/blog/service/base"
 	cache "qiu/blog/service/cache"
+
+	msg "qiu/blog/service/msg"
 	param "qiu/blog/service/param"
 	user "qiu/blog/service/user"
 	"strconv"
@@ -51,9 +53,11 @@ func (s *ArticleService) Add(params *param.ArticleAddParams) error {
 			Content: params.Content,
 			Title:   params.Title,
 		}, tags, imgs)
+
 	if err != nil {
 		return err
 	}
+	//修改缓存
 	duration := float64(time.Now().Unix())
 	redis.ZAdd(e.CACHE_ARTICLES, duration, articleId)
 
@@ -62,6 +66,9 @@ func (s *ArticleService) Add(params *param.ArticleAddParams) error {
 	if redis.Exists(userKey) != 0 {
 		redis.ZAdd(userKey, duration, articleId)
 	}
+
+	//推送用户动态
+	go pushArticleMessage(params.UserID, articleId)
 	return nil
 }
 
@@ -207,6 +214,16 @@ func (s *ArticleService) UpdateArticleLike(param *param.ArticleLikeParams) error
 	if param.Type == 1 {
 		m[strconv.Itoa(param.UserId)] = time.Now().Unix()
 		redis.ZAdd(userKey, float64(time.Now().Unix()), param.ArticleId)
+		go pushLikeArticleMessage(param.UserId, param.ArticleId)
+		// go func(){
+		// 	article, err :=GetArticleCache(param.ArticleId)
+		// 	if err!= nil {
+		// 		return
+		// 	}
+
+		// 	msg.Manager.Broadcast <- param
+		// }()
+
 	} else {
 		m[strconv.Itoa(param.UserId)] = -time.Now().Unix()
 		redis.ZRem(userKey, param.ArticleId)
@@ -324,8 +341,8 @@ func setUserArticleCache(userId int) error {
 	return nil
 }
 
-// article:id (bytes) => ArticleInfo
-func getArticleCache(articleId int) (*model.ArticleInfo, error) {
+// 获取文章信息 article:id (bytes) => ArticleInfo
+func GetArticleCache(articleId int) (*model.ArticleInfo, error) {
 	key := cache.GetModelIdKey(e.CACHE_ARTICLE, articleId)
 	var article model.ArticleInfo
 	if redis.Exists(key) == 0 {
@@ -397,7 +414,7 @@ func getArticlesCache(ids interface{}, cachekey string) ([]*model.ArticleInfo, e
 	}
 
 	for _, articleId := range articleIds {
-		articleInfo, err := getArticleCache(articleId)
+		articleInfo, err := GetArticleCache(articleId)
 		if err != nil {
 			return articles, err
 		}
@@ -471,4 +488,44 @@ func setUserLikeArticleCache(userId int) error {
 	}
 	redis.Expire(key, e.DURATION_LIKEARTICLES)
 	return nil
+}
+
+//推送点赞消息
+func pushLikeArticleMessage(userId int, articleId int) {
+	article, err := GetArticleCache(articleId)
+	if err != nil {
+		return
+	}
+
+	content := fmt.Sprintf("<p>用户ID:%d 点赞了你的动态</p><p>文章ID:%d %v</p><img src=%v width='150px'></img>",
+		userId, articleId, article.Content, "/base/"+article.Images[0].ThumbUrl)
+	message := &msg.Message{
+		FromUid:   1,
+		ToUid:     int(article.OwnerID),
+		Username:  "系统消息",
+		Avatar:    "",
+		Content:   content,
+		CreatedOn: time.Now().Unix(),
+	}
+	msg.SystemMsg <- message
+}
+
+//推送关注用户的新动态
+func pushArticleMessage(userId uint, articleId uint) {
+	fanIds, err := model.GetFanIds(userId)
+	if err != nil {
+		return
+	}
+	for _, fanId := range fanIds {
+		content := fmt.Sprintf("<p>关注用户ID:%d 发布了新动态</p><p>文章ID:%d</p>", userId, articleId)
+		message := &msg.Message{
+			FromUid:   1,
+			ToUid:     fanId,
+			Username:  "系统消息",
+			Avatar:    "",
+			Content:   content,
+			CreatedOn: time.Now().Unix(),
+		}
+		msg.SystemMsg <- message
+	}
 }

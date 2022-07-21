@@ -42,9 +42,8 @@ type Client struct {
 
 type Broadcast struct {
 	Client *Client
-	// Msg    []byte
-	Msg  *Message
-	Type int
+	Msg    *Message
+	Type   int
 }
 
 type ClientManager struct {
@@ -59,8 +58,48 @@ type ClientManager struct {
 var (
 	Manager     *ClientManager
 	ChatRoomMsg chan *Message
+	SystemMsg   chan *Message
+	// LikeArticleChannel chan *param.ArticleLikeParams
+	// LikeCommentChannel chan *param.LikeCommentParams
+
 )
 
+func Setup() {
+	Manager = &ClientManager{
+		Clients:    make(map[int]*Client), // 参与连接的用户，出于性能的考虑，需要设置最大连接数
+		Broadcast:  make(chan *Broadcast),
+		Register:   make(chan *Client),
+		Reply:      make(chan *Client),
+		Unregister: make(chan *Client),
+	}
+	ChatRoomMsg = make(chan *Message)
+	SystemMsg = make(chan *Message)
+	// LikeArticleChannel = make(chan *param.ArticleLikeParams)
+	// LikeCommentChannel = make(chan *param.LikeCommentParams)
+	// initChannelManager()
+	go Manager.Listen()
+}
+
+func initChannelManager() {
+
+	// pubLikeArticle := redis.Subscribe(e.CHANNEL_LIKEARTICLE)
+	// defer pubLikeArticle.Close()
+	// go func() {
+	// 	for {
+	// 		msg, err := pubLikeArticle.ReceiveMessage(ctx)
+	// 		if err != nil {
+	// 			panic(err)
+	// 		}
+
+	// 		log.Logger.Info(msg.Channel, msg.Payload)
+	// 	}
+	// }()
+	// LikeArticleChannel = pubLikeArticle.Channel()
+
+	// pubLikeComment := redis.Subscribe(e.CHANNEL_LIKECOMMENT)
+	// defer pubLikeComment.Close()
+	// LikeCommentChannel = pubLikeComment.Channel()
+}
 func (c *Client) close() {
 	Manager.Unregister <- c
 	_ = c.Socket.Close()
@@ -175,10 +214,9 @@ func (manager *ClientManager) Listen() {
 		case broadcast := <-manager.Broadcast:
 			msg := broadcast.Msg
 			ToUid := msg.ToUid
-			// flag := false // 默认对方不在线
 			sendClient, ok := manager.Clients[ToUid]
 			msgBytes, _ := json.Marshal(msg)
-			// fromUid := broadcast.Client.FromUid
+
 			if ok {
 				select {
 				case sendClient.Send <- msgBytes:
@@ -188,7 +226,6 @@ func (manager *ClientManager) Listen() {
 					}
 					replyMsgBytes, _ := json.Marshal(replyMsg)
 					_ = broadcast.Client.Socket.WriteMessage(websocket.TextMessage, replyMsgBytes)
-					// flag = true
 				default:
 					close(sendClient.Send)
 					delete(Manager.Clients, sendClient.Uid)
@@ -231,20 +268,48 @@ func (manager *ClientManager) Listen() {
 					delete(Manager.Clients, sendClient.Uid)
 				}
 			}
+		case msg := <-SystemMsg:
+			ToUid := msg.ToUid
+			sendClient, ok := manager.Clients[ToUid]
+			msgBytes, _ := json.Marshal(msg)
+			if ok {
+				select {
+				case sendClient.Send <- msgBytes:
+				default:
+					close(sendClient.Send)
+					delete(Manager.Clients, sendClient.Uid)
+				}
+			}
+			log.Logger.Info("[推送消息]：", ToUid, msg.Content)
+
+			msgModel := model.Message{
+				FromUid:   msg.FromUid,
+				ToUid:     msg.ToUid,
+				Content:   msg.Content,
+				CreatedOn: int(msg.CreatedOn),
+			}
+			//保存数据库
+			if err := model.SaveMessage(&msgModel); err != nil {
+				panic(err)
+			}
+
+			//记录未读消息
+			key := cache.GetModelFieldKey(e.CACHE_USER, uint(msg.ToUid), e.CACHE_UNREAD_MSG)
+			redis.HashIncr(key, strconv.Itoa(msg.FromUid), 1)
+			redis.Expire(key, e.DURATION_USER_SESSIONS)
+
+			// 保存接收方最近会话
+			model.SaveSession(&model.MessageSession{
+				Uid:       msg.ToUid,
+				SessionId: msg.FromUid,
+			})
+			key2 := cache.GetModelFieldKey(e.CACHE_USER, uint(msg.ToUid), e.CACHE_SESSIONS)
+			if redis.Exists(key2) != 0 {
+				redis.ZAdd(key2, float64(time.Now().Unix()), msg.FromUid)
+			}
+
 		}
 	}
-}
-
-func Setup() {
-	Manager = &ClientManager{
-		Clients:    make(map[int]*Client), // 参与连接的用户，出于性能的考虑，需要设置最大连接数
-		Broadcast:  make(chan *Broadcast),
-		Register:   make(chan *Client),
-		Reply:      make(chan *Client),
-		Unregister: make(chan *Client),
-	}
-	ChatRoomMsg = make(chan *Message)
-	go Manager.Listen()
 }
 
 func setSession(uid, pageNum, pageSize int) error {
