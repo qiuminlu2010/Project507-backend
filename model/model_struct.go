@@ -70,6 +70,7 @@ type Comment struct {
 	ArticleID uint      `json:"article_id"`
 	ReplyID   *uint     `json:"reply_id"`
 	Username  string    `json:"username"`
+	Name      string    `json:"name"`
 	Avatar    string    `json:"avatar"`
 	Content   string    `gorm:"collate:utf8" json:"content" form:"content" binding:"gte=1,lte=500"`
 	LikeCount int       `json:"like_count" `

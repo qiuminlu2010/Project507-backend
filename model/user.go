@@ -6,6 +6,14 @@ import (
 	"gorm.io/gorm/clause"
 )
 
+func GetUsersByUsername(usernames []string) ([]*UserBase, error) {
+	var users []*UserBase
+	if err := db.Model(&User{}).Where("`username` in (?)", usernames).Find(&users).Error; err != nil {
+		return nil, err
+	}
+	return users, nil
+}
+
 func GetUsersByName(name string, pageNum int, pageSize int) ([]*UserBase, error) {
 	var users []*UserBase
 	if err := db.Model(&User{}).Where("`name` like ?", name).Offset(pageNum).Limit(pageSize).Find(&users).Error; err != nil {
@@ -138,3 +146,19 @@ func CountFans(userId int) (int64, error) {
 	}
 	return count, nil
 }
+
+func GetUserId(username string) (uint, error) {
+	var user User
+	if err := db.Select("id").Where("username = ?", username).First(&user).Error; err != nil {
+		return 0, err
+	}
+	return user.ID, nil
+}
+
+// func GetUserIds(usernames []string) ([]uint, error) {
+// 	var users []User
+// 	if err := db.Select("id").Where("username in (?)", usernames).Find(&users).Error; err != nil {
+// 		return nil, err
+// 	}
+// 	return users, nil
+// }

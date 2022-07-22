@@ -7,9 +7,13 @@ import (
 
 	// cache "qiu/blog/service/cache"
 	"qiu/blog/model"
+	"qiu/blog/pkg/e"
 	article "qiu/blog/service/article"
 	msg "qiu/blog/service/msg"
 	param "qiu/blog/service/param"
+	user "qiu/blog/service/user"
+
+	"github.com/gernest/mention"
 )
 
 type CommentService struct {
@@ -24,15 +28,25 @@ func GetCommentSerivice() *CommentService {
 
 // 1.更新数据库 2.若key article:id:comments 存在...TODO
 func (s *CommentService) Add(params *param.CommentAddParams) error {
+	userInfo := user.GetUserCache(params.UserId)
+	comment := &model.Comment{
+		UserID:    uint(params.UserId),
+		Username:  userInfo.Username,
+		Avatar:    userInfo.Avatar,
+		ArticleID: uint(params.ArticleId),
+		Content:   params.Content,
+	}
 	if params.ReplyId > 0 {
-		return model.AddReply(params.UserId, params.ArticleId, params.ReplyId, params.Content)
+		return model.AddReply(comment, params.ReplyId)
 	} else {
-		err := model.AddComment(params.UserId, params.ArticleId, params.Content)
+		commentId, err := model.AddComment(comment)
 		if err != nil {
 			return err
 		}
 		// 推送评论消息
 		go pushCommentMessage(params.UserId, params.ArticleId, params.Content)
+		// 推送＠用户提及
+		go pushMentionMessage(params.UserId, commentId, comment.Content)
 	}
 	return nil
 }
@@ -98,4 +112,26 @@ func pushLikeCommentMessage(userId int, commentId int) {
 		CreatedOn: time.Now().Unix(),
 	}
 	msg.SystemMsg <- message
+}
+
+func pushMentionMessage(userId int, commentId uint, content string) {
+	mentionUsernames := mention.GetTagsAsUniqueStrings('@', content)
+	users, err := model.GetUsersByUsername(mentionUsernames)
+	if err != nil {
+		return
+	}
+	for _, user := range users {
+		content := fmt.Sprintf("<p>用户ID:%d 在评论ID:%d @你</p><p>评论内容:%v</p>",
+			userId, commentId, content)
+		message := &msg.Message{
+			FromUid:   1,
+			ToUid:     int(user.ID),
+			Username:  "系统消息",
+			Avatar:    "",
+			Content:   content,
+			CreatedOn: time.Now().Unix(),
+			Type:      e.MESSAGE_MENTION,
+		}
+		msg.SystemMsg <- message
+	}
 }
