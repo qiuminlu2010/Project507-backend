@@ -6,6 +6,7 @@ import (
 	gin_http "qiu/blog/pkg/http"
 	log "qiu/blog/pkg/logging"
 	"qiu/blog/pkg/setting"
+	"qiu/blog/pkg/upload"
 	articleService "qiu/blog/service/article"
 	param "qiu/blog/service/param"
 	service "qiu/blog/service/user"
@@ -260,5 +261,59 @@ func GetUserLikeArticles(c *gin.Context) {
 	// data["total"] = total
 	data["pageNum"] = page
 	data["pageSize"] = params.PageSize
+	gin_http.Response(c, http.StatusOK, e.SUCCESS, data)
+}
+
+// @Summary 更新用户头像
+// @Produce  json
+// @Param id path uint true "用户ID"
+// @Param image formData file true "image"
+// @Param token header string true "token"
+// @Router /api/v1/user/{id}/avatar [put]
+func UpdateAvatar(c *gin.Context) {
+	userService := service.GetUserService()
+	var err error
+	userId, err := strconv.Atoi(c.Param("id"))
+	if err != nil || userId <= 0 {
+		gin_http.Response(c, http.StatusBadRequest, e.INVALID_PARAMS, nil)
+		return
+	}
+	if !userService.CheckTokenUid(c, uint(userId)) {
+		gin_http.Response(c, http.StatusBadRequest, e.ERROR_AUTH_CHECK_TOKEN_FAIL, nil)
+		return
+	}
+	_, image, err := c.Request.FormFile("img")
+	if err != nil {
+		log.Logger.Error("保存图片失败", err)
+		gin_http.Response(c, http.StatusInternalServerError, e.ERROR, nil)
+		return
+	}
+
+	if image == nil {
+		gin_http.Response(c, http.StatusBadRequest, e.ERROR_IMAGE_LOST, nil)
+		return
+	}
+
+	imageName := upload.GetImageName(image.Filename)
+	savePath := upload.GetAvatarSavePath()
+
+	src := savePath + imageName
+	if !upload.CheckImageExt(imageName) || !upload.CheckImageSize(image) {
+		gin_http.Response(c, http.StatusBadRequest, e.ERROR_UPLOAD_CHECK_IMAGE_FORMAT, nil)
+		return
+	}
+	log.Logger.Info("保存上传图片", src)
+	if err = c.SaveUploadedFile(image, "."+src); err != nil {
+		log.Logger.Error("保存图片失败", err)
+		gin_http.Response(c, http.StatusInternalServerError, e.ERROR_UPLOAD_SAVE_IMAGE_FAIL, nil)
+		return
+	}
+	if err := userService.UpdateAvatar(userId, src); err != nil {
+		log.Logger.Error("更新头像失败", err)
+		gin_http.Response(c, http.StatusInternalServerError, e.ERROR_UPDATE_USER_FAIL, nil)
+		return
+	}
+	data := make(map[string]interface{})
+	data["avatar"] = src
 	gin_http.Response(c, http.StatusOK, e.SUCCESS, data)
 }

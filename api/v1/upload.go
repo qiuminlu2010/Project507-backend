@@ -45,7 +45,7 @@ func UploadImage(c *gin.Context) {
 		return
 	}
 
-	if err = c.SaveUploadedFile(image, src); err != nil {
+	if err = c.SaveUploadedFile(image, "."+src); err != nil {
 		log.Logger.Error("保存图片失败", err)
 		gin_http.Response(c, http.StatusInternalServerError, e.ERROR_UPLOAD_SAVE_IMAGE_FAIL, nil)
 		return

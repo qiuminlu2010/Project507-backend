@@ -926,6 +926,38 @@ const docTemplate = `{
                 "responses": {}
             }
         },
+        "/api/v1/user/{id}/avatar": {
+            "put": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "更新用户头像",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "用户ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "file",
+                        "description": "image",
+                        "name": "image",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "token",
+                        "name": "token",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
         "/api/v1/user/{id}/fans": {
             "get": {
                 "produces": [

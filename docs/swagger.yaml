@@ -624,6 +624,28 @@ paths:
       - application/json
       responses: {}
       summary: 用户动态列表
+  /api/v1/user/{id}/avatar:
+    put:
+      parameters:
+      - description: 用户ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: image
+        in: formData
+        name: image
+        required: true
+        type: file
+      - description: token
+        in: header
+        name: token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: 更新用户头像
   /api/v1/user/{id}/fans:
     get:
       parameters:

@@ -162,3 +162,7 @@ func GetUserId(username string) (uint, error) {
 // 	}
 // 	return users, nil
 // }
+
+func UpdateAvatar(userId int, avatar string) error {
+	return db.Model(&User{}).Where("id = ?", userId).Update("avatar", avatar).Error
+}
