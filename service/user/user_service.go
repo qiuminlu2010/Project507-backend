@@ -231,3 +231,11 @@ func GetUserCache(userId int) *model.UserBase {
 	return &userInfo
 
 }
+
+func (s *UserService) UpdateAvatar(userId int, avatar string) error {
+	if err := model.UpdateAvatar(userId, avatar); err != nil {
+		return err
+	}
+	redis.Del(cache.GetModelIdKey(e.CACHE_USER, userId))
+	return nil
+}

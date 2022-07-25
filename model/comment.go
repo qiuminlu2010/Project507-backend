@@ -8,29 +8,19 @@ import (
 	"gorm.io/gorm/clause"
 )
 
-func AddComment(userId int, articleId int, content string) error {
-	comment := Comment{UserID: uint(userId), ArticleID: uint(articleId), Content: content}
-	if err := db.Model(&User{}).Where("id = ?", userId).Select("username", "avatar").First(&comment).Error; err != nil {
-		return err
-	}
+func AddComment(comment *Comment) (uint, error) {
 	if err := db.Create(&comment).Error; err != nil {
-		return err
+		return 0, err
 	}
-	return nil
+	return comment.ID, nil
 }
 
-func AddReply(userId int, articleId int, replyId int, content string) error {
+func AddReply(reply *Comment, replyId int) error {
 	var comment Comment
-	// comment.ID = uint(replyId)
-	// comment.ArticleID = uint(articleId)
-	if err := db.Where("id = ?", replyId).Where("article_id = ?", articleId).Where("`reply_id` IS NULL").First(&comment).Error; err != nil {
+	if err := db.Where("id = ?", replyId).Where("article_id = ?", reply.ArticleID).Where("`reply_id` IS NULL").First(&comment).Error; err != nil {
 		return err
 	}
-	reply := Comment{UserID: uint(userId), ArticleID: uint(articleId), Content: content}
-	if err := db.Model(&User{}).Where("id = ?", userId).Select("username", "avatar").First(&reply).Error; err != nil {
-		return err
-	}
-	if err := db.Model(&comment).Association("Replies").Append(&reply); err != nil {
+	if err := db.Model(&comment).Association("Replies").Append(reply); err != nil {
 		return err
 	}
 	return nil
@@ -62,18 +52,10 @@ func GetComments(articleId int, userId int, pageNum int, pageSize int) ([]*Comme
 		return nil, err
 	}
 
-	// isLikeSql := ""
-	// if userId > 0 {
-	// 	isLikeSql = fmt.Sprintf(",(select count(*) from `blog_user_like_comments` where `blog_comment`.`id` = comment_id and user_id = %d) as is_like", userId)
-	// 	selectSql += isLikeSql
-	// }
 	return comments, nil
 }
 
 func AddCommentLike(userId int, CommentId int) error {
-	// data := make(map[string]interface{})
-	// data["user_id"] = userId
-	// data["comment_id"] = CommentId
 	data := CommentIdUserId{UserId: uint(userId), CommentID: uint(CommentId)}
 	return db.Table(e.TABLE_USER_LIKE_COMMENTS).Clauses(clause.OnConflict{DoNothing: true}).Create(&data).Error
 }

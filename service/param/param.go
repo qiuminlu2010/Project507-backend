@@ -159,3 +159,8 @@ type UpdateUnReadMessageParams struct {
 	Uid       int `json:"uid" form:"uid" `
 	SessionId int `json:"session_uid" form:"session_uid"`
 }
+
+type UpdateAvatarParams struct {
+	Uid    int    `json:"uid" form:"uid"`
+	Avatar string `json:""`
+}

@@ -95,7 +95,7 @@ func AddArticle(c *gin.Context) {
 			gin_http.Response(c, http.StatusBadRequest, e.ERROR_UPLOAD_CHECK_IMAGE_FORMAT, nil)
 			return
 		}
-		if err = c.SaveUploadedFile(file, savePath); err != nil {
+		if err = c.SaveUploadedFile(file, "."+savePath); err != nil {
 			log.Logger.Error("保存文件失败", err)
 			gin_http.Response(c, http.StatusInternalServerError, e.ERROR_UPLOAD_SAVE_IMAGE_FAIL, nil)
 			return

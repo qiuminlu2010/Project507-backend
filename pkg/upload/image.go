@@ -155,6 +155,10 @@ func Thumbnailify(fileName string) (outputPath string, err error) {
 	return
 }
 
+func GetAvatarSavePath() string {
+	return setting.AppSetting.AvatarSavePath
+}
+
 // 缩略图按照指定的宽和高非失真缩放裁剪
 // func thumbnailCrop(minWidth, minHeight uint, img image.Image) image.Image {
 // 	origBounds := img.Bounds()
