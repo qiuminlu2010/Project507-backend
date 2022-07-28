@@ -31,7 +31,7 @@ func GetArticleService() *ArticleService {
 
 //添加文章： 1.更新数据库 2.添加文章目录缓存 3.删除用户缓存 or 添加用户缓存
 func (s *ArticleService) Add(params *param.ArticleAddParams) error {
-	var tags []model.Tag
+	var tags []*model.Tag
 	for _, tag_name := range params.TagName {
 		tag_id, err := model.GetTagIdByName(tag_name)
 		tag := model.Tag{}
@@ -40,19 +40,29 @@ func (s *ArticleService) Add(params *param.ArticleAddParams) error {
 		} else {
 			tag.ID = tag_id
 		}
-		tags = append(tags, tag)
+		tags = append(tags, &tag)
 	}
-	var imgs []model.Image
-	for _, img_url := range params.ImgUrl {
-		imgs = append(imgs, model.Image{Url: upload.GetImagePath() + img_url, ThumbUrl: upload.GetThumbPath() + img_url})
+	var articleId uint
+	var err error
+	var imgs []*model.Image
+	var video *model.Video
+	if params.Type == 1 {
+		video = &model.Video{
+			VideoUrl: params.VideoUrl,
+		}
+		imgs = nil
+	} else {
+		for _, img_url := range params.ImgUrl {
+			imgs = append(imgs, &model.Image{Url: upload.GetImagePath() + img_url, ThumbUrl: upload.GetThumbPath() + img_url})
+		}
+		video = nil
 	}
-
-	articleId, err := model.AddArticleWithImg(
+	articleId, err = model.AddArticleWithImg(
 		model.Article{
 			OwnerID: params.UserID,
 			Content: params.Content,
 			Title:   params.Title,
-		}, tags, imgs)
+		}, tags, imgs, video)
 
 	if err != nil {
 		return err
@@ -164,7 +174,7 @@ func (s *ArticleService) GetArticles(params *param.ArticleGetParams) ([]*model.A
 	if params.Type == 1 {
 		articleIds = redis.ZRandMember(e.CACHE_ARTICLES, params.PageSize-1)
 	} else {
-		articleIds = redis.ZRevRange(e.CACHE_ARTICLES, int64(params.PageNum), int64(params.PageSize-1))
+		articleIds = redis.ZRevRange(e.CACHE_ARTICLES, int64(params.PageNum), int64(params.PageNum+params.PageSize-1))
 	}
 
 	articles, err = getArticlesCache(articleIds, e.CACHE_ARTICLES)

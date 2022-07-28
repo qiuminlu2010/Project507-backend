@@ -10,6 +10,8 @@ import (
 	log "qiu/blog/pkg/logging"
 
 	// "qiu/blog/pkg/logging"
+
+	"qiu/blog/pkg/minio"
 	"qiu/blog/pkg/upload"
 )
 
@@ -44,12 +46,17 @@ func UploadImage(c *gin.Context) {
 		gin_http.Response(c, http.StatusBadRequest, e.ERROR_UPLOAD_CHECK_IMAGE_FORMAT, nil)
 		return
 	}
-
-	if err = c.SaveUploadedFile(image, "."+src); err != nil {
+	if err = minio.PutImage("img", "temp/"+imageName, image); err != nil {
 		log.Logger.Error("保存图片失败", err)
 		gin_http.Response(c, http.StatusInternalServerError, e.ERROR_UPLOAD_SAVE_IMAGE_FAIL, nil)
 		return
 	}
+
+	// if err = c.SaveUploadedFile(image, setting.MinioSetting.Host+src); err != nil {
+	// 	log.Logger.Error("保存图片失败", err)
+	// 	gin_http.Response(c, http.StatusInternalServerError, e.ERROR_UPLOAD_SAVE_IMAGE_FAIL, nil)
+	// 	return
+	// }
 	log.Logger.Info("保存上传图片", src)
 	data := make(map[string]string)
 	data["image_url"] = src

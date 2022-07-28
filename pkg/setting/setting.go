@@ -8,23 +8,16 @@ import (
 )
 
 type App struct {
-	JwtSecret             string
-	PageSize              int
-	RuntimeRootPath       string
-	AvatarSavePath        string
-	ImagePrefixUrl        string
-	ImageSavePath         string
-	ImageTempSavePath     string
-	VideoTempSavePath     string
-	VideoSavePath         string
-	VideoPreviewSavePath  string
-	VideoCompressSavePath string
-	VideoMaxSize          int
-	ThumbSavePath         string
-	ThumbMaxHeight        int
-	ThumbMaxWidth         int
-	ImageMaxSize          int
-	ImageAllowExts        []string
+	JwtSecret       string
+	PageSize        int
+	RuntimeRootPath string
+	ImagePrefixUrl  string
+	VideoMaxSize    int
+
+	ThumbMaxHeight int
+	ThumbMaxWidth  int
+	ImageMaxSize   int
+	ImageAllowExts []string
 
 	LogSavePath string
 	LogSaveName string
@@ -35,6 +28,23 @@ type App struct {
 }
 
 var AppSetting = &App{}
+
+type Minio struct {
+	Host                  string
+	EndPoint              string
+	AccessKeyID           string
+	SecretAccessKey       string
+	AvatarSavePath        string
+	ImageSavePath         string
+	ImageTempSavePath     string
+	ThumbSavePath         string
+	VideoTempSavePath     string
+	VideoSavePath         string
+	VideoPreviewSavePath  string
+	VideoCompressSavePath string
+}
+
+var MinioSetting = &Minio{}
 
 type Server struct {
 	RunMode      string
@@ -76,8 +86,13 @@ func Setup() {
 	if err != nil {
 		log.Fatalf("Cfg.MapTo AppSetting err: %v", err)
 	}
+	err = Cfg.Section("minio").MapTo(MinioSetting)
+	if err != nil {
+		log.Fatalf("Cfg.MapTo AppSetting err: %v", err)
+	}
 
 	AppSetting.ImageMaxSize = AppSetting.ImageMaxSize * 1024 * 1024
+	AppSetting.VideoMaxSize = AppSetting.VideoMaxSize * 1024 * 1024
 	err = Cfg.Section("server").MapTo(ServerSetting)
 	if err != nil {
 		log.Fatalf("Cfg.MapTo ServerSetting err: %v", err)

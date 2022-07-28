@@ -14,6 +14,7 @@ import (
 	"time"
 
 	"qiu/blog/pkg/file"
+	log "qiu/blog/pkg/logging"
 	"qiu/blog/pkg/setting"
 	"qiu/blog/pkg/util"
 
@@ -33,19 +34,19 @@ func GetImageName(name string) string {
 }
 
 func GetImagePath() string {
-	return setting.AppSetting.ImageSavePath
+	return setting.MinioSetting.ImageSavePath
 }
 
 func GetImageTempPath() string {
-	return setting.AppSetting.ImageTempSavePath
+	return setting.MinioSetting.ImageTempSavePath
 }
 
 func GetVideoPath() string {
-	return setting.AppSetting.VideoCompressSavePath
+	return setting.MinioSetting.VideoCompressSavePath
 }
 
 func GetThumbPath() string {
-	return setting.AppSetting.ThumbSavePath
+	return setting.MinioSetting.ThumbSavePath
 }
 func GetImageFullPath() string {
 	return setting.AppSetting.RuntimeRootPath + GetImagePath()
@@ -80,7 +81,7 @@ func CheckVideoSize(f *multipart.FileHeader) bool {
 	// 	logging.Warn(err)
 	// 	return false
 	// }
-	// logging.Info("上传图片大小", size, setting.AppSetting.ImageMaxSize)
+	log.Logger.Info("上传视频大小", int(f.Size), setting.AppSetting.VideoMaxSize)
 	return int(f.Size) <= setting.AppSetting.VideoMaxSize
 }
 
@@ -103,13 +104,13 @@ func CheckImage(src string) error {
 	return nil
 }
 
-func Thumbnailify(fileName string) (outputPath string, err error) {
+func Thumbnailify_test(fileName string) (outputPath string, err error) {
 	// 读取文件
 	var (
 		file *os.File
 		img  image.Image
 	)
-	imagePath := GetImagePath() + fileName
+	imagePath := "." + GetImagePath() + fileName
 	if file, err = os.Open(imagePath); err != nil {
 		return
 	}
@@ -156,7 +157,7 @@ func Thumbnailify(fileName string) (outputPath string, err error) {
 }
 
 func GetAvatarSavePath() string {
-	return setting.AppSetting.AvatarSavePath
+	return setting.MinioSetting.AvatarSavePath
 }
 
 // 缩略图按照指定的宽和高非失真缩放裁剪

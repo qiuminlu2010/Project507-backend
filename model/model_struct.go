@@ -37,6 +37,7 @@ type Article struct {
 	IsLike     bool    `json:"is_like" form:"is_like" binding:"-"`
 	Tags       []Tag   `gorm:"many2many:article_tags;" json:"tags"`
 	Images     []Image `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;foreignkey:ArticleID" json:"images"`
+	VideoID    uint    `json:"video_id"`
 	LikedUsers []User  `gorm:"many2many:article_like_users;" json:"-"`
 	//TODO: Comments   []Comment
 	// CreatedBy  string `json:"-" form:"created_by" binding:"-"`
@@ -167,7 +168,15 @@ type Image struct {
 	ThumbUrl   string `json:"thumb_url" form:"thumb_url"`
 	// Thumbnail int    `json:"-" form:"-"`
 }
-
+type Video struct {
+	ID         uint   `gorm:"primary_key" uri:"id" `
+	CreatedOn  int    `gorm:"index" binding:"-" json:"created_on,omitempty"`
+	ModifiedOn int    `binding:"-" json:"modified_on,omitempty"`
+	ArticleID  uint   `json:"-" form:"-" binding:"-"`
+	VideoUrl   string `json:"video_url" form:"video_url" binding:"-"`
+	PreviewUrl string `json:"preview_url" form:"preview_url"`
+	// Thumbnail int    `json:"-" form:"-"`
+}
 type SessionInfo struct {
 	UserBase
 	Unread   int        `json:"unread"`

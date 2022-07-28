@@ -64,8 +64,15 @@ paths:
       - description: image
         in: formData
         name: images
-        required: true
         type: file
+      - description: video
+        in: formData
+        name: video
+        type: file
+      - description: 视频类型为1
+        in: formData
+        name: type
+        type: integer
       - description: token
         in: header
         name: token

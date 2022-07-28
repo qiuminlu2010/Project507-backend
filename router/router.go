@@ -25,7 +25,7 @@ func InitRouter() *gin.Engine {
 	apiv1 := r.Group("/api/v1")
 
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
-	r.GET("/data/img/:imgType/:imgName", v1.DownloadImg)
+	r.GET("/img/:imgType/:imgName", v1.DownloadImg)
 
 	//管理类
 	r.POST("/user/register", v1.Register)

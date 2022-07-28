@@ -81,11 +81,13 @@ type ArticleGetParams struct {
 }
 
 type ArticleAddParams struct {
-	UserID  uint     `json:"user_id" form:"user_id" binding:"required,gt=0"`
-	Title   string   `json:"title" form:"title" binding:"gte=0"`
-	Content string   `json:"content" form:"content" binding:"gt=0"`
-	TagName []string `json:"tag_name" form:"tag_name" `
-	ImgUrl  []string `json:"-" form:"-" binding:"-"`
+	UserID   uint     `json:"user_id" form:"user_id" binding:"required,gt=0"`
+	Title    string   `json:"title" form:"title" binding:"omitempty,gte=0"`
+	Content  string   `json:"content" form:"content" binding:"gt=0"`
+	TagName  []string `json:"tag_name" form:"tag_name" `
+	ImgUrl   []string `json:"-" form:"-" binding:"-"`
+	VideoUrl string   `json:"video_url" form:"video_url"`
+	Type     int      `json:"type" form:"type"`
 }
 
 type ArticleUpdateParams struct {

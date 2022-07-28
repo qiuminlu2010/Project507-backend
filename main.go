@@ -5,16 +5,15 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
-	"syscall"
-
-	"qiu/blog/pkg/redis"
-	"qiu/blog/pkg/setting"
-
 	"qiu/blog/cron"
 	"qiu/blog/model"
 	log "qiu/blog/pkg/logging"
+	"qiu/blog/pkg/minio"
+	"qiu/blog/pkg/redis"
+	"qiu/blog/pkg/setting"
 	"qiu/blog/router"
 	msg "qiu/blog/service/msg"
+	"syscall"
 )
 
 func main() {
@@ -35,6 +34,7 @@ func main() {
 	setting.Setup()
 	model.Setup()
 	redis.Setup()
+	minio.Setup()
 	cron.Setup()
 	msg.Setup()
 	// service.FlushArticleLikeUsers()

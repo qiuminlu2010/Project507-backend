@@ -98,8 +98,19 @@ const docTemplate = `{
                         "type": "file",
                         "description": "image",
                         "name": "images",
-                        "in": "formData",
-                        "required": true
+                        "in": "formData"
+                    },
+                    {
+                        "type": "file",
+                        "description": "video",
+                        "name": "video",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "视频类型为1",
+                        "name": "type",
+                        "in": "formData"
                     },
                     {
                         "type": "string",

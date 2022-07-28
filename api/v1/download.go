@@ -13,17 +13,17 @@ func DownloadImg(c *gin.Context) {
 	imgName := c.Param("imgName")
 	path := ""
 	if imgType == "src" {
-		path = setting.AppSetting.ImageSavePath
+		path = setting.MinioSetting.ImageSavePath
 	}
 	if imgType == "thumb" {
-		path = setting.AppSetting.ThumbSavePath
+		path = setting.MinioSetting.ThumbSavePath
 	}
 	if imgType == "temp" {
-		path = setting.AppSetting.ImageTempSavePath
+		path = setting.MinioSetting.ImageTempSavePath
 	}
 	if imgType == "avatar" {
-		path = setting.AppSetting.AvatarSavePath
+		path = setting.MinioSetting.AvatarSavePath
 	}
-	fmt.Println("下载文件", path+imgName)
-	c.FileAttachment("."+path+imgName, imgName)
+	fmt.Println("下载文件", path+imgName, setting.MinioSetting.Host+path+imgName)
+	c.FileAttachment(setting.MinioSetting.Host+path+imgName, imgName)
 }

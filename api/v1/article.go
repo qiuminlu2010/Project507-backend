@@ -7,11 +7,11 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"qiu/blog/pkg/e"
-	"qiu/blog/pkg/setting"
-	"qiu/blog/pkg/upload"
-
 	gin_http "qiu/blog/pkg/http"
 	log "qiu/blog/pkg/logging"
+	"qiu/blog/pkg/minio"
+	"qiu/blog/pkg/setting"
+	"qiu/blog/pkg/upload"
 	service "qiu/blog/service/article"
 	param "qiu/blog/service/param"
 )
@@ -36,8 +36,8 @@ func GetArticles(c *gin.Context) {
 	if params.PageSize == 0 {
 		params.PageSize = setting.AppSetting.PageSize
 	}
-	page := params.PageNum
-	params.PageNum = params.PageNum * params.PageSize
+	// page := params.PageNum
+	// params.PageNum = params.PageNum * params.PageSize
 	log.Logger.Debug("绑定数据", params)
 
 	articles, err := articleService.GetArticles(&params)
@@ -51,7 +51,7 @@ func GetArticles(c *gin.Context) {
 	data := make(map[string]interface{})
 	data["datalist"] = articles
 	data["total"] = total
-	data["pageNum"] = page
+	data["pageNum"] = params.PageNum
 	data["pageSize"] = params.PageSize
 	gin_http.Response(c, http.StatusOK, e.SUCCESS, data)
 }
@@ -62,7 +62,9 @@ func GetArticles(c *gin.Context) {
 // @Param user_id formData int true "用户id"
 // @Param content formData string true "内容"
 // @Param tag_name formData []int false "标签"
-// @Param images formData file true "image"
+// @Param images formData file false "image"
+// @Param video formData file false "video"
+// @Param type formData int false "视频类型为1"
 // @Param token header string true "token"
 // @Router /api/v1/article [post]
 func AddArticle(c *gin.Context) {
@@ -85,23 +87,57 @@ func AddArticle(c *gin.Context) {
 		return
 	}
 
-	// 获取所有图片
-	files := form.File["images"]
+	// 视频类型
+	if params.Type == 1 {
+		video := form.File["video"][0]
+		if video == nil {
+			gin_http.Response(c, http.StatusBadRequest, e.ERROR_UPLOAD_IMAGE_FAIL, nil)
+			return
+		}
+		videoName := upload.GetImageName(video.Filename)
+		// fullPath := upload.GetImagePath()
+		savePath := upload.GetVideoPath()
 
-	for _, file := range files {
-		imageName := upload.GetImageName(file.Filename)
-		savePath := upload.GetImagePath() + imageName
-		if !upload.CheckImageExt(imageName) || !upload.CheckImageSize(file) {
+		src := savePath + videoName
+		if !upload.CheckVideoSize(video) {
 			gin_http.Response(c, http.StatusBadRequest, e.ERROR_UPLOAD_CHECK_IMAGE_FORMAT, nil)
 			return
 		}
-		if err = c.SaveUploadedFile(file, "."+savePath); err != nil {
-			log.Logger.Error("保存文件失败", err)
+
+		if err = c.SaveUploadedFile(video, "."+src); err != nil {
+			log.Logger.Error("保存视频失败", err)
 			gin_http.Response(c, http.StatusInternalServerError, e.ERROR_UPLOAD_SAVE_IMAGE_FAIL, nil)
 			return
 		}
+		params.VideoUrl = src
+		log.Logger.Info("保存上传视频", src)
+	} else {
+		// 获取所有图片
+		files := form.File["images"]
+		if len(files) == 0 {
+			gin_http.Response(c, http.StatusBadRequest, e.ERROR_UPLOAD_IMAGE_FAIL, nil)
+			return
+		}
+		for _, file := range files {
+			imageName := upload.GetImageName(file.Filename)
+			// savePath := upload.GetImagePath() + imageName
+			if !upload.CheckImageExt(imageName) || !upload.CheckImageSize(file) {
+				gin_http.Response(c, http.StatusBadRequest, e.ERROR_UPLOAD_CHECK_IMAGE_FORMAT, nil)
+				return
+			}
+			if err = minio.PutImage("img", "src/"+imageName, file); err != nil {
+				log.Logger.Error("保存图片失败", err)
+				gin_http.Response(c, http.StatusInternalServerError, e.ERROR_UPLOAD_SAVE_IMAGE_FAIL, nil)
+				return
+			}
+			// if err = c.SaveUploadedFile(file, "."+savePath); err != nil {
+			// 	log.Logger.Error("保存文件失败", err)
+			// 	gin_http.Response(c, http.StatusInternalServerError, e.ERROR_UPLOAD_SAVE_IMAGE_FAIL, nil)
+			// 	return
+			// }
 
-		params.ImgUrl = append(params.ImgUrl, imageName)
+			params.ImgUrl = append(params.ImgUrl, imageName)
+		}
 	}
 
 	err = articleService.Add(&params)
@@ -112,15 +148,21 @@ func AddArticle(c *gin.Context) {
 
 	gin_http.Response(c, http.StatusOK, e.SUCCESS, nil)
 
-	for _, img_url := range params.ImgUrl {
-		//TODO: 异步
-		go func(s string) {
-			_, err = upload.Thumbnailify(s)
-			if err != nil {
-				log.Logger.Error("图片压缩失败", err)
-			}
-		}(img_url)
-	}
+	// for _, img_url := range params.ImgUrl {
+	//TODO: 异步
+	// if params.Type != 1 {
+	// 	go func(urls []string) {
+	// 		for _, url := range urls {
+	// 			_, err = upload.Thumbnailify(url)
+	// 			if err != nil {
+	// 				log.Logger.Error("图片压缩失败", err)
+	// 			}
+	// 		}
+
+	// 	}(params.ImgUrl)
+	// }
+
+	// }
 
 }
 
