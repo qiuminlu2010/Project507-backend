@@ -237,4 +237,7 @@ defineExpose({
 
 <style scoped lang="scss">
 @import "./index.scss";
+.test {
+	background-image: url("@/assets/images/avatar.gif");
+}
 </style>
