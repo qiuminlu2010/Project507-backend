@@ -1,0 +1,906 @@
+definitions:
+  gin_http.ResponseJSON:
+    properties:
+      code:
+        type: integer
+      data: {}
+      msg:
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /admin/menu/list:
+    get:
+      parameters:
+      - description: token
+        in: header
+        name: token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: 获取后台管理菜单
+  /api/v1/article:
+    get:
+      parameters:
+      - description: page_num
+        in: query
+        name: page_num
+        type: integer
+      - description: page_size
+        in: query
+        name: page_size
+        type: integer
+      - description: uid
+        in: query
+        name: uid
+        type: integer
+      produces:
+      - application/json
+      responses: {}
+      summary: 获取文章列表
+    post:
+      consumes:
+      - multipart/form-data
+      parameters:
+      - description: 用户id
+        in: formData
+        name: user_id
+        required: true
+        type: integer
+      - description: 内容
+        in: formData
+        name: content
+        required: true
+        type: string
+      - description: 标签
+        in: formData
+        items:
+          type: integer
+        name: tag_name
+        type: array
+      - description: image
+        in: formData
+        name: images
+        type: file
+      - description: video
+        in: formData
+        name: video
+        type: file
+      - description: 视频类型为1
+        in: formData
+        name: type
+        type: integer
+      - description: token
+        in: header
+        name: token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: 添加文章
+  /api/v1/article/{id}:
+    delete:
+      parameters:
+      - description: 文章ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: token
+        in: header
+        name: token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: 删除文章
+    put:
+      parameters:
+      - description: 文章ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: token
+        in: header
+        name: token
+        required: true
+        type: string
+      - description: title
+        in: formData
+        name: title
+        type: string
+      - description: content
+        in: formData
+        name: content
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: 更新文章
+  /api/v1/article/{id}/addTags:
+    post:
+      parameters:
+      - description: 文章ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 标签
+        in: formData
+        items:
+          type: string
+        name: tag_name
+        type: array
+      - description: token
+        in: header
+        name: token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: 添加文章标签
+  /api/v1/article/{id}/deleteTags:
+    delete:
+      parameters:
+      - description: 文章ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 标签
+        in: formData
+        items:
+          type: string
+        name: tag_name
+        required: true
+        type: array
+      - description: token
+        in: header
+        name: token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: 删除文章标签
+  /api/v1/article/{id}/like:
+    post:
+      parameters:
+      - description: 文章ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 用户ID
+        in: formData
+        name: user_id
+        required: true
+        type: integer
+      - description: 类型
+        in: formData
+        name: type
+        required: true
+        type: integer
+      - description: token
+        in: header
+        name: token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: 添加文章点赞
+  /api/v1/article/{id}/recover:
+    put:
+      parameters:
+      - description: 文章ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: token
+        in: header
+        name: token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: 恢复文章
+  /api/v1/comment:
+    post:
+      parameters:
+      - description: 用户id
+        in: formData
+        name: user_id
+        required: true
+        type: integer
+      - description: 文章id
+        in: formData
+        name: article_id
+        required: true
+        type: integer
+      - description: 回复评论id
+        in: formData
+        name: reply_id
+        type: integer
+      - description: 内容
+        in: formData
+        name: content
+        required: true
+        type: string
+      - description: token
+        in: header
+        name: token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: 添加评论
+  /api/v1/comment/{id}:
+    delete:
+      parameters:
+      - description: 评论id
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: token
+        in: header
+        name: token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: 删除评论
+  /api/v1/comment/{id}/like:
+    post:
+      parameters:
+      - description: 评论id
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 用户id
+        in: formData
+        name: user_id
+        required: true
+        type: integer
+      - description: 操作类型
+        in: formData
+        name: type
+        required: true
+        type: integer
+      - description: token
+        in: header
+        name: token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: 点赞评论
+  /api/v1/comments/{article_id}:
+    get:
+      parameters:
+      - description: 文章id
+        in: path
+        name: article_id
+        required: true
+        type: integer
+      - description: 用户id
+        in: query
+        name: user_id
+        type: integer
+      - description: page_num
+        in: query
+        name: page_num
+        type: integer
+      - description: page_size
+        in: query
+        name: page_size
+        type: integer
+      produces:
+      - application/json
+      responses: {}
+      summary: 获取评论
+  /api/v1/msg/{id}/chat:
+    get:
+      parameters:
+      - description: 发送用户ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: token
+        in: header
+        name: token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: 私信
+  /api/v1/msg/history:
+    get:
+      parameters:
+      - description: 发送用户ID
+        in: query
+        name: from_uid
+        required: true
+        type: integer
+      - description: 接收用户ID
+        in: query
+        name: to_uid
+        required: true
+        type: integer
+      - description: offset
+        in: query
+        name: offset
+        type: integer
+      - description: limit
+        in: query
+        name: limit
+        type: integer
+      - description: token
+        in: header
+        name: token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: 历史消息
+  /api/v1/msg/read:
+    post:
+      parameters:
+      - description: 用户ID
+        in: formData
+        name: uid
+        required: true
+        type: integer
+      - description: 会话ID
+        in: formData
+        name: session_id
+        required: true
+        type: integer
+      - description: token
+        in: header
+        name: token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: 已读消息
+  /api/v1/msg/session:
+    get:
+      parameters:
+      - description: 用户ID
+        in: query
+        name: uid
+        required: true
+        type: integer
+      - description: page_num
+        in: query
+        name: page_num
+        type: integer
+      - description: page_size
+        in: query
+        name: page_size
+        type: integer
+      - description: token
+        in: header
+        name: token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: 消息会话列表
+  /api/v1/search/tag:
+    get:
+      parameters:
+      - description: tag_name
+        in: query
+        name: tag_name
+        required: true
+        type: string
+      - description: page_size
+        in: query
+        name: page_size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/gin_http.ResponseJSON'
+      summary: 标签补全
+  /api/v1/search/user:
+    get:
+      parameters:
+      - description: 用户名
+        in: query
+        name: name
+        required: true
+        type: string
+      - description: page_num
+        in: query
+        name: page_num
+        type: integer
+      - description: page_size
+        in: query
+        name: page_size
+        type: integer
+      produces:
+      - application/json
+      responses: {}
+      summary: 搜索用户
+  /api/v1/tag:
+    get:
+      parameters:
+      - description: tag_name
+        in: query
+        name: tag_name
+        required: true
+        type: string
+      - description: user_id
+        in: query
+        name: uid
+        type: integer
+      - description: page_num
+        in: query
+        name: page_num
+        type: integer
+      - description: page_size
+        in: query
+        name: page_size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/gin_http.ResponseJSON'
+      summary: 获取该标签的所有文章
+  /api/v1/tag/{id}:
+    delete:
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: token
+        in: header
+        name: token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/gin_http.ResponseJSON'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/gin_http.ResponseJSON'
+        "10008":
+          description: ""
+          schema:
+            $ref: '#/definitions/gin_http.ResponseJSON'
+      summary: 删除标签
+  /api/v1/tag/{id}/clear:
+    delete:
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: token
+        in: header
+        name: token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: 清理标签(硬删除)
+  /api/v1/tag/{id}/recover:
+    put:
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: token
+        in: header
+        name: token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: 恢复标签
+  /api/v1/tags:
+    get:
+      parameters:
+      - description: page_num
+        in: query
+        name: page_num
+        type: integer
+      - description: page_size
+        in: query
+        name: page_size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/gin_http.ResponseJSON'
+      summary: 获取标签列表
+  /api/v1/upload/image:
+    post:
+      consumes:
+      - multipart/form-data
+      parameters:
+      - description: image
+        in: formData
+        name: image
+        required: true
+        type: file
+      - description: token
+        in: header
+        name: token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: 上传图片
+      tags:
+      - file
+  /api/v1/upload/video:
+    post:
+      consumes:
+      - multipart/form-data
+      parameters:
+      - description: video
+        in: formData
+        name: video
+        required: true
+        type: file
+      - description: token
+        in: header
+        name: token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: 上传视频
+      tags:
+      - file
+  /api/v1/user/{id}:
+    get:
+      parameters:
+      - description: 用户ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses: {}
+      summary: 获取用户信息
+  /api/v1/user/{id}/articles:
+    get:
+      parameters:
+      - description: 用户ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: page_num
+        in: query
+        name: page_num
+        type: integer
+      - description: page_size
+        in: query
+        name: page_size
+        type: integer
+      produces:
+      - application/json
+      responses: {}
+      summary: 用户动态列表
+  /api/v1/user/{id}/avatar:
+    put:
+      parameters:
+      - description: 用户ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: image
+        in: formData
+        name: image
+        required: true
+        type: file
+      - description: token
+        in: header
+        name: token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: 更新用户头像
+  /api/v1/user/{id}/fans:
+    get:
+      parameters:
+      - description: 用户ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: token
+        in: header
+        name: token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: 粉丝列表
+  /api/v1/user/{id}/follow:
+    post:
+      parameters:
+      - description: 用户ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 关注用户ID
+        in: formData
+        name: follow_id
+        required: true
+        type: integer
+      - description: 类型
+        in: formData
+        name: type
+        required: true
+        type: integer
+      - description: token
+        in: header
+        name: token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: 关注用户
+  /api/v1/user/{id}/follows:
+    get:
+      parameters:
+      - description: 用户ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: page_num
+        in: query
+        name: page_num
+        type: integer
+      - description: page_size
+        in: query
+        name: page_size
+        type: integer
+      - description: token
+        in: header
+        name: token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: 关注列表
+  /api/v1/user/{id}/likeArticles:
+    get:
+      parameters:
+      - description: 用户ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: token
+        in: header
+        name: token
+        required: true
+        type: string
+      - description: page_num
+        in: query
+        name: page_num
+        type: integer
+      - description: page_size
+        in: query
+        name: page_size
+        type: integer
+      produces:
+      - application/json
+      responses: {}
+      summary: 用户喜欢列表
+  /user/{id}:
+    delete:
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: token
+        in: header
+        name: token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/gin_http.ResponseJSON'
+      summary: 注销用户
+  /user/{id}/password:
+    put:
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: password
+        in: formData
+        name: password
+        required: true
+        type: string
+      - description: token
+        in: header
+        name: token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/gin_http.ResponseJSON'
+      summary: 修改用户密码
+  /user/{id}/refreshToken:
+    post:
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: uuid
+        in: formData
+        name: uuid
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/gin_http.ResponseJSON'
+      summary: 更新Token
+  /user/{id}/state:
+    put:
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: state
+        in: query
+        name: state
+        required: true
+        type: integer
+      - description: token
+        in: header
+        name: token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/gin_http.ResponseJSON'
+      summary: 更新用户
+  /user/login:
+    post:
+      parameters:
+      - description: username
+        in: formData
+        name: username
+        required: true
+        type: string
+      - description: password
+        in: formData
+        name: password
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/gin_http.ResponseJSON'
+        "20005":
+          description: ""
+          schema:
+            $ref: '#/definitions/gin_http.ResponseJSON'
+      summary: 用户登录
+  /user/register:
+    post:
+      parameters:
+      - description: username
+        in: formData
+        name: username
+        required: true
+        type: string
+      - description: password
+        in: formData
+        name: password
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/gin_http.ResponseJSON'
+      summary: 用户注册
+  /users:
+    get:
+      parameters:
+      - description: token
+        in: header
+        name: token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/gin_http.ResponseJSON'
+      summary: 用户列表
+swagger: "2.0"
