@@ -5,17 +5,18 @@ import (
 	"os"
 	"strconv"
 	"sync"
-
+	"fmt"
 	"github.com/gin-gonic/gin"
 
 	"qiu/backend/pkg/e"
 	gin_http "qiu/backend/pkg/http"
 	log "qiu/backend/pkg/logging"
-	"qiu/backend/pkg/minio"
+	// "qiu/backend/pkg/minio"
 	"qiu/backend/pkg/setting"
 	"qiu/backend/pkg/upload"
 	service "qiu/backend/service/article"
 	param "qiu/backend/service/param"
+	ffmpeg "github.com/u2takey/ffmpeg-go"
 )
 
 // @Summary 获取文章列表
@@ -116,12 +117,27 @@ func AddArticle(c *gin.Context) {
 		go func() {
 			defer os.Remove(tempSavePath)
 			defer wg.Done()
-			if err = minio.PutVideoAndPreview(tempSavePath, fileName); err != nil {
+			s1 := ffmpeg.Input(tempSavePath, nil)
+			err := s1.Output("/data/video/"+fileName+".m3u8", ffmpeg.KwArgs{"c": "copy", "f": "hls", "hls_list_size": "0", "hls_time": "10"}).Run()
+			if err != nil {
 				log.Logger.Error("保存视频失败", err)
 				gin_http.Response(c, http.StatusInternalServerError, e.ERROR_UPLOAD_SAVE_IMAGE_FAIL, nil)
-				// os.Remove(tempSavePath)
 				return
 			}
+			err = s1.Filter("select", ffmpeg.Args{fmt.Sprintf("gte(n,%d)", 5)}).
+				Output("/data/preview/"+fileName+".jpg", ffmpeg.KwArgs{"vframes": 1, "format": "image2", "vcodec": "mjpeg"}).
+				Run()
+			if err != nil {
+				log.Logger.Error("保存视频失败", err)
+				gin_http.Response(c, http.StatusInternalServerError, e.ERROR_UPLOAD_SAVE_IMAGE_FAIL, nil)
+				return
+			}
+			// if err = minio.PutVideoAndPreview(tempSavePath, fileName); err != nil {
+			// 	log.Logger.Error("保存视频失败", err)
+			// 	gin_http.Response(c, http.StatusInternalServerError, e.ERROR_UPLOAD_SAVE_IMAGE_FAIL, nil)
+			// 	// os.Remove(tempSavePath)
+			// 	return
+			// }
 			params.VideoUrl = videoSrc
 			params.PreviewUrl = preiviewSrc
 			log.Logger.Info("保存上传视频", videoSrc)
@@ -151,16 +167,18 @@ func AddArticle(c *gin.Context) {
 				gin_http.Response(c, http.StatusBadRequest, e.ERROR_UPLOAD_CHECK_IMAGE_FORMAT, nil)
 				return
 			}
-			if err = minio.PutImage(setting.MinioSetting.ImageBucketName, imageName, file); err != nil {
-				log.Logger.Error("保存图片失败", err)
-				gin_http.Response(c, http.StatusInternalServerError, e.ERROR_UPLOAD_SAVE_IMAGE_FAIL, nil)
-				return
-			}
-			// if err = c.SaveUploadedFile(file, "."+savePath); err != nil {
-			// 	log.Logger.Error("保存文件失败", err)
+			// if err = minio.PutImage(setting.MinioSetting.ImageBucketName, imageName, file); err != nil {
+			// 	log.Logger.Error("保存图片失败", err)
 			// 	gin_http.Response(c, http.StatusInternalServerError, e.ERROR_UPLOAD_SAVE_IMAGE_FAIL, nil)
 			// 	return
 			// }
+
+			//Minio挂载本地
+			if err = c.SaveUploadedFile(file, "/data/img/"+imageName); err != nil {
+				log.Logger.Error("保存文件失败", err)
+				gin_http.Response(c, http.StatusInternalServerError, e.ERROR_UPLOAD_SAVE_IMAGE_FAIL, nil)
+				return
+			}
 
 			params.ImgUrl = append(params.ImgUrl, imageName)
 		}

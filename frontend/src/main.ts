@@ -42,11 +42,22 @@ import "moment/dist/locale/zh-cn";
 import V3waterfall from "v3-waterfall";
 import "v3-waterfall/style.css";
 moment.locale("zh-cn");
-
+//视频播放器
+import vue3videoPlay from "vue3-video-play"; // 引入组件
+import "vue3-video-play/dist/style.css"; // 引入css
 const app = createApp(App);
 // 注册element Icons组件
 Object.keys(Icons).forEach(key => {
 	app.component(key, Icons[key as keyof typeof Icons]);
 });
 
-app.use(router).use(I18n).use(pinia).use(directives).use(ElementPlus).use(VueDOMPurifyHTML).use(V3waterfall).mount("#app");
+app
+	.use(router)
+	.use(I18n)
+	.use(pinia)
+	.use(directives)
+	.use(ElementPlus)
+	.use(VueDOMPurifyHTML)
+	.use(V3waterfall)
+	.use(vue3videoPlay)
+	.mount("#app");
