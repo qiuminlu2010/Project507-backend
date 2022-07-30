@@ -192,7 +192,7 @@ func AddArticle(article Article, tags []Tag) error {
 }
 
 // AddArticle add a single article
-func AddArticleWithImg(article Article, tags []*Tag, imgs []*Image, video *Video) (uint, error) {
+func AddArticleWithImg(article Article, tags []*Tag, imgs []*Image) (uint, error) {
 	tx := db.Begin()
 	defer func() {
 		if r := recover(); r != nil {
@@ -213,22 +213,22 @@ func AddArticleWithImg(article Article, tags []*Tag, imgs []*Image, video *Video
 		tx.Rollback()
 		return 0, err
 	}
-	if video != nil {
-		video.ArticleID = article.ID
-		if err := tx.Create(&video).Error; err != nil {
-			tx.Rollback()
-			return 0, err
-		}
-		// if err := tx.Model(&article).Association("Video").Append(video); err != nil {
-		// 	tx.Rollback()
-		// 	return 0, err
-		// }
-	} else {
-		if err := tx.Model(&article).Association("Images").Append(imgs); err != nil {
-			tx.Rollback()
-			return 0, err
-		}
+	// if video != nil {
+	// video.ArticleID = article.ID
+	// if err := tx.Create(&video).Error; err != nil {
+	// tx.Rollback()
+	// return 0, err
+	// }
+	// if err := tx.Model(&article).Association("Video").Append(video); err != nil {
+	// 	tx.Rollback()
+	// 	return 0, err
+	// }
+	// } else {
+	if err := tx.Model(&article).Association("Images").Append(imgs); err != nil {
+		tx.Rollback()
+		return 0, err
 	}
+	// }
 
 	return article.ID, tx.Commit().Error
 }

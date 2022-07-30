@@ -295,9 +295,7 @@ func UpdateAvatar(c *gin.Context) {
 	}
 
 	imageName := upload.GetImageName(image.Filename)
-	savePath := upload.GetAvatarSavePath()
-
-	src := savePath + imageName
+	src := upload.GetAvatarSavePath() + "/" + imageName
 	if !upload.CheckImageExt(imageName) || !upload.CheckImageSize(image) {
 		gin_http.Response(c, http.StatusBadRequest, e.ERROR_UPLOAD_CHECK_IMAGE_FORMAT, nil)
 		return

@@ -6,11 +6,11 @@ import (
 	"qiu/backend/model"
 	"qiu/backend/pkg/e"
 	"qiu/backend/pkg/redis"
-	"qiu/backend/pkg/upload"
 	"qiu/backend/pkg/util"
 	base "qiu/backend/service/base"
 	cache "qiu/backend/service/cache"
 
+	"qiu/backend/pkg/setting"
 	msg "qiu/backend/service/msg"
 	param "qiu/backend/service/param"
 	user "qiu/backend/service/user"
@@ -45,43 +45,62 @@ func (s *ArticleService) Add(params *param.ArticleAddParams) error {
 	var articleId uint
 	var err error
 	var imgs []*model.Image
-	var video *model.Video
+	// var video *model.Video
+	article := model.Article{
+		OwnerID: params.UserID,
+		Content: params.Content,
+		Title:   params.Title,
+	}
 	if params.Type == 1 {
-		video = &model.Video{
-			VideoUrl: params.VideoUrl,
-		}
+		article.VideoUrl = params.VideoUrl
+		article.PreviewUrl = params.PreviewUrl
 		imgs = nil
 	} else {
 		for _, img_url := range params.ImgUrl {
-			imgs = append(imgs, &model.Image{Url: upload.GetImagePath() + img_url, ThumbUrl: upload.GetThumbPath() + img_url})
+			imgs = append(imgs, &model.Image{
+				Url:      "/" + setting.MinioSetting.ImageBucketName + "/" + img_url,
+				ThumbUrl: "/" + setting.MinioSetting.PreviewBucketName + "/" + img_url})
 		}
-		video = nil
 	}
-	articleId, err = model.AddArticleWithImg(
-		model.Article{
-			OwnerID: params.UserID,
-			Content: params.Content,
-			Title:   params.Title,
-		}, tags, imgs, video)
+	articleId, err = model.AddArticleWithImg(article, tags, imgs)
 
 	if err != nil {
 		return err
 	}
+
+	//图片直接更新缓存, 视频需要异步更新缓存
+	// if params.Type != 1 {
+	s.UpdateArticleCache(articleId, params.UserID)
+	// }
+
+	// duration := float64(time.Now().Unix())
+	// redis.ZAdd(e.CACHE_ARTICLES, duration, articleId)
+
+	// userKey := cache.GetModelFieldKey(e.CACHE_USER, params.UserID, e.CACHE_ARTICLES)
+	// // redis.Del(userKey)
+	// if redis.Exists(userKey) != 0 {
+	// 	redis.ZAdd(userKey, duration, articleId)
+	// }
+
+	// //推送用户动态
+	// go pushArticleMessage(params.UserID, articleId)
+	return nil
+}
+
+func (s *ArticleService) UpdateArticleCache(articleId uint, ownerId uint) {
 	//修改缓存
 	duration := float64(time.Now().Unix())
 	redis.ZAdd(e.CACHE_ARTICLES, duration, articleId)
 
-	userKey := cache.GetModelFieldKey(e.CACHE_USER, params.UserID, e.CACHE_ARTICLES)
+	userKey := cache.GetModelFieldKey(e.CACHE_USER, ownerId, e.CACHE_ARTICLES)
 	// redis.Del(userKey)
 	if redis.Exists(userKey) != 0 {
 		redis.ZAdd(userKey, duration, articleId)
 	}
 
 	//推送用户动态
-	go pushArticleMessage(params.UserID, articleId)
-	return nil
+	go pushArticleMessage(ownerId, articleId)
 }
-
 func (s *ArticleService) Delete(articleId int) error {
 	if err := model.DeleteArticle(uint(articleId)); err != nil {
 		return err
