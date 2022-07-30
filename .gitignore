@@ -8,6 +8,7 @@ pnpm-debug.log*
 lerna-debug.log*
 frontend/.husky
 frontend/node_modules
+frontend/package-lock.json
 frontend/.vscode
 dist
 dist-ssr
