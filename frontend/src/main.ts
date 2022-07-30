@@ -20,7 +20,7 @@ import "element-plus/theme-chalk/dark/css-vars.css";
 import "@/styles/element-dark.scss";
 // custom element css
 import "@/styles/element.scss";
-import "undraw-ui/dist/style.css";
+
 // custom directives
 import directives from "@/directives/index";
 // vue Router
