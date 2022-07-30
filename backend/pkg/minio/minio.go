@@ -1,13 +1,17 @@
 package minio
 
 import (
+	"bytes"
 	"context"
+	"fmt"
 	"mime/multipart"
+	"os"
 	log "qiu/backend/pkg/logging"
 	"qiu/backend/pkg/setting"
 
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
+	ffmpeg "github.com/u2takey/ffmpeg-go"
 )
 
 var Ctx context.Context
@@ -42,4 +46,51 @@ func PutImage(bucketName string, fileName string, mf *multipart.FileHeader) erro
 		log.Logger.Error(err)
 	}
 	return nil
+}
+
+func ReadFrameAndPutJpeg(inFileName string, outFileName string, frameNum int) {
+	buf := bytes.NewBuffer(nil)
+	err := ffmpeg.Input(inFileName).
+		Filter("select", ffmpeg.Args{fmt.Sprintf("gte(n,%d)", frameNum)}).
+		Output("pipe:", ffmpeg.KwArgs{"vframes": 1, "format": "image2", "vcodec": "mjpeg"}).
+		WithOutput(buf, os.Stdout).
+		Run()
+	if err != nil {
+		panic(err)
+	}
+	_, err = MinioClient.PutObject(context.Background(), "video", "preview/"+outFileName, buf, -1, minio.PutObjectOptions{ContentType: "application/image"})
+	if err != nil {
+		panic(err)
+	}
+}
+
+func PutVideoAndPreview(inputFilePath string, outFileName string) error {
+
+	buf := bytes.NewBuffer(nil)
+	img_buf := bytes.NewBuffer(nil)
+	s1 := ffmpeg.Input(inputFilePath, nil)
+
+	err := s1.Output("pipe:", ffmpeg.KwArgs{"format": "mpegts"}).WithOutput(buf, os.Stdout).Run()
+	if err != nil {
+		panic(err)
+	}
+	err = s1.Filter("select", ffmpeg.Args{fmt.Sprintf("gte(n,%d)", 5)}).
+		Output("pipe:", ffmpeg.KwArgs{"vframes": 1, "format": "image2", "vcodec": "mjpeg"}).
+		WithInput(buf).
+		WithOutput(img_buf, os.Stdout).
+		Run()
+	if err != nil {
+		panic(err)
+	}
+
+	_, err = MinioClient.PutObject(context.Background(), "video", outFileName+".ts", buf, -1, minio.PutObjectOptions{ContentType: "application/video"})
+	if err != nil {
+		panic(err)
+	}
+	_, err = MinioClient.PutObject(context.Background(), "preview", outFileName+".jpg", img_buf, -1, minio.PutObjectOptions{ContentType: "application/image"})
+	if err != nil {
+		panic(err)
+	}
+	return nil
+	// ReadFrameAsJpeg(buf, "test01.jpg", 1)
 }

@@ -37,7 +37,8 @@ type Article struct {
 	IsLike     bool    `json:"is_like" form:"is_like" binding:"-"`
 	Tags       []Tag   `gorm:"many2many:article_tags;" json:"tags"`
 	Images     []Image `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;foreignkey:ArticleID" json:"images"`
-	VideoID    uint    `json:"video_id"`
+	VideoUrl   string  `json:"video_url" form:"video_url"`
+	PreviewUrl string  `json:"preview_url" form:"preview_url"`
 	LikedUsers []User  `gorm:"many2many:article_like_users;" json:"-"`
 	//TODO: Comments   []Comment
 	// CreatedBy  string `json:"-" form:"created_by" binding:"-"`
@@ -58,6 +59,8 @@ type ArticleInfo struct {
 	IsLike        bool    `json:"is_like" form:"is_like" binding:"-"`
 	Images        []Image `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;foreignkey:ArticleID" json:"images"`
 	Tags          []Tag   `gorm:"many2many:article_tags;" json:"tags"`
+	VideoUrl      string  `json:"video_url" form:"video_url"`
+	PreviewUrl    string  `json:"preview_url" form:"preview_url"`
 }
 
 type ArticleCache struct {

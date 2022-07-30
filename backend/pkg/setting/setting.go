@@ -30,18 +30,24 @@ type App struct {
 var AppSetting = &App{}
 
 type Minio struct {
-	Host                  string
-	EndPoint              string
-	AccessKeyID           string
-	SecretAccessKey       string
-	AvatarSavePath        string
-	ImageSavePath         string
-	ImageTempSavePath     string
-	ThumbSavePath         string
-	VideoTempSavePath     string
-	VideoSavePath         string
-	VideoPreviewSavePath  string
-	VideoCompressSavePath string
+	Host              string
+	EndPoint          string
+	AccessKeyID       string
+	SecretAccessKey   string
+	ImageBucketName   string
+	VideoBucketName   string
+	PreviewBucketName string
+	TempBucketName    string
+	AvatarBucketName  string
+	// ThumbnailBucketName    string
+	// AvatarSavePath        string
+	// ImageSavePath         string
+	// ImageTempSavePath     string
+	// ThumbSavePath         string
+	// VideoTempSavePath     string
+	// VideoSavePath         string
+	// VideoPreviewSavePath  string
+	// VideoCompressSavePath string
 }
 
 var MinioSetting = &Minio{}

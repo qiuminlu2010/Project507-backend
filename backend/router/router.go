@@ -11,7 +11,7 @@ import (
 
 	_ "qiu/backend/docs"
 
-	"github.com/swaggo/gin-swagger"
+	ginSwagger "github.com/swaggo/gin-swagger"
 
 	swaggerFiles "github.com/swaggo/files"
 )
@@ -25,7 +25,7 @@ func InitRouter() *gin.Engine {
 	apiv1 := r.Group("/api/v1")
 
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
-	r.GET("/img/:imgType/:imgName", v1.DownloadImg)
+	// r.GET("/img/:imgType/:imgName", v1.DownloadImg)
 
 	//管理类
 	r.POST("/user/register", v1.Register)
@@ -95,6 +95,7 @@ func InitRouter() *gin.Engine {
 		// apiv1.POST("/msg/:id/chatroom", v1.ChatRoom)
 		//上传图片
 		apiv1.POST("/upload/image", v1.UploadImage)
+		apiv1.POST("/upload/video", v1.UploadVideo)
 	}
 	r.Use(middleware.JWT())
 	{
