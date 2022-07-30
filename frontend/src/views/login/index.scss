@@ -1,0 +1,259 @@
+/* stylelint-disable declaration-block-no-redundant-longhand-properties */
+.login-container {
+	height: 100%;
+	min-width: 550px;
+	min-height: 500px;
+
+	// background: linear-gradient(-200deg, #c8d4ee, #fac0e7);
+	background-color: #dae5e9;
+
+	// background-image: url("@/assets/images/login_bg.svg");
+	background-position: 50%;
+	background-size: 100% 100%;
+	background-size: cover;
+	.dark {
+		position: absolute;
+		top: 4.5%;
+		right: 3.2%;
+		z-index: 3;
+	}
+	.login-content {
+		width: 96%;
+		height: 94%;
+		overflow: hidden;
+		background-color: hsl(0deg 0% 100% / 70%);
+		border-radius: 10px;
+		box-sizing: border-box;
+		.box {
+			position: relative;
+			z-index: 1;
+			width: 100%;
+			height: 420px;
+
+			// background-color: #000000;
+			background-color: rgba(255 255 255 / 0%);
+			border-radius: 10px;
+			box-sizing: border-box;
+
+			// box-shadow: 3px rgb(0 0 0 / 20%);
+		}
+		.login-left {
+			width: 800px;
+			img {
+				width: 100%;
+				height: 100%;
+			}
+		}
+		.small-box.active {
+			left: 100%;
+			border-top-right-radius: inherit;
+			border-bottom-right-radius: inherit;
+			border-bottom-left-radius: 0;
+			border-top-left-radius: 0;
+			transform: translateX(-100%);
+			transition: all 1s;
+		}
+		.small-box {
+			position: absolute;
+			top: 0;
+			left: 0;
+			width: 35%;
+			height: 100%;
+
+			// background: linear-gradient(-220deg, #fac0e7 50%, #aac2ee 25%);
+
+			background-color: rgb(199 226 230 / 70%);
+			border-bottom-left-radius: inherit;
+			border-top-left-radius: inherit;
+			transform: translateX(0%);
+			transition: all 1s;
+			.small-contain {
+				display: flex;
+				flex-direction: column;
+				justify-content: center;
+				align-items: center;
+				width: 100%;
+				height: 100%;
+			}
+			.login-icon {
+				width: 80px;
+				height: 80px;
+				margin: 20px;
+			}
+			.sbutton {
+				width: 70%;
+				height: 40px;
+				margin: 10px;
+				font-size: 0.9em;
+				color: #34495e;
+				cursor: pointer;
+				background-color: transparent;
+				border: 1px solid #34495e;
+				border-radius: 24px;
+				outline: none;
+			}
+		}
+		.big-box.active {
+			left: 0;
+			transition: all 0.5s;
+		}
+		.big-box {
+			position: absolute;
+			top: 0;
+			left: 35%;
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
+			align-items: center;
+			width: 65%;
+			height: 100%;
+			border-radius: inherit;
+			transform: translateX(0%);
+			box-sizing: border-box;
+			transition: all 0.5s;
+			.login-img {
+				position: absolute;
+				top: -55px;
+				right: -75px;
+
+				// z-index: 3;
+			}
+			.register-box {
+				border-bottom-left-radius: inherit;
+				border-top-left-radius: inherit;
+			}
+			.login-box {
+				border-top-right-radius: inherit;
+				border-bottom-right-radius: inherit;
+			}
+			.login-form {
+				position: absolute;
+
+				// z-index: 2;
+				display: flex;
+				flex-direction: column;
+				justify-content: center;
+				width: 100%;
+				height: 100%;
+				padding: 30px;
+				background-color: rgba(255 255 255 / 98%);
+				box-sizing: border-box;
+				.login-logo {
+					display: flex;
+					justify-content: center;
+					align-items: center;
+					margin: 20px 0;
+					box-sizing: border-box;
+					.login-icon {
+						width: 60px;
+						height: 52px;
+					}
+					.logo-text {
+						font-size: 42px;
+						font-weight: bold;
+						color: #34495e;
+						white-space: nowrap;
+					}
+				}
+				.login-btn {
+					display: flex;
+					justify-content: space-between;
+					width: 100%;
+					white-space: nowrap;
+					.el-button {
+						width: 98%;
+					}
+				}
+			}
+		}
+	}
+}
+ul li {
+	position: absolute;
+	width: 30px;
+	height: 30px;
+	list-style: none;
+	opacity: 0;
+}
+.square li {
+	top: 40vh;
+	left: 60vw;
+	background-color: #aac2ee;
+	border: 1px solid #aac2ee;
+
+	/* 执行动画 */
+	animation: square 10s linear infinite;
+}
+.square li:nth-child(2) {
+	top: 80vh;
+	left: 10vw;
+
+	/* 设置动画延迟时间 */
+	animation-delay: 2s;
+}
+.square li:nth-child(3) {
+	top: 80vh;
+	left: 85vw;
+	animation-delay: 4s;
+}
+.square li:nth-child(4) {
+	top: 10vh;
+	left: 70vw;
+	animation-delay: 6s;
+}
+.square li:nth-child(5) {
+	top: 10vh;
+	left: 10vw;
+	animation-delay: 8s;
+}
+.circle li {
+	bottom: 0;
+	left: 15vw;
+	background-color: #fac0e7;
+	border: 1px solid #fac0e7;
+	animation: circle 10s linear infinite;
+}
+.circle li:nth-child(2) {
+	left: 35vw;
+
+	/* 设置动画延迟时间 */
+	animation-delay: 2s;
+}
+.circle li:nth-child(3) {
+	left: 55vw;
+	animation-delay: 4s;
+}
+.circle li:nth-child(4) {
+	left: 75vw;
+	animation-delay: 6s;
+}
+.circle li:nth-child(5) {
+	left: 90vw;
+	animation-delay: 8s;
+}
+
+@keyframes square {
+	0% {
+		opacity: 1;
+		transform: scale(0) rotateY(0deg);
+	}
+	100% {
+		opacity: 0;
+		transform: scale(5) rotateY(1000deg);
+	}
+}
+
+@keyframes circle {
+	0% {
+		bottom: 0;
+		border-radius: 0;
+		opacity: 1;
+		transform: scale(0) rotateY(0deg);
+	}
+	100% {
+		bottom: 90vh;
+		border-radius: 50%;
+		opacity: 0;
+		transform: scale(5) rotateY(1000deg);
+	}
+}

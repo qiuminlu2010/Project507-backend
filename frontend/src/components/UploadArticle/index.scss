@@ -1,0 +1,26 @@
+/* stylelint-disable selector-pseudo-element-no-unknown */
+:deep(.el-dialog__header) {
+	border-bottom: 0;
+}
+.tag {
+	height: 24px;
+	margin-right: 0.25rem;
+	margin-left: 0.25rem;
+	font-size: 12px;
+}
+.btn-tag-input {
+	margin-left: 0.25rem;
+	font-size: 12px;
+}
+.tag-input {
+	width: 58px;
+	margin-left: 0.25rem;
+}
+.upload-picture {
+	width: 100%;
+	object-fit: contain;
+}
+
+// :deep(.el-dialog__header) {
+// 	border-bottom: 0;
+// }
