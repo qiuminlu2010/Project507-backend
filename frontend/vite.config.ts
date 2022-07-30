@@ -24,7 +24,7 @@ export default defineConfig((mode: ConfigEnv): UserConfig => {
 	return {
 		resolve: {
 			alias: {
-				"@": resolve(__dirname, "./src"),
+				"@": resolve("./src"),
 				"vue-i18n": "vue-i18n/dist/vue-i18n.cjs.js"
 			}
 		},
