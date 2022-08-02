@@ -1,6 +1,6 @@
-# Vue 3.2 + TypeScript + Pinia + Vite2 + Element-Plus 网站
+# Vue 3.2 + TypeScript + Pinia + Vite2 + Element-Plus
 
-## 安装使用步骤
+## 本地安装使用步骤
 
 - **Clone：**
 
@@ -63,6 +63,9 @@ lint:stylelint
 npm run commit
 ```
 
+## 服务器部署
+
+Prepare
 ## 项目截图
 
 Prepare

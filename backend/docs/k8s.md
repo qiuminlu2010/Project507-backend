@@ -143,7 +143,7 @@ kubectl rollout status deployment/nginx-deployment
 ```
 ### 移除污点
 ```
- kubectl taint nodes --all node-role.kubernetes.io/master-
+kubectl taint nodes --all node-role.kubernetes.io/master-
 kubectl taint nodes --all node.kubernetes.io/disk-pressure- 
 kubectl describe nodes k8s-master |grep Taints
 kubectl taint node k8s-master node.kubernetes.io/disk-pressure:NoSchedule-
@@ -241,4 +241,15 @@ docker container run \
 $ docker run -d --privileged=true --rm --name mysql_wordpress -p 3310:3306 -v /data/mysql:/var/lib/mysql -e MYSQL_DATABASE=wordpress -e MYSQL_ROOT_PASSWORD=123456  mysql:5.7
 $ docker run -d --name wordpress --rm -e WORDPRESS_DB_HOST=172.20.127.220:3310 -e WORDPRESS_DB_USER=root -e WORDPRESS_DB_PASSWORD=123456 -p 8081:80 --link mysql_wordpress:mysql wordpress
 
+```
+
+### 导出service
+```
+kubectl get service serviceName -o yaml > backup.yaml
+```
+
+### 测试pod分布
+```
+kubectl run mysql-client-loop --image=mysql:5.7 -i -t --rm --restart=Never --\
+  bash -ic "while sleep 1; do mysql -h mysql -e 'SELECT @@server_id,NOW()'; done"
 ```

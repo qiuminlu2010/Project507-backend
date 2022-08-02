@@ -1,103 +1,245 @@
-## 拉取mysql镜像
-```shell
-docker pull mysql
+## 创建命名空间
+```yaml
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: mysql
+  labels:
+    app: mysql
 ```
-
-## 主库的配置文件
-```shell 
-vim /usr/local/mysql/master/conf/my.cnf
+## 配置ConfigMap
+ 这个 ConfigMap 提供 my.cnf 覆盖设置，可以独立控制 MySQL 主库和从库的配置。这里，我们配置主库能够将复制日志提供给从库，并且从库拒绝任何不是通过复制进行的写操作。
+```yaml 
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mysql
+  namespace: mysql
+  labels:
+    app: mysql
+data:
+  master.cnf: |
+    # Master配置
+    [mysql]
+    default-character-set=utf8mb4
+    [mysqld]
+    log-bin
+    skip-name-resolve
+    character-set-server=utf8mb4
+	expire-logs-days = 7
+    [client]
+    default-character-set=utf8mb4
+  slave.cnf: |
+    # Slave配置
+    [mysql]
+    default-character-set=utf8mb4
+    [mysqld]
+    super-read-only
+    skip-name-resolve
+    log-bin=mysql-bin
+    replicate-ignore-db=mysql    
+    character-set-server=utf8mb4
+    [client]
+    default-character-set=utf8mb4
 ```
-```bash
-[mysqld]
+## 配置Service
+>主库服务为 Headless 服务，这个服务给 StatefulSet 控制器为集合中每个 Pod 创建的 DNS 条目提供了一个主页。因为 Headless 服务名为mysql，所以在同一集群相同命名空间中的任何 Pod 中通过解析 <Pod 名称>.mysql（例如：mysql-0.mysql）来访问数据库。如果是同一集群不同命名空间，通过解析 <Pod 名称>.<Service 名称>.<Namespace 名称>（例如：mysql-0.mysql.mysql）来访问。
 
-#[必须]服务器唯一ID，默认是1
-server-id=1
-
-#打开Mysql日志，日志格式为二进制
-log-bin=/var/lib/mysql/binlog
-
-#每次执行写入就与硬盘同步
-sync-binlog=1
-
-#关闭名称解析
-skip-name-resolve
-
-#只保留7天的二进制日志，以防磁盘被日志占满
-expire-logs-days = 7
-
-#需要同步的二进制数据库名
-binlog-do-db=blog
-
-#不备份的数据库
-binlog-ignore-db=information_schema
-binlog-ignore-db=performation_schema
-binlog-ignore-db=sys
-binlog-ignore-db=mysql
+>客户端服务称为 mysql-read，是一种常规服务，具有其自己的集群 IP。该集群 IP 在就绪的所有 MySQL Pod 之间分配连接，可能的端点集合包括 MySQL 主节点和所有副本节点。
+ 
+>请注意，只有读查询才能使用负载平衡的客户端服务。因为只有一个 MySQL 主服务器，所以客户端应直接连接到 MySQL 主服务器 Pod （通过其在 Headless 服务中的 DNS 条目）以执行写入操作。
+```yaml 
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql
+  namespace: mysql
+  labels:
+    app: mysql
+spec:
+  ports:
+  - name: mysql
+    port: 3306
+  clusterIP: None
+  selector:
+    app: mysql
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql-read
+  namespace: mysql
+  labels:
+    app: mysql
+spec:
+  ports:
+  - name: mysql
+    port: 3306
+  selector:
+    app: mysql
 ```
+## 配置StatefulSet
+>使用 xtrabackup 这个 sidecar 容器进行SQL初始化和数据传输功能
+```yaml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mysql
+spec:
+  selector:
+    matchLabels:
+      app: mysql
+  serviceName: mysql
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: mysql
+    spec:
+      initContainers:
+      - name: init-mysql
+        image: mysql:5.7
+        command:
+        - bash
+        - "-c"
+        - |
+          set -ex
+          # Generate mysql server-id from pod ordinal index.
+          [[ `hostname` =~ -([0-9]+)$ ]] || exit 1
+          ordinal=${BASH_REMATCH[1]}
+          echo [mysqld] > /mnt/conf.d/server-id.cnf
+          # Add an offset to avoid reserved server-id=0 value.
+          echo server-id=$((100 + $ordinal)) >> /mnt/conf.d/server-id.cnf
+          # Copy appropriate conf.d files from config-map to emptyDir.
+          if [[ $ordinal -eq 0 ]]; then
+            cp /mnt/config-map/master.cnf /mnt/conf.d/
+          else
+            cp /mnt/config-map/slave.cnf /mnt/conf.d/
+          fi
+        volumeMounts:
+        - name: conf
+          mountPath: /mnt/conf.d
+        - name: config-map
+          mountPath: /mnt/config-map
+      - name: clone-mysql
+        image: ist0ne/xtrabackup:1.0
+        command:
+        - bash
+        - "-c"
+        - |
+          set -ex
+          # Skip the clone if data already exists.
+          [[ -d /var/lib/mysql/mysql ]] && exit 0
+          # Skip the clone on primary (ordinal index 0).
+          [[ `hostname` =~ -([0-9]+)$ ]] || exit 1
+          ordinal=${BASH_REMATCH[1]}
+          [[ $ordinal -eq 0 ]] && exit 0
+          # Clone data from previous peer.
+          ncat --recv-only mysql-$(($ordinal-1)).mysql 3307 | xbstream -x -C /var/lib/mysql
+          # Prepare the backup.
+          xtrabackup --prepare --target-dir=/var/lib/mysql
+        volumeMounts:
+        - name: data
+          mountPath: /var/lib/mysql
+          subPath: mysql
+        - name: conf
+          mountPath: /etc/mysql/conf.d
+      containers:
+      - name: mysql
+        image: mysql:5.7
+        env:
+        - name: MYSQL_ALLOW_EMPTY_PASSWORD
+          value: "1"
+        - name: LANG
+          value: "C.UTF-8"
+        ports:
+        - name: mysql
+          containerPort: 3306
+        volumeMounts:
+        - name: data
+          mountPath: /var/lib/mysql
+          subPath: mysql
+        - name: conf
+          mountPath: /etc/mysql/conf.d
+        livenessProbe:
+          exec:
+            command: ["mysqladmin", "ping"]
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+        readinessProbe:
+          exec:
+            # Check we can execute queries over TCP (skip-networking is off).
+            command: ["mysql", "-h", "127.0.0.1", "-e", "SELECT 1"]
+          initialDelaySeconds: 5
+          periodSeconds: 2
+          timeoutSeconds: 1
+      - name: xtrabackup
+        image: ist0ne/xtrabackup:1.0
+        ports:
+        - name: xtrabackup
+          containerPort: 3307
+        command:
+        - bash
+        - "-c"
+        - |
+          set -ex
+          cd /var/lib/mysql
 
-## 从库的配置文件
-```shell 
-vim /usr/local/mysql/master/conf/my.cnf
-```
-```bash
-[mysqld]
-#配置server-id，让从服务器有唯一ID号
-server-id=2
+          # Determine binlog position of cloned data, if any.
+          if [[ -f xtrabackup_slave_info && "x$(<xtrabackup_slave_info)" != "x" ]]; then
+            # XtraBackup already generated a partial "CHANGE MASTER TO" query
+            # because we're cloning from an existing replica. (Need to remove the tailing semicolon!)
+            cat xtrabackup_slave_info | sed -E 's/;$//g' > change_master_to.sql.in
+            # Ignore xtrabackup_binlog_info in this case (it's useless).
+            rm -f xtrabackup_slave_info xtrabackup_binlog_info
+          elif [[ -f xtrabackup_binlog_info ]]; then
+            # We're cloning directly from primary. Parse binlog position.
+            [[ `cat xtrabackup_binlog_info` =~ ^(.*?)[[:space:]]+(.*?)$ ]] || exit 1
+            rm -f xtrabackup_binlog_info xtrabackup_slave_info
+            echo "CHANGE MASTER TO MASTER_LOG_FILE='${BASH_REMATCH[1]}',\
+                  MASTER_LOG_POS=${BASH_REMATCH[2]}" > change_master_to.sql.in
+          fi
 
-#开启从服务器二进制日志
-log-bin=/var/lib/mysql/binlog
+          # Check if we need to complete a clone by starting replication.
+          if [[ -f change_master_to.sql.in ]]; then
+            echo "Waiting for mysqld to be ready (accepting connections)"
+            until mysql -h 127.0.0.1 -e "SELECT 1"; do sleep 1; done
 
-#打开mysql中继日志，日志格式为二进制
-relay_log=/var/lib/mysql/mysql-relay-bin
+            echo "Initializing replication from clone position"
+            mysql -h 127.0.0.1 \
+                  -e "$(<change_master_to.sql.in), \
+                          MASTER_HOST='mysql-0.mysql', \
+                          MASTER_USER='root', \
+                          MASTER_PASSWORD='', \
+                          MASTER_CONNECT_RETRY=10; \
+                        START SLAVE;" || exit 1
+            # In case of container restart, attempt this at-most-once.
+            mv change_master_to.sql.in change_master_to.sql.orig
+          fi
 
-#设置只读权限
-read_only=1
-
-#使得更新的数据写进二进制日志中
-log_slave_updates=1
-
-#如果salve库名称与master库名相同，使用本配置
-replicate-do-db=blog
-```
-
-## 启动主库master的容器
-```shell
-docker run -d \
--p 3307:3306 \
---name mysql_master \
--v /usr/local/mysql/master/conf:/etc/mysql/conf.d \
--v /usr/local/mysql/master/logs:/logs \
--v /usr/local/mysql/master/data:/var/lib/mysql \
--e MYSQL_ROOT_PASSWORD=password \
-mysql \
---character-set-server=utf8mb4 \
---collation-server=utf8mb4_general_ci 
-```
-
-## 启动从库slave1的容器
-```shell
-docker run -d \
--p 3308:3306 \
---name mysql_slave1 \
--v /usr/local/mysql/slave/conf:/etc/mysql/conf.d \
--v /usr/local/mysql/slave/logs:/logs \
--v /usr/local/mysql/slave/data:/var/lib/mysql \
--e MYSQL_ROOT_PASSWORD=password \
-mysql \
---character-set-server=utf8mb4 \
---collation-server=utf8mb4_general_ci  
-```
-
-## 查看主库的binlog信息
-```bash 
-#记录下File字段和Pos字段
-show master status;
-```
-## 开启主从复制
-```bash 
-docker exec -it mysql_slave1 bash 
-mysql -u root -p 
-# source_log_file对应上面File字段，source_log_pos对应上面的Pos字段
-change replication source to source_host='192.168.198.132', source_user='root', source_password='password', source_port=3307, source_log_file='xxxxx', source_log_pos=xxx, source_connect_retry=30;
-start replica;
+          # Start a server to send backups when requested by peers.
+          exec ncat --listen --keep-open --send-only --max-conns=1 3307 -c \
+            "xtrabackup --backup --slave-info --stream=xbstream --host=127.0.0.1 --user=root"
+        volumeMounts:
+        - name: data
+          mountPath: /var/lib/mysql
+          subPath: mysql
+        - name: conf
+          mountPath: /etc/mysql/conf.d
+      volumes:
+      - name: conf
+        emptyDir: {}
+      - name: config-map
+        configMap:
+          name: mysql
+  volumeClaimTemplates:
+  - metadata:
+      name: data
+    spec:
+      accessModes: ["ReadWriteOnce"]
+      storageClassName: "longhorn"
+      resources:
+        requests:
+          storage: 5Gi
 ```

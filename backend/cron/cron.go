@@ -4,7 +4,7 @@ import (
 	"sync"
 
 	log "qiu/backend/pkg/logging"
-	service "qiu/backend/service/cache"
+	// service "qiu/backend/service/cache"
 
 	"github.com/robfig/cron/v3"
 )
@@ -15,12 +15,12 @@ func Setup() {
 	_timer = NewTimerTask()
 	_timer.AddTaskByFunc("clearLogs", "0 0 0 * * *", ClearLoggingFile)
 	//开启任务
-	if err := service.FlushArticleLikeUsers(); err != nil {
-		panic(err)
-	}
-	if err := service.FlushUserFollows(); err != nil {
-		panic(err)
-	}
+	// if err := service.FlushArticleLikeUsers(); err != nil {
+	// 	panic(err)
+	// }
+	// if err := service.FlushUserFollows(); err != nil {
+	// 	panic(err)
+	// }
 }
 
 func Exit() {
