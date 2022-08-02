@@ -1,6 +1,6 @@
 import { Article } from "@/api/interface";
 import { getArticleListApi, addArticleLike } from "@/api/modules/article";
-import { getCommentLike, getArticleCommentApi } from "@/api/modules/comment";
+import { getCommentLike } from "@/api/modules/comment";
 import { GlobalStore } from "@/store";
 // import axios from "axios";
 import { CommentCard, ViewCard } from "./interface";
@@ -60,35 +60,35 @@ export async function getArtileList(offset: number, limit = 1) {
 	return list;
 }
 
-export async function getCommentList(id: number) {
-	// const end = start + pageSize;
-	let params = {
-		article_id: id,
-		user_id: globalStore.uid
-	};
-	const res = await getArticleCommentApi(params);
-	console.log("res", res);
-	console.log("id", id);
-	if (res.data?.datalist.length == 0) {
-		return null;
-	} else {
-		const list: CommentCard[] = [
-			{
-				ID: res.data!.datalist[0].ID,
-				created_on: res.data!.datalist[0].created_on,
-				user_id: res.data!.datalist[0].user_id,
-				// article_id: res.data!.datalist[0].article_id,
-				article_id: id,
-				reply_id: res.data!.datalist[0]!.reply_id,
-				username: res.data!.datalist[0].username,
-				avatar: res.data!.datalist[0].avatar,
-				content: res.data!.datalist[0].content,
-				replies: res.data!.datalist[0].replies
-			}
-		];
-		return list;
-	}
-}
+// export async function getCommentList(id: number) {
+// 	// const end = start + pageSize;
+// 	let params = {
+// 		article_id: id,
+// 		user_id: globalStore.uid
+// 	};
+// 	const res = await getArticleCommentApi(params);
+// 	console.log("res", res);
+// 	console.log("id", id);
+// 	if (res.data?.datalist.length == 0) {
+// 		return null;
+// 	} else {
+// 		const list: CommentCard[] = [
+// 			{
+// 				ID: res.data!.datalist[0].ID,
+// 				created_on: res.data!.datalist[0].created_on,
+// 				user_id: res.data!.datalist[0].user_id,
+// 				// article_id: res.data!.datalist[0].article_id,
+// 				article_id: id,
+// 				reply_id: res.data!.datalist[0]!.reply_id,
+// 				username: res.data!.datalist[0].username,
+// 				avatar: res.data!.datalist[0].avatar,
+// 				content: res.data!.datalist[0].content,
+// 				replies: res.data!.datalist[0].replies
+// 			}
+// 		];
+// 		return list;
+// 	}
+// }
 
 export function handleStar(item: ViewCard) {
 	if (item.star) {

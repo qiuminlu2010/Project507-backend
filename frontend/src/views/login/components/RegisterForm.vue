@@ -38,7 +38,7 @@
 					<el-icon class="el-input__icon"><clock /></el-icon>
 				</template>
 				<template #append>
-					<el-button type="primary" @click="sendCode(loginFormRef)">
+					<el-button type="primary" @click="sendCode">
 						{{ codeText }}
 					</el-button>
 				</template>
@@ -58,7 +58,7 @@ import { ref, reactive, inject, computed } from "vue";
 import { Login } from "@/api/interface";
 import { InjectProps } from "../interface/index";
 import { UserFilled } from "@element-plus/icons-vue";
-import { ElForm, ElNotification } from "element-plus";
+import { ElForm } from "element-plus";
 import { ElMessage } from "element-plus";
 import { signupApi } from "@/api/modules/login";
 import { validatorPassword, validatorUsername } from "../utils";
@@ -160,29 +160,30 @@ const codeText = computed(() => {
 });
 
 // 获取验证码
-function sendCode(formEl: InstanceType<typeof ElForm> | undefined) {
-	if (!formEl || codeDatas.num !== 60) return;
-	formEl.validateField("email", bool => {
-		if (bool) {
-			codeDatas.num--;
-			codeDatas.timer = setInterval(() => {
-				if (codeDatas.num < 1) {
-					if (codeDatas.timer != null) {
-						clearInterval(codeDatas.timer);
-						codeDatas.timer = null;
-					}
-					codeDatas.num = 60;
-				} else {
-					codeDatas.num--;
-				}
-			}, 1000);
-			ElNotification.success("发送验证码成功");
-			loginForm.code = "123456";
-			// timestamp.value = res?.data?.timestamp;
-			// else ElNotification.success("发送验证码失败");
-		}
-	});
-}
+function sendCode() {}
+// function sendCode(formEl: InstanceType<typeof ElForm> | undefined) {
+// 	if (!formEl || codeDatas.num !== 60) return;
+// 	formEl.validateField("email", bool => {
+// 		if (bool) {
+// 			codeDatas.num--;
+// 			codeDatas.timer = setInterval(() => {
+// 				if (codeDatas.num < 1) {
+// 					if (codeDatas.timer != null) {
+// 						clearInterval(codeDatas.timer);
+// 						codeDatas.timer = null;
+// 					}
+// 					codeDatas.num = 60;
+// 				} else {
+// 					codeDatas.num--;
+// 				}
+// 			}, 1000);
+// 			ElNotification.success("发送验证码成功");
+// 			loginForm.code = "123456";
+// 			// timestamp.value = res?.data?.timestamp;
+// 			// else ElNotification.success("发送验证码失败");
+// 		}
+// 	});
+// }
 // * 以下数据都为自己测试使用，不参与功能开发
 // inject
 const isLogin = inject("isLogin") as InjectProps;

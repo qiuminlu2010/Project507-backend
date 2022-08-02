@@ -12,6 +12,7 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 	"gorm.io/gorm/schema"
+	"gorm.io/plugin/dbresolver"
 
 	"qiu/backend/pkg/setting"
 )
@@ -45,8 +46,8 @@ func (t *LocalTime) Scan(v interface{}) error {
 
 func Setup() {
 	var (
-		err                                       error
-		dbName, user, password, host, tablePrefix string
+		err         error
+		tablePrefix string
 	)
 
 	sec := setting.DatabaseSetting
@@ -54,30 +55,31 @@ func Setup() {
 		log.Fatal(2, "Fail to get section 'database': %v", err)
 	}
 
-	dbName = sec.Name
-	user = sec.User
-	password = sec.Password
-	host = sec.Host
 	tablePrefix = sec.TablePrefix
 	// log.Println("数据库初始化：", dbType, dbName, user, password, host, tablePrefix)
 	// dsn := "user:pass@tcp(127.0.0.1:3306)/dbname?charset=utf8mb4&parseTime=True&loc=Local"
-	dsn := fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=utf8mb4&parseTime=True&loc=Local", user, password, host, dbName)
-	db, err = gorm.Open(mysql.Open(dsn), &gorm.Config{
+
+	dsn1 := fmt.Sprintf("%s@tcp(%s)/%s?charset=utf8mb4&parseTime=True&loc=Local", sec.User, sec.HostMaster, sec.Name)
+	dsn2 := fmt.Sprintf("%s@tcp(%s)/%s?charset=utf8mb4&parseTime=True&loc=Local", sec.User, sec.HostSlave1, sec.Name)
+	dsn3 := fmt.Sprintf("%s@tcp(%s)/%s?charset=utf8mb4&parseTime=True&loc=Local", sec.User, sec.HostSlave2, sec.Name)
+	fmt.Println("master", sec.HostMaster, dsn1)
+	// dsn := fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=utf8mb4&parseTime=True&loc=Local", user, password, host, dbName)
+	db, err = gorm.Open(mysql.Open(dsn1), &gorm.Config{
 		Logger: logger.Default.LogMode(logger.Info),
 		NamingStrategy: schema.NamingStrategy{
 			SingularTable: true,
 			TablePrefix:   tablePrefix,
 		},
 	})
-	// db, err = gorm.Open(dbType, dsn)
 
 	if err != nil {
 		log.Println(err)
 	}
-
-	// gorm.DefaultTableNameHandler = func(db *gorm.DB, defaultTableName string) string {
-	// 	return tablePrefix + defaultTableName
-	// }
+	db.Use(
+		dbresolver.Register(dbresolver.Config{
+			Replicas: []gorm.Dialector{mysql.Open(dsn2), mysql.Open(dsn3)},
+			Policy:   dbresolver.RandomPolicy{},
+		}))
 	sqlDB, err := db.DB()
 	if err != nil {
 		log.Println(err)

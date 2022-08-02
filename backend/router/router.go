@@ -18,7 +18,7 @@ import (
 
 func InitRouter() *gin.Engine {
 	r := gin.New()
-
+	r.Use(middleware.CORS())
 	r.Use(gin.Logger())
 	r.Use(gin.Recovery())
 	gin.SetMode(setting.ServerSetting.RunMode)
@@ -108,6 +108,5 @@ func InitRouter() *gin.Engine {
 		//后台管理
 		r.GET("/admin/menu/list", v1.GetAdminMenu)
 	}
-	r.Use(middleware.CORS())
 	return r
 }

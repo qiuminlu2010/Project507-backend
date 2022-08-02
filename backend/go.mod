@@ -86,4 +86,5 @@ require (
 	golang.org/x/tools v0.1.10 // indirect
 	google.golang.org/protobuf v1.28.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
+	gorm.io/plugin/dbresolver v1.2.1
 )
