@@ -10,7 +10,11 @@ export interface ViewCard {
 	star?: boolean;
 	like: number;
 	image_url: string;
+	video_url: string;
+	preview_url: string;
+	tags: Array<any>;
 	backgroundColor?: string;
+	ctime: string;
 	[attr: string]: any;
 }
 
@@ -21,15 +25,17 @@ export interface UserInfo {
 	name: string;
 }
 export interface CommentCard {
-	ID: number;
-	created_on: any;
+	id: number;
+	createTime: string;
+	avatar: string;
+	username: string;
 	article_id: number;
-	reply_id?: null;
+	parentId?: number;
 	content: string;
 	like?: number;
 	is_like?: boolean;
-	user: UserInfo;
-	replies?: CommentCard[];
+	// user: UserInfo;
+	reply?: CommentCard[];
 }
 interface Point {
 	rowPerView: number;

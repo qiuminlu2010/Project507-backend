@@ -1,13 +1,7 @@
 <template>
 	<div class="session-header">
 		<div class="text-left pl-20px border-box flex h-full w-full items-center">
-			<el-avatar
-				shape="circle"
-				class="!block header-avatar"
-				:size="42"
-				fit="cover"
-				src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png"
-			/>
+			<el-avatar shape="circle" class="!block header-avatar" :size="42" fit="cover" :src="'/minio' + store.sessionAvatar" />
 			<span class="fw-600">{{ store.sessionName }}</span>
 		</div>
 	</div>

@@ -75,7 +75,7 @@ onUnmounted(() => {
 		.expand-btn {
 			display: inline-block;
 			line-height: 22px;
-			color: #1171ee;
+			color: #409eff;
 			cursor: pointer;
 		}
 	}

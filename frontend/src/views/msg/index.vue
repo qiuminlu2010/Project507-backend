@@ -41,7 +41,7 @@ onBeforeRouteLeave(() => {
 onUnmounted(() => {});
 function initSocket() {
 	if (store.socket != null) return;
-	let wsUrl = "ws://172.31.225.62:8000/api/v1/msg/" + globalStore.uid + "/chat/" + globalStore.token;
+	let wsUrl = "ws://192.168.198.132:8000/api/v1/msg/" + globalStore.uid + "/chat/" + globalStore.token;
 	console.log("初始化ws", wsUrl);
 	store.socket = new WebSocket(wsUrl);
 
@@ -54,7 +54,7 @@ function initSocket() {
 	store.socket.onmessage = function (evt: any) {
 		let msg: Message.MessageInfo = JSON.parse(evt.data);
 		console.log("Received Message: ", msg, msg.from_uid);
-		if (msg.from_uid !== 0) {
+		if (msg.from_uid && msg.from_uid !== 0) {
 			let item: Message.SessionInfo = store.sessionList.filter((x: Message.SessionInfo) => x.id == msg.from_uid)[0];
 			item.messages.unshift(msg);
 			if (store.sessionSelectId != msg.from_uid) {
@@ -83,7 +83,7 @@ function initSocket() {
 async function init() {
 	if (globalStore.token) {
 		// initSocket();
-		if (!store.sessionList.length) {
+		if (!store.sessionList || !store.sessionList.length) {
 			console.log("获取会话列表");
 			getSessionList(store.sessionListOffset);
 		}

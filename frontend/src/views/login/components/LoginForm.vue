@@ -72,7 +72,7 @@ const login = (formEl: FormInstance | undefined) => {
 				globalStore.setUID(res.data!.uid);
 				globalStore.setName(res.data?.name);
 				globalStore.setUsername(res.data!.username);
-				globalStore.setAvatar(res.data?.avator);
+				globalStore.setAvatar(res.data?.avatar);
 				console.log("login res:", res);
 				console.log(globalStore.token);
 				ElMessage.success("登录成功！");

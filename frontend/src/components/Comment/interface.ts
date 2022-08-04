@@ -7,16 +7,21 @@ export interface CommentSubmitParam {
 }
 
 export interface CommentApi {
-	id: number;
-	parentId: number | null;
+	ID: number;
+	article_id?: number;
+	reply_id: number | null;
 	avatar: string;
 	username: string;
-	level: number;
-	address: string;
+	name?: string;
+	user_id?: number;
+	// level: number;
+	// address: string;
 	content: string;
-	like: number;
-	createTime: string;
-	reply?: ReplyApi | null;
+	like_count: number;
+	created_on: number;
+	is_like?: boolean;
+	replies?: CommentApi[] | null;
+	// reply?: ReplyApi | null;
 }
 
 export interface UserApi {

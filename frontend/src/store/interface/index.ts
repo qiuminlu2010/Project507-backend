@@ -1,3 +1,5 @@
+// import { CommentApi } from "@/components/Comment/interface";
+
 /* themeConfigProp */
 export interface ThemeConfigProp {
 	primary: string;
@@ -25,7 +27,7 @@ export interface GlobalState {
 }
 
 export interface CommentState {
-	currentCommentList: Array<any>;
+	currentCommentList: any[];
 	editor: any;
 	scrollBar: any;
 	emojiList: Array<any>;
@@ -34,6 +36,11 @@ export interface CommentState {
 	gallery: any;
 	selectImageUrls: Array<any>;
 	clickComment: boolean;
+	selectVideoUrl: string;
+	selectPreviewUrl: string;
+	selectArticleId: number;
+	selectItem: any;
+	limit: number;
 }
 /* MenuState */
 export interface MenuState {

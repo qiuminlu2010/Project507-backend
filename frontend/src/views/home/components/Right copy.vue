@@ -3,7 +3,7 @@
 		<div class="article-box" id="article-box">
 			<div class="user">
 				<div class="user-avatar">
-					<avatar :size="50" :src="'/base' + item.owner_avatar"></avatar>
+					<avatar :size="50" :src="'/minio' + item.owner_avatar"></avatar>
 					<!-- <el-avatar :size="50" :src="'/base' + item.owner_avatar" /> -->
 				</div>
 				<div class="userinfo">

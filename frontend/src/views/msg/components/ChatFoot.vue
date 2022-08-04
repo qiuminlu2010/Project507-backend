@@ -1,5 +1,5 @@
 <template>
-	<div class="session-footer border-box">
+	<div class="session-footer border-box bg-white">
 		<div class="pl-10px mt-20px">
 			<!--工具栏-->
 			<el-row type="flex" class="mb-10px pl-10px">
