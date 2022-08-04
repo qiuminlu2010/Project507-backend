@@ -30,7 +30,10 @@
 						</div>
 					</div>
 					<el-row type="flex" class="mb-20px" :class="item.from_uid == globalStore.uid && 'flex-row-reverse'">
-						<el-avatar :size="42" :src="item.from_uid == globalStore.uid ? globalStore.avatar : store.sessionAvatar" />
+						<el-avatar
+							:size="42"
+							:src="item.from_uid == globalStore.uid ? '/minio' + globalStore.avatar : '/minio' + store.sessionAvatar"
+						/>
 						<div
 							v-if="item.image_url.length == 0"
 							:class="item.from_uid == globalStore.uid ? 'mr-10px bg-green-100' : 'ml-10px bg-white'"
@@ -41,8 +44,8 @@
 							<el-image
 								v-if="item.image_url.length != 0"
 								class="w-200px ha max-h-200px"
-								:src="item.image_url.indexOf('blob') == 0 ? item.image_url : '/base' + item.image_url"
-								:preview-src-list="[item.image_url.indexOf('blob') == 0 ? item.image_url : '/base' + item.image_url]"
+								:src="item.image_url.indexOf('blob') == 0 ? item.image_url : '/minio' + item.image_url"
+								:preview-src-list="[item.image_url.indexOf('blob') == 0 ? item.image_url : '/minio' + item.image_url]"
 								:initial-index="4"
 								fit="cover"
 							/>

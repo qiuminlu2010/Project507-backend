@@ -24,7 +24,7 @@
 				>
 					<div class="session-container">
 						<el-badge class="mr-15px" :value="item.unread" :max="99" :hidden="item.unread == 0">
-							<el-avatar shape="square" class="!block" :size="42" fit="cover" :src="item.avatar" />
+							<el-avatar shape="square" class="!block" :size="42" fit="cover" :src="'/minio' + item.avatar" />
 						</el-badge>
 						<div class="w-100% text-left text-container text-ellipsis">
 							<div class="truncate h-25px text-title">
@@ -135,6 +135,7 @@ async function selectSession(item: Message.SessionInfo) {
 // 返回对应选择列表
 const handleSessionList = computed(() => {
 	console.log("返回会话列表", store.sessionList);
+	if (!store.sessionList) return [];
 	return store.sessionList;
 });
 // 获取未读数量

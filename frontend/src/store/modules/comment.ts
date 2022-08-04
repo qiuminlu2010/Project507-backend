@@ -1,6 +1,10 @@
+import { getArticleCommentApi } from "@/api/modules/comment";
+import { ElMessage } from "element-plus";
 import { defineStore } from "pinia";
+import { GlobalStore } from "..";
 import { CommentState } from "../interface";
-
+import { Comment } from "@/api/interface/comment";
+const globalStore = GlobalStore();
 export const CommentStore = defineStore({
 	id: "CommentState",
 	state: (): CommentState => ({
@@ -12,7 +16,12 @@ export const CommentStore = defineStore({
 		noMoreComments: false,
 		selectImageUrls: [],
 		gallery: null,
-		clickComment: false
+		clickComment: false,
+		selectVideoUrl: "",
+		selectPreviewUrl: "",
+		selectArticleId: 0,
+		selectItem: null,
+		limit: 5
 	}),
 	getters: {},
 	actions: {
@@ -28,13 +37,30 @@ export const CommentStore = defineStore({
 		},
 		handLoadMoreComment() {
 			console.log("加载更多评论");
-			if (this.currentCommentList.length > 10) {
-				this.noMoreComments = true;
+			if (!this.selectItem) return;
+			if (this.noMoreComments) {
+				// this.noMoreComments = true;
 				return;
 			}
 			this.loadingComments = true;
-			setTimeout(() => {
-				this.currentCommentList.push(this.currentCommentList[0]);
+			setTimeout(async () => {
+				let params: Comment.ReqGetParams = {
+					article_id: this.selectItem.id,
+					user_id: globalStore.uid,
+					offset: 0,
+					limit: this.limit
+				};
+				const res = await getArticleCommentApi(params);
+				if (res.code == 200) {
+					let newList = res.data!.datalist;
+					this.currentCommentList = this.currentCommentList.concat(newList);
+					console.log("获取评论列表", this.currentCommentList);
+					if (newList.length < this.limit) this.noMoreComments = true;
+				} else {
+					ElMessage.error("获取评论列表失败！");
+					this.noMoreComments = true;
+				}
+				// this.currentCommentList.push(this.currentCommentList[0]);
 				this.loadingComments = false;
 			}, 1000);
 		}

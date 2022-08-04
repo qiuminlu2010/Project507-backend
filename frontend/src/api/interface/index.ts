@@ -44,7 +44,7 @@ export namespace Login {
 		uid: number;
 		username: string;
 		name: string;
-		avator: string;
+		avatar: string;
 		fan_num: string;
 		follow_num: string;
 		uuid: string;
@@ -145,6 +145,8 @@ export namespace Article {
 		images: Image[];
 		tags: Tag[];
 		state: number;
+		video_url: string;
+		preview_url: string;
 		// modified_on: string;
 	}
 	export interface ResArticleComment {

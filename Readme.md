@@ -86,3 +86,7 @@ s3fs data /data -o passwd_file=/etc/passwd-s3fs -o url=$MINIO_ENDPOINT -o use_pa
 ## ***Redis*** 
 [点击查看](docs/redis.md)
 
+## 部分截图
+![主页](docs/src/%E4%B8%BB%E9%A1%B5.PNG)
+![消息](docs/src/%E8%81%8A%E5%A4%A92.PNG)
+![播放](docs/src/%E6%92%AD%E6%94%BE.PNG)
