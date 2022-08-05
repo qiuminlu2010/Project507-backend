@@ -4,6 +4,7 @@
 | Kubernetes         | 分布式集群架构           | [https://kubernetes.io/](https://kubernetes.io/)                                             |
 | Mysql              | 数据库管理系统  | [https://www.mysql.com/](https://www.mysql.com/)                                                 |
 | Redis              | 缓存中间件     | [https://redis.io/](https://redis.io/)                                                 |
+| Nsq              | 缓存中间件     | [https://redis.io/](https://redis.io/)                                                 |
 | Minio + Longhorn   | 分布式对象存储             | [https://min.io/](https://min.io/)                     |
 | Backend            | 后端服务：基于Golang    | [https://go.dev/](https://go.dev/)                                             |
 | Frontend           | 前端服务：基于Vue3+TypeScript      | [https://vuejs.org/](https://vuejs.org/)                                     |

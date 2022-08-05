@@ -1,7 +1,7 @@
 <template>
 	<div class="comment" :class="{ small: small }">
 		<div style="cursor: pointer" @click="link">
-			<avatar :size="40" style="margin-top: 5px" :src="data.avatar"></avatar>
+			<avatar :size="40" style="margin-top: 5px" :src="`/minio` + data.avatar"></avatar>
 		</div>
 		<div class="comment-content-box">
 			<div class="user-box pr-10px">
