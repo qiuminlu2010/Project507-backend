@@ -1,21 +1,24 @@
 package v1
 
 import (
+	"fmt"
 	"net/http"
 	"os"
 	"strconv"
 	"sync"
-	"fmt"
+
 	"github.com/gin-gonic/gin"
 
 	"qiu/backend/pkg/e"
 	gin_http "qiu/backend/pkg/http"
 	log "qiu/backend/pkg/logging"
+
 	// "qiu/backend/pkg/minio"
 	"qiu/backend/pkg/setting"
 	"qiu/backend/pkg/upload"
 	service "qiu/backend/service/article"
 	param "qiu/backend/service/param"
+
 	ffmpeg "github.com/u2takey/ffmpeg-go"
 )
 
@@ -98,8 +101,8 @@ func AddArticle(c *gin.Context) {
 			return
 		}
 		fileName := upload.GetFileName(video.Filename)
-		videoSrc := "/" + setting.MinioSetting.VideoBucketName + "/" + fileName + ".ts"
-		preiviewSrc := "/" + setting.MinioSetting.PreviewBucketName + "/" + fileName + ".jpg"
+		videoSrc := "/data/video/" + fileName + ".m3u8"
+		preiviewSrc := "/data/preview/" + fileName + ".jpg"
 
 		if !upload.CheckVideoSize(video) {
 			gin_http.Response(c, http.StatusBadRequest, e.ERROR_UPLOAD_CHECK_IMAGE_FORMAT, nil)
@@ -118,14 +121,14 @@ func AddArticle(c *gin.Context) {
 			defer os.Remove(tempSavePath)
 			defer wg.Done()
 			s1 := ffmpeg.Input(tempSavePath, nil)
-			err := s1.Output("/data/video/"+fileName+".m3u8", ffmpeg.KwArgs{"c": "copy", "f": "hls", "hls_list_size": "0", "hls_time": "10"}).Run()
+			err := s1.Output(videoSrc, ffmpeg.KwArgs{"c": "copy", "f": "hls", "hls_list_size": "0", "hls_time": "10"}).Run()
 			if err != nil {
 				log.Logger.Error("保存视频失败", err)
 				gin_http.Response(c, http.StatusInternalServerError, e.ERROR_UPLOAD_SAVE_IMAGE_FAIL, nil)
 				return
 			}
 			err = s1.Filter("select", ffmpeg.Args{fmt.Sprintf("gte(n,%d)", 5)}).
-				Output("/data/preview/"+fileName+".jpg", ffmpeg.KwArgs{"vframes": 1, "format": "image2", "vcodec": "mjpeg"}).
+				Output(preiviewSrc, ffmpeg.KwArgs{"vframes": 1, "format": "image2", "vcodec": "mjpeg"}).
 				Run()
 			if err != nil {
 				log.Logger.Error("保存视频失败", err)
@@ -174,13 +177,14 @@ func AddArticle(c *gin.Context) {
 			// }
 
 			//Minio挂载本地
-			if err = c.SaveUploadedFile(file, "/data/img/"+imageName); err != nil {
+			src := "/data/img/" + imageName
+			if err = c.SaveUploadedFile(file, src); err != nil {
 				log.Logger.Error("保存文件失败", err)
 				gin_http.Response(c, http.StatusInternalServerError, e.ERROR_UPLOAD_SAVE_IMAGE_FAIL, nil)
 				return
 			}
 
-			params.ImgUrl = append(params.ImgUrl, imageName)
+			params.ImgUrl = append(params.ImgUrl, src)
 		}
 	}
 

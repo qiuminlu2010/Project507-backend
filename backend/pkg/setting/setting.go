@@ -62,9 +62,9 @@ type Server struct {
 var ServerSetting = &Server{}
 
 type Database struct {
-	Type string
-	User string
-	// Password   string
+	Type       string
+	User       string
+	Password   string
 	HostMaster string
 	HostSlave1 string
 	HostSlave2 string
@@ -84,6 +84,13 @@ type Redis struct {
 }
 
 var RedisSetting = &Redis{}
+
+type Nsq struct {
+	NsqLookup string
+	Nsqd      string
+}
+
+var NsqSetting = &Nsq{}
 
 func Setup() {
 	Cfg, err := ini.Load("conf/app.ini")
@@ -120,5 +127,10 @@ func Setup() {
 	err = Cfg.Section("redis").MapTo(RedisSetting)
 	if err != nil {
 		log.Fatalf("Cfg.MapTo RedisSetting err: %v", err)
+	}
+
+	err = Cfg.Section("nsq").MapTo(NsqSetting)
+	if err != nil {
+		log.Fatalf("Cfg.MapTo NsqSetting err: %v", err)
 	}
 }

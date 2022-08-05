@@ -1,15 +1,18 @@
 package v1
 
 import (
+	"encoding/json"
+	"fmt"
 	"net/http"
 	"os"
-	"sync"
-	"fmt"
-	"github.com/gin-gonic/gin"
 	"qiu/backend/pkg/e"
 	gin_http "qiu/backend/pkg/http"
 	log "qiu/backend/pkg/logging"
+	"qiu/backend/pkg/nsq"
 	"qiu/backend/pkg/upload"
+	"sync"
+
+	"github.com/gin-gonic/gin"
 	ffmpeg "github.com/u2takey/ffmpeg-go"
 )
 
@@ -60,6 +63,24 @@ func UploadImage(c *gin.Context) {
 	data["image_url"] = src
 
 	gin_http.Response(c, http.StatusOK, e.SUCCESS, data)
+	go publishUploadImageMessage(src)
+}
+
+func publishUploadImageMessage(src string) {
+	msg := &nsq.UploadImageMessage{
+		ImageUrl: src,
+	}
+	msgByte, err := json.Marshal(&msg)
+	if err != nil {
+		log.Logger.Panic(err)
+		return
+	}
+	err = nsq.Producer.Publish(e.TOPIC_UPLOAD_IMAGE, msgByte)
+	if err != nil {
+		log.Logger.Panic(err)
+		return
+	}
+	log.Logger.Info("[Nsq] Pub:", msg)
 }
 
 // @Summary 上传视频
@@ -97,8 +118,8 @@ func UploadVideo(c *gin.Context) {
 		return
 	}
 
-	videoSrc := "/data/video/"+fileName+".m3u8"
-	preiviewSrc := "/data/preview/"+fileName+".jpg"
+	videoSrc := "/data/video/" + fileName + ".m3u8"
+	preiviewSrc := "/data/preview/" + fileName + ".jpg"
 	var wg sync.WaitGroup
 	wg.Add(1)
 	go func() {

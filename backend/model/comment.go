@@ -29,8 +29,8 @@ func AddReply(reply *Comment, replyId int) error {
 func GetComments(articleId int, userId int, pageNum int, pageSize int) ([]*Comment, error) {
 	var comments []*Comment
 	likeCountSql := ",(select count(*) from `blog_user_like_comments` where `blog_comment`.`id` = comment_id) as like_count"
-	selectSql := "`id`,`user_id`,`article_id`,`created_on`,`username`,`avatar`,`content`" + likeCountSql
-	selectReplySql := "`id`,`user_id`,`article_id`,`reply_id`,`created_on`,`username`,`avatar`,`content`" + likeCountSql
+	selectSql := "`id`,`user_id`,`article_id`,`created_on`,`username`,`name`, `avatar`,`content`" + likeCountSql
+	selectReplySql := "`id`,`user_id`,`article_id`,`reply_id`,`created_on`,`username`,`name`, `avatar`,`content`" + likeCountSql
 	isLikeSql := ""
 	if userId > 0 {
 		isLikeSql = fmt.Sprintf(",(select count(*) from `blog_user_like_comments` where `blog_comment`.`id` = comment_id and user_id = %d) as is_like", userId)
