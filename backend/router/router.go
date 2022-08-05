@@ -85,7 +85,7 @@ func InitRouter() *gin.Engine {
 		apiv1.GET("/user/:id/follows", v1.GetFollows)
 		apiv1.GET("/user/:id/fans", v1.GetFans)
 		apiv1.GET("/user/:id/likeArticles", v1.GetUserLikeArticles)
-		apiv1.PUT("/user/:id/avatar", v1.UpdateAvatar)
+		apiv1.POST("/user/:id/avatar", v1.UpdateAvatar)
 
 		//消息类
 		apiv1.GET("/msg/history", v1.GetMessage)

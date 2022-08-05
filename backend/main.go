@@ -9,6 +9,7 @@ import (
 	"qiu/backend/model"
 	log "qiu/backend/pkg/logging"
 	"qiu/backend/pkg/minio"
+	"qiu/backend/pkg/nsq"
 	"qiu/backend/pkg/redis"
 	"qiu/backend/pkg/setting"
 	"qiu/backend/router"
@@ -37,6 +38,7 @@ func main() {
 	minio.Setup()
 	cron.Setup()
 	msg.Setup()
+	nsq.Setup()
 	// service.FlushArticleLikeUsers()
 	/*
 		router := gin.Default()

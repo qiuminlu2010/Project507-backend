@@ -10,7 +10,6 @@ import (
 	base "qiu/backend/service/base"
 	cache "qiu/backend/service/cache"
 
-	"qiu/backend/pkg/setting"
 	msg "qiu/backend/service/msg"
 	param "qiu/backend/service/param"
 	user "qiu/backend/service/user"
@@ -58,8 +57,8 @@ func (s *ArticleService) Add(params *param.ArticleAddParams) error {
 	} else {
 		for _, img_url := range params.ImgUrl {
 			imgs = append(imgs, &model.Image{
-				Url:      "/" + setting.MinioSetting.ImageBucketName + "/" + img_url,
-				ThumbUrl: "/" + setting.MinioSetting.PreviewBucketName + "/" + img_url})
+				Url:      img_url,
+				ThumbUrl: img_url})
 		}
 	}
 	articleId, err = model.AddArticleWithImg(article, tags, imgs)
