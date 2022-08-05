@@ -36,26 +36,29 @@ export async function getArtileList(offset: number, limit = 1) {
 	const res = await getArticleListApi(params);
 	if (res.code !== 200 || !res.data?.datalist || res.data?.datalist.length == 0) return [];
 	res.data?.datalist.forEach(item => {
-		if (item.images && item.images.length !== 0) {
-			list.push({
-				id: item.id,
-				star: item.is_like,
-				like: item.like_count,
-				image_url: `/base` + item.images[0].url,
-				src: {
-					// original: Math.random() < 0.95 ? successURL : errorURL
-					original: `/base` + item.images[0].url
-				},
-				backgroundColor: randomColor(),
-				title: item.title,
-				content: item.content,
-				data: formatTime(item.created_on * 1000),
-				owner_id: item.owner_id,
-				owner_name: item.owner_name,
-				owner_username: item.owner_username,
-				owner_avatar: item.owner_avatar
-			});
-		}
+		// if (item.images && item.images.length !== 0) {
+		list.push({
+			id: item.id,
+			star: item.is_like,
+			like: item.like_count,
+			image_url: item.images.length == 0 ? `` : `/minio` + item.images[0].url,
+			src: {
+				// original: Math.random() < 0.95 ? successURL : errorURL
+				original: item.images.length == 0 ? `` : `/minio` + item.images[0].url
+			},
+			backgroundColor: randomColor(),
+			title: item.title,
+			content: item.content,
+			ctime: formatTime(item.created_on),
+			owner_id: item.owner_id,
+			owner_name: item.owner_name,
+			owner_username: item.owner_username,
+			owner_avatar: item.owner_avatar,
+			video_url: item.video_url,
+			preview_url: item.images.length == 0 ? `/minio` + item.preview_url : `/minio` + item.images[0].url,
+			tags: item.tags
+		});
+		// }
 	});
 	return list;
 }
@@ -110,6 +113,6 @@ export function handleCommentLike(item: CommentCard) {
 		item.like! += 1;
 	}
 	item.is_like = !item.is_like;
-	let params = { id: item.ID, user_id: globalStore.uid, type: item.is_like ? 1 : 0, token: globalStore.token };
+	let params = { id: item.id, user_id: globalStore.uid, type: item.is_like ? 1 : 0, token: globalStore.token };
 	getCommentLike(params);
 }

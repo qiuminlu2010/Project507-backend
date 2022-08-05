@@ -46,7 +46,7 @@ export default defineConfig((mode: ConfigEnv): UserConfig => {
 			// 代理跨域（mock 不需要配置，这里只是个事列）
 			proxy: {
 				"/base": {
-					target: "http://172.31.225.62:8000",
+					target: "http://192.168.198.132:8000",
 					changeOrigin: true,
 					rewrite: path => path.replace(/^\/base/, "")
 				},
@@ -55,10 +55,10 @@ export default defineConfig((mode: ConfigEnv): UserConfig => {
 					changeOrigin: true,
 					rewrite: path => path.replace(/^\/base_ws/, "")
 				},
-				"/pic": {
-					target: "https://gitcode.net/qq_44112897/imgbed/-/raw/master/comic",
+				"/minio": {
+					target: "http://192.168.198.132:32000",
 					changeOrigin: true,
-					rewrite: path => path.replace(/^\/pic/, "")
+					rewrite: path => path.replace(/^\/minio/, "")
 				},
 				"/flare": {
 					target: "http://172.31.224.2:8155",

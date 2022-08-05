@@ -2,7 +2,12 @@
 	<el-dropdown trigger="click">
 		<div class="avatar">
 			<!-- <img :src="'/base' + globalStore.avatar" alt="avatar" /> -->
-			<avatar :username="globalStore.username" :size="50" :src="'/base' + globalStore.avatar"></avatar>
+			<el-avatar :size="50" :src="'/minio' + globalStore.avatar" />
+			<!-- <avatar
+				:username="globalStore.username"
+				:size="50"
+				:src="'http://192.168.198.132:32000' + '/data/avatar/4dca09d511e037c587bc0fab51d3d890.png'"
+			></avatar> -->
 		</div>
 		<template #dropdown>
 			<el-dropdown-menu>
@@ -21,6 +26,7 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import InfoDialog from "./InfoDialog.vue";
+// import avatar from "vue-avatar/src/avatar.vue";
 // import PasswordDialog from "./PasswordDialog.vue";
 import { ElMessageBox, ElMessage } from "element-plus";
 import { useRouter } from "vue-router";

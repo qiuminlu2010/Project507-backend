@@ -10,7 +10,7 @@ const options = reactive({
 	height: "450px", //播放器高度
 	color: "#409eff", //主题色
 	title: "", //视频名称
-	src: "http://192.168.198.132:32000/video/1c938d0a937d590863d5fe453ae7db91.m3u8", //视频源
+	src: "/minio/video/1c938d0a937d590863d5fe453ae7db91.m3u8", //视频源
 	type: "m3u8",
 	muted: false, //静音
 	webFullScreen: false,

@@ -4,23 +4,25 @@
 			<avatar :size="40" style="margin-top: 5px" :src="data.avatar"></avatar>
 		</div>
 		<div class="comment-content-box">
-			<div class="user-box">
+			<div class="user-box pr-10px">
 				<div class="username" style="cursor: pointer" @click="link">
-					<span class="name" style="max-width: 10em">{{ data.username }}</span>
+					<span class="name" style="max-width: 10em">
+						{{ data.username }}
+					</span>
 					<!-- <span blank="true" class="rank">
 						<u-icon size="24" v-html="level(data.level)"></u-icon>
 					</span> -->
 				</div>
 				<!-- <span class="author-badge-text">（作者）</span> -->
 				<!-- <span class="address" style="font-size: 12px; color: #939393">&nbsp;&nbsp;{{ data.address }}</span> -->
-				<time class="time">{{ data.createTime }}</time>
+				<time class="time">{{ formatTime(data.created_on) }}</time>
 			</div>
 			<Fold :unfold="true" line="3">
 				<div v-html="data.content"></div>
 			</Fold>
 			<div class="action-box select-none">
-				<div class="item flex" @click="like">
-					<i class="u-icon w-24px h-24px" v-if="true">
+				<div class="item flex" @click="like(data)">
+					<i class="u-icon w-24px h-24px" v-if="!data.is_like">
 						<svg
 							t="1650360973068"
 							viewBox="0 0 1024 1024"
@@ -44,7 +46,7 @@
 							></path>
 						</svg>
 					</div>
-					<div class="mt-2px" v-if="data.like != 0">{{ data.like }}</div>
+					<div class="mt-2px">{{ data.like_count }}</div>
 				</div>
 				<div ref="btnRef" class="item" :class="{ active: active }" @click="reply">
 					<i class="u-icon w-24px h-24px">
@@ -63,7 +65,7 @@
 					ref="commentRef"
 					:parent-id="parentId"
 					:placeholder="`回复 @${data.username}...`"
-					:replay="data.parentId ? data.username : undefined"
+					:replay="data.reply_id ? data.username : undefined"
 					content-btn="发布"
 					style="margin-top: 12px"
 					@hide="hide"
@@ -79,6 +81,7 @@ import { nextTick, ref } from "vue";
 import CommentBox from "./CommentBox.vue";
 import avatar from "vue-avatar/src/avatar.vue";
 import Fold from "@/components/Fold";
+import { formatTime } from "@/utils/time";
 // import {
 // EmojiApi,
 // InjectionEmojiApi,
@@ -91,6 +94,9 @@ import Fold from "@/components/Fold";
 // } from "~/components";
 import type { CommentBoxApi } from "./CommentBox.vue";
 import { CommentApi } from "./interface";
+import { addCommentLike } from "@/api/modules/comment";
+import { GlobalStore } from "@/store";
+import { ElMessage } from "element-plus";
 // import { ElAvatar } from "~/element";
 // import { useEmojiParse } from "~/hooks";
 
@@ -101,14 +107,26 @@ interface Props {
 }
 
 defineProps<Props>();
-
+const globalStore = GlobalStore();
 const active = ref(false);
 const commentRef = ref<CommentBoxApi>();
 const btnRef = ref<HTMLDivElement>();
 
 // const { allEmojiList } = inject(InjectionEmojiApi) as EmojiApi;
 // const user = () => {};
-const like = () => {};
+const like = async (item: CommentApi) => {
+	const res = await addCommentLike({ id: item.ID, user_id: globalStore.uid, type: item.is_like ? 0 : 1 });
+	if (res.code == 200) {
+		if (item.is_like) {
+			item.like_count -= 1;
+		} else {
+			item.like_count += 1;
+		}
+		item.is_like = !item.is_like;
+	} else {
+		ElMessage.error("点赞评论操作失败！");
+	}
+};
 const link = () => {};
 
 // const level = (v: number) => {
