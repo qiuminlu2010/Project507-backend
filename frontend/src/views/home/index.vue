@@ -132,7 +132,7 @@ const handlePreview = async (item: ViewCard) => {
 
 	previewVisible.value = true;
 	articleItem.value = item;
-	// store.currentCommentList = [];
+	store.currentCommentList = [];
 	store.handLoadMoreComment();
 	// store.noMoreComments = false;
 	// store.currentCommentList = [];

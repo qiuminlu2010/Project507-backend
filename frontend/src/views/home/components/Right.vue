@@ -73,119 +73,119 @@ const commentStore = CommentStore();
 // const commentList = computed(() => {
 // 	return commentStore.currentCommentList;
 // });
-commentStore.currentCommentList = [
-	{
-		ID: 1,
-		reply_id: null,
-		avatar: "https://static.juzicon.com/avatars/avatar-200602130320-HMR2.jpeg?x-oss-process=image/resize,w_100",
-		username: "落🤍尘",
-		// // level: 6,
-		// // address: "来自上海",
-		content:
-			"从正月初一开始就每天坚持在写作文，都说二十一天可以养成一个习惯，今天已经是二十四了。真的是习惯了每天打开写作这件事了。今天，想着不在状态就不要写了吧，",
-		like_count: 2,
-		is_like: false,
-		created_on: 1659550495,
-		replies: []
-	},
-	{
-		ID: 2,
-		reply_id: null,
-		avatar: "https://static.juzicon.com/avatars/avatar-20210310192149-vkuj.jpeg?x-oss-process=image/resize,w_100",
-		username: "碎梦遗忘录",
-		// level: 5,
-		// address: "来自北京",
-		content: "说谎和沉默可以说是现在人类社会里日渐蔓延的两大罪恶。事实上，我们经常说谎，动不动就沉默不语",
-		like_count: 4,
-		created_on: 1659550495,
-		replies: [
-			{
-				ID: 11,
-				reply_id: 2,
-				avatar:
-					"https://static.juzicon.com/avatars/avatar-20220310090547-fxvx.jpeg?x-oss-process=image/resize,m_fill,w_100,h_100",
-				username: "欲知欲忘",
-				// level: 4,
-				// address: "来自成都",
-				content: "沉默，是保护自己。说谎是让自己不被注意，且不被攻击[狗头]",
-				like_count: 7,
-				created_on: 1659550495
-			},
-			{
-				ID: 12,
-				reply_id: 2,
-				avatar:
-					"https://static.juzicon.com/avatars/avatar-20220302110828-1hm0.jpeg?x-oss-process=image/resize,m_fill,w_100,h_100",
-				username: "陵薮市朝",
-				// level: 3,
-				// address: "来自杭州",
-				content: '回复 <span style="color: blue;"">@欲知欲忘:</span> [吃瓜]果真是了',
-				like_count: 3,
-				created_on: 1659550495
-			},
-			{
-				ID: 13,
-				reply_id: 2,
-				username: "每天至少八杯水",
-				avatar:
-					"https://static.juzicon.com/avatars/avatar-20220308235453-v09s.jpeg?x-oss-process=image/resize,m_fill,w_100,h_100",
-				like_count: 3,
-				// level: 2,
-				// address: "来自深圳",
-				content: '回复 <span style="color: blue;"">@陵薮市朝:</span> 沉默是金[困狗]',
-				created_on: 1659550495
-			}
-		]
-	},
-	{
-		ID: 3,
-		reply_id: null,
-		username: "悟二空",
-		avatar: "https://static.juzicon.com/user/avatar-bf22291e-ea5c-4280-850d-88bc288fcf5d-220408002256-ZBQQ.jpeg",
-		// level: 1,
-		// address: "来自苏州",
-		content: "知道在学校为什么感觉这么困吗？因为学校，是梦开始的地方。[脱单doge]",
-		like_count: 11,
-		created_on: 1659550495,
-		replies: [
-			{
-				ID: 14,
-				reply_id: 3,
-				avatar:
-					"https://static.juzicon.com/user/avatar-8b6206c1-b28f-4636-8952-d8d9edec975d-191001105631-MDTM.jpg?x-oss-process=image/resize,m_fill,w_100,h_100",
-				username: "别扰我清梦*ぁ",
-				// level: 5,
-				// address: "来自重庆",
-				content: "说的对，所以，综上所述，上课睡觉不怪我呀💤",
-				like_count: 3,
-				created_on: 1659550495
-			},
-			{
-				ID: 15,
-				reply_id: 3,
-				avatar: "https://static.juzicon.com/avatars/avatar-191031205903-I6EP.jpeg?x-oss-process=image/resize,m_fill,w_100,h_100",
-				username: "三分打铁",
-				// level: 3,
-				// address: "来自武汉",
-				content: " 仔细一想还真有点感伤[大哭2]",
-				like_count: 3,
-				created_on: 1659550495
-			},
-			{
-				ID: 16,
-				avatar:
-					"https://static.juzicon.com/user/avatar-3cb86a0c-08e7-4305-9ac6-34e0cf4937cc-180320123405-BCV6.jpg?x-oss-process=image/resize,m_fill,w_100,h_100",
-				reply_id: 3,
-				username: "Blizzard",
-				// level: 4,
-				content: '回复 <span style="color: blue;"">@别扰我清梦*ぁ:</span> 看完打了一个哈切。。。会传染。。。[委屈]',
-				// // address: "来自广州",
-				like_count: 9,
-				created_on: 1659550495
-			}
-		]
-	}
-];
+// commentStore.currentCommentList = [
+// 	{
+// 		ID: 1,
+// 		reply_id: null,
+// 		avatar: "https://static.juzicon.com/avatars/avatar-200602130320-HMR2.jpeg?x-oss-process=image/resize,w_100",
+// 		username: "落🤍尘",
+// 		// // level: 6,
+// 		// // address: "来自上海",
+// 		content:
+// 			"从正月初一开始就每天坚持在写作文，都说二十一天可以养成一个习惯，今天已经是二十四了。真的是习惯了每天打开写作这件事了。今天，想着不在状态就不要写了吧，",
+// 		like_count: 2,
+// 		is_like: false,
+// 		created_on: 1659550495,
+// 		replies: []
+// 	},
+// 	{
+// 		ID: 2,
+// 		reply_id: null,
+// 		avatar: "https://static.juzicon.com/avatars/avatar-20210310192149-vkuj.jpeg?x-oss-process=image/resize,w_100",
+// 		username: "碎梦遗忘录",
+// 		// level: 5,
+// 		// address: "来自北京",
+// 		content: "说谎和沉默可以说是现在人类社会里日渐蔓延的两大罪恶。事实上，我们经常说谎，动不动就沉默不语",
+// 		like_count: 4,
+// 		created_on: 1659550495,
+// 		replies: [
+// 			{
+// 				ID: 11,
+// 				reply_id: 2,
+// 				avatar:
+// 					"https://static.juzicon.com/avatars/avatar-20220310090547-fxvx.jpeg?x-oss-process=image/resize,m_fill,w_100,h_100",
+// 				username: "欲知欲忘",
+// 				// level: 4,
+// 				// address: "来自成都",
+// 				content: "沉默，是保护自己。说谎是让自己不被注意，且不被攻击[狗头]",
+// 				like_count: 7,
+// 				created_on: 1659550495
+// 			},
+// 			{
+// 				ID: 12,
+// 				reply_id: 2,
+// 				avatar:
+// 					"https://static.juzicon.com/avatars/avatar-20220302110828-1hm0.jpeg?x-oss-process=image/resize,m_fill,w_100,h_100",
+// 				username: "陵薮市朝",
+// 				// level: 3,
+// 				// address: "来自杭州",
+// 				content: '回复 <span style="color: blue;"">@欲知欲忘:</span> [吃瓜]果真是了',
+// 				like_count: 3,
+// 				created_on: 1659550495
+// 			},
+// 			{
+// 				ID: 13,
+// 				reply_id: 2,
+// 				username: "每天至少八杯水",
+// 				avatar:
+// 					"https://static.juzicon.com/avatars/avatar-20220308235453-v09s.jpeg?x-oss-process=image/resize,m_fill,w_100,h_100",
+// 				like_count: 3,
+// 				// level: 2,
+// 				// address: "来自深圳",
+// 				content: '回复 <span style="color: blue;"">@陵薮市朝:</span> 沉默是金[困狗]',
+// 				created_on: 1659550495
+// 			}
+// 		]
+// 	},
+// 	{
+// 		ID: 3,
+// 		reply_id: null,
+// 		username: "悟二空",
+// 		avatar: "https://static.juzicon.com/user/avatar-bf22291e-ea5c-4280-850d-88bc288fcf5d-220408002256-ZBQQ.jpeg",
+// 		// level: 1,
+// 		// address: "来自苏州",
+// 		content: "知道在学校为什么感觉这么困吗？因为学校，是梦开始的地方。[脱单doge]",
+// 		like_count: 11,
+// 		created_on: 1659550495,
+// 		replies: [
+// 			{
+// 				ID: 14,
+// 				reply_id: 3,
+// 				avatar:
+// 					"https://static.juzicon.com/user/avatar-8b6206c1-b28f-4636-8952-d8d9edec975d-191001105631-MDTM.jpg?x-oss-process=image/resize,m_fill,w_100,h_100",
+// 				username: "别扰我清梦*ぁ",
+// 				// level: 5,
+// 				// address: "来自重庆",
+// 				content: "说的对，所以，综上所述，上课睡觉不怪我呀💤",
+// 				like_count: 3,
+// 				created_on: 1659550495
+// 			},
+// 			{
+// 				ID: 15,
+// 				reply_id: 3,
+// 				avatar: "https://static.juzicon.com/avatars/avatar-191031205903-I6EP.jpeg?x-oss-process=image/resize,m_fill,w_100,h_100",
+// 				username: "三分打铁",
+// 				// level: 3,
+// 				// address: "来自武汉",
+// 				content: " 仔细一想还真有点感伤[大哭2]",
+// 				like_count: 3,
+// 				created_on: 1659550495
+// 			},
+// 			{
+// 				ID: 16,
+// 				avatar:
+// 					"https://static.juzicon.com/user/avatar-3cb86a0c-08e7-4305-9ac6-34e0cf4937cc-180320123405-BCV6.jpg?x-oss-process=image/resize,m_fill,w_100,h_100",
+// 				reply_id: 3,
+// 				username: "Blizzard",
+// 				// level: 4,
+// 				content: '回复 <span style="color: blue;"">@别扰我清梦*ぁ:</span> 看完打了一个哈切。。。会传染。。。[委屈]',
+// 				// // address: "来自广州",
+// 				like_count: 9,
+// 				created_on: 1659550495
+// 			}
+// 		]
+// 	}
+// ];
 onMounted(() => {
 	console.log("mounted");
 });

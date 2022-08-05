@@ -56,7 +56,7 @@ export default defineConfig((mode: ConfigEnv): UserConfig => {
 					rewrite: path => path.replace(/^\/base_ws/, "")
 				},
 				"/minio": {
-					target: "http://192.168.198.132:32000",
+					target: "http://192.168.198.136:9000",
 					changeOrigin: true,
 					rewrite: path => path.replace(/^\/minio/, "")
 				},
