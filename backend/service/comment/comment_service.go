@@ -32,6 +32,7 @@ func (s *CommentService) Add(params *param.CommentAddParams) error {
 	comment := &model.Comment{
 		UserID:    uint(params.UserId),
 		Username:  userInfo.Username,
+		Name:      userInfo.Name,
 		Avatar:    userInfo.Avatar,
 		ArticleID: uint(params.ArticleId),
 		Content:   params.Content,
