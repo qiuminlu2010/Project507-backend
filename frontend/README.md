@@ -80,7 +80,6 @@ Prepare
 | Element Plus       | UI 组件库              | [https://element-plus.gitee.io/zh-CN/](https://element-plus.gitee.io/zh-CN/)                     |
 | Pinia              | 新一代状态管理工具     | [https://pinia.vuejs.org/](https://pinia.vuejs.org/)                                             |
 | Vue Router         | Vue.js 的官方路由      | [https://router.vuejs.org/zh/](https://router.vuejs.org/zh/)                                     |
-| Uno css            | 原子 CSS 引擎          | [https://github.com/unocss/unocss](https://github.com/unocss/unocss)                             |
-| WangEditor5        | 富文本编辑器           | [https://github.com/unocss/unocss](https://github.com/unocss/unocss)                             |
+| Uno css            | 原子 CSS 引擎          | [https://github.com/unocss/unocss](https://github.com/unocss/unocss)                             |                         |
 | BetterScroll       | 滚动条                 | [https://better-scroll.github.io/](https://better-scroll.github.io/)                             |
 | Vue-dompurify-html | html 安全替换          | [https://github.com/LeSuisse/vue-dompurify-html](https://github.com/LeSuisse/vue-dompurify-html) |
