@@ -4,8 +4,8 @@
 | Kubernetes         | 分布式集群架构           | [https://kubernetes.io/](https://kubernetes.io/)                                             |
 | Mysql              | 数据库管理系统  | [https://www.mysql.com/](https://www.mysql.com/)                                                 |
 | Redis              | 缓存中间件     | [https://redis.io/](https://redis.io/)                                                 |
-| Nsq              | 缓存中间件     | [https://redis.io/](https://redis.io/)                                                 |
-| Minio + Longhorn   | 分布式对象存储             | [https://min.io/](https://min.io/)                     |
+| Nsq                | 分布式消息系统     | [https://nsq.io/](https://nsq.io/)                                                 |
+| Minio   | 分布式对象存储             | [https://min.io/](https://min.io/)                     |
 | Backend            | 后端服务：基于Golang    | [https://go.dev/](https://go.dev/)                                             |
 | Frontend           | 前端服务：基于Vue3+TypeScript      | [https://vuejs.org/](https://vuejs.org/)                                     |
 
@@ -34,17 +34,17 @@ kubectl -n mysql scale statefulset mysql -—replicas=3
 ```
 ## ***Backend***
 ### Dockerfile
-[点击查看](docs/backend.md)
+[点击查看](backend/README.md)
 ### 功能介绍
 1. 基础功能：用户注册/登录、关注/拉黑；发布动态、点赞、评论、回复点赞评论；热门搜索、关键词自动补全； 
 2. 消息功能；基于WebSocket协议，实现用户私信、系统消息推送；包括关注内容推送、点赞评论推送、@用户推送；未读消息计数；离线消息缓存；
 3. 数据缓存：基于Redis，缓存登录状态、用户基本信息、文章列表、搜索关键词、点赞评论数据；
-4. 音视频功能：基于HLS协议，实现视频点播
-5. 拓展功能：基于YOLOv7目标检测算法，自动生成图片标签；
+4. 音视频功能：基于HLS协议，实现视频点播; 
+5. 拓展功能：基于YOLOv5目标检测算法，自动生成图片标签；
 
 ## ***Frontend***
-### 部署
-[点击查看](docs/backend.md)
+### 安装步骤
+[点击查看](frontend/README.md)
 ### 技术依赖
 |                    |                        |                                                                                                  |
 | ------------------ | ---------------------- | ------------------------------------------------------------------------------------------------ |
