@@ -6,8 +6,9 @@
 | Redis              | 缓存中间件     | [https://redis.io/](https://redis.io/)                                                 |
 | Nsq                | 分布式消息系统     | [https://nsq.io/](https://nsq.io/)                                                 |
 | Minio   | 分布式对象存储             | [https://min.io/](https://min.io/)                     |
-| Backend            | 后端服务：基于Golang    | [https://go.dev/](https://go.dev/)                                             |
+| Backend            | 后端Http服务：基于Golang    | [https://go.dev/](https://go.dev/)                                             |
 | Frontend           | 前端服务：基于Vue3+TypeScript      | [https://vuejs.org/](https://vuejs.org/)                                     |
+| AutoTag            | 自动标签： 基于深度学习ASL模型   |                                          |
 
 ## ***Kubernetes***
 Kubernetes集群部署步骤
