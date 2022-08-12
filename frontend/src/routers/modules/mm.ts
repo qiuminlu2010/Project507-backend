@@ -1,9 +1,9 @@
 import { RouteRecordRaw } from "vue-router";
 const mmRouter: Array<RouteRecordRaw> = [
 	{
-		path: "/mm/pred",
+		path: "/autotag",
 		name: "mm",
-		component: () => import("@/views/mm/index.vue"),
+		component: () => import("@/views/mm/autotag.vue"),
 		meta: {
 			requiresAuth: false,
 			title: "多发性骨髓瘤细胞检测",
